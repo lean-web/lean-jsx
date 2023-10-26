@@ -27,7 +27,7 @@ export interface ILogger {
 
 export function getPinoTransports(config:LoggerConfiguration) {
     const pinoPretty = config.stdout ?? true ? [{
-        level: config.defaultLogLevel ?? 'info',
+        level: process.env.LOG_LEVEL ?? config.defaultLogLevel ?? 'info',
         target: 'pino-pretty',
         options: {
         }

@@ -7,7 +7,6 @@ import {
   isPromise,
   isStaticNode,
   unwrapFragments,
-  isAsyncGen,
 } from "../jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
 import { SXLGlobalContext } from "@/types/context";
@@ -20,6 +19,10 @@ import { ComponentHandlerMap } from "@/jsx/component-handlers/handler-map";
 import { ParsedComponent } from "@/jsx/component-handlers";
 import { TrackablePromise } from "./stream-utils/trackable-promise";
 
+/**
+ * A utility stack used to pre-process elements outside of the main JSXStack.
+ * This is used while processing asyncronous elements.
+ */
 class SubStack {
   doneList: string[] = [];
   inProgressStack: Array<SXL.StaticElement | string | number | boolean> = [];
@@ -52,14 +55,26 @@ function isEventKey(str: string): str is JSXStackEvents {
   return !!MARKERS[str];
 }
 
+/**
+ * A stack-like object which receives JSX elements or literals, process them, and outputs
+ * and HTML in string chunks:
+ *
+ * - "push" adds an element to process.
+ * - "pop" gets the next process chunk.
+ */
 export class JSXStack<G extends SXLGlobalContext> {
   options: JSXStackOptions;
+  // a list of processed HTML chunks.
   doneList: string[] = [];
+  // a stack where we add elements that are yet to be processed.
   inProgressStack: Array<SXL.StaticElement | string | number | boolean> = [];
+  // a map of listeners for specific events in the stack flow.
   eventListeners: JSXStackEventMap = {};
-  started: boolean = false;
-
+  // a list of asynchronous elements that need to be processed.
+  // We remove the resolved elements as we detect their promises are fulfilled.
   asyncInProgress: Promise<void>[] = [];
+  // a flag to indicate whether this stack has already started processing elements.
+  started: boolean = false;
   private contextManager: ContextManager<G>;
   private logger: ILogger;
 
@@ -73,16 +88,21 @@ export class JSXStack<G extends SXLGlobalContext> {
     this.logger = logger;
   }
 
+  /**
+   * Add event listeners for special events within the stack.
+   * @param ev - the event type
+   * @param callback - the function to execute on the event.
+   */
   on(ev: JSXStackEvents, callback: () => void) {
     this.eventListeners[ev] = this.eventListeners[ev] ?? [];
     this.eventListeners[ev]?.push(callback);
   }
 
-  fire(ev: JSXStackEvents) {
+  private fire(ev: JSXStackEvents) {
     this.eventListeners[ev]?.forEach((cb) => cb());
   }
 
-  processElementInSubqueue(element: SXL.StaticElement) {
+  private processElementInSubqueue(element: SXL.StaticElement) {
     const localStack = new SubStack();
     // TODO: Find a better place to clean fragments
     if (isStaticNode(element) && element.type === "fragment") {
@@ -112,7 +132,10 @@ export class JSXStack<G extends SXLGlobalContext> {
     this.mergeSubstack(localStack);
   }
 
-  async processElement(element: SXL.StaticElement, wrap: ParsedComponent) {
+  private async processElement(
+    element: SXL.StaticElement,
+    wrap: ParsedComponent
+  ) {
     // TODO: Find a better place to clean fragments
     if (isStaticNode(element) && element.type === "fragment") {
       element.children
@@ -123,7 +146,8 @@ export class JSXStack<G extends SXLGlobalContext> {
 
     if (isFunctionNode(element) || isClassNode(element)) {
       await this.push(element);
-      // this.doneList.push("REQUEUED");
+      // element to process is a constructor/function
+      // we put it in the queue and return
       return;
     }
 
@@ -139,9 +163,27 @@ export class JSXStack<G extends SXLGlobalContext> {
     });
   }
 
+  /**
+   * Pushes an element into the stack. JSXStack will process it and:
+   * - If the element is a function component, it will call the function and
+   *    put the result in the in-progress stack.
+   * - If the element is a class component, it will instantiate, call render
+   *    methods and put the results in the in-progress stack.
+   * - If the element is an instrisic/static element, it will put its children,
+   *    (if any) in the in-progress stack, and put the opening tag (or the whole tag,
+   *    if it's a self-closing element) in the done list.
+   * - If the element is a promise and the stack is runing in async-mode:
+   *    1. It will put a placeholder element in the in-progress stack
+   *    2. It will add a then clause to put the resolved element in the in-progress stack.
+   * - If the element is a promise and the stack is runing in sync-mode:
+   *    1. It will wait for the promise to be resolved and put it in the in-progress stack.
+   * - If the element is a literal, it will put it in the done list.
+   *
+   * @param element - the element to process.
+   */
   async push(
-    element: string | number | boolean | SXL.Element | SXL.AsyncElement
-  ) {
+    element: string | number | boolean | SXL.StaticElement | SXL.AsyncElement
+  ): Promise<void> {
     if (!this.started) {
       this.started = true;
       this.logger.debug(
@@ -171,18 +213,17 @@ export class JSXStack<G extends SXLGlobalContext> {
     } else if (isStaticNode(element) && element.type === "fragment") {
       const children = unwrapFragments(element);
       children.reverse().forEach((child) => this.inProgressStack.push(child));
-    } else if (isAsyncGen(element)) {
-      // TODO
-      throw new Error("Not implemented");
     } else {
-      // const wrapped = this.wrap(element);
       const wrapped = ComponentHandlerMap.map((handler) =>
         handler(element, this.contextManager)
       ).find((el) => el);
 
       if (!wrapped) {
-        // TODO:
-        throw new Error("Not implemented");
+        throw new Error(
+          `Unexpected component type: ${
+            typeof element.type === "string" ? element.type : element.type.name
+          }`
+        );
       }
 
       if (wrapped.loading && !this.options.sync) {
@@ -197,7 +238,7 @@ export class JSXStack<G extends SXLGlobalContext> {
     }
   }
 
-  mergeSubstack(subStack: SubStack) {
+  private mergeSubstack(subStack: SubStack) {
     this.doneList = [...this.doneList, ...subStack.doneList];
     this.inProgressStack = [
       ...subStack.inProgressStack,
@@ -205,12 +246,26 @@ export class JSXStack<G extends SXLGlobalContext> {
     ];
   }
 
+  /**
+   * Returns the next processed string available in the "done" list. It
+   * also processes the next element in the "in-progress" stack, pushing into
+   * the stack any resolved sub-elements.
+   *
+   * @returns the next available string, or undefined if all elements have been processed.
+   */
   async pop(): Promise<string | undefined> {
+    // if nothing is waiting to be processed, but
+    // we have async components pending to be processed,
+    // we wait for the first one to complete.
     if (this.inProgressStack.length === 0 && this.asyncInProgress.length > 0) {
       await Promise.race(this.asyncInProgress);
     }
 
+    // get an element out of the in-progress stack
+    // and push it to be processed.
     let next = this.inProgressStack.pop();
+    // pop any event keys (ASYNC_START/ASYNC_END, etc) that are
+    // at the top of the stack
     while (typeof next === "string" && isEventKey(next)) {
       this.fire(next);
       next = this.inProgressStack.pop();
@@ -222,6 +277,7 @@ export class JSXStack<G extends SXLGlobalContext> {
     // The previous push may have found just function elements
     // that were resolved and requeued, which means doneList will be empty
     // but the inProgress stacks will have elements.
+    // in this case, we pull the first completed element.
     if (
       this.doneList.length === 0 &&
       (this.inProgressStack.length > 0 || this.asyncInProgress.length > 0)
@@ -229,6 +285,7 @@ export class JSXStack<G extends SXLGlobalContext> {
       return await this.pop();
     }
 
+    // get the next completed element
     const last = this.doneList.shift();
     if (!last) {
       this.fire("END");
@@ -248,14 +305,13 @@ interface AdditionalChunks {
 export type JSXStreamOptions = Partial<ReadableOptions> & AdditionalChunks;
 
 export class JSXStream<G extends SXLGlobalContext> extends Readable {
-  private root: SXL.Element;
+  private root: SXL.StaticElement;
   private jsxStack: JSXStack<G>;
   private pre: string[];
   private post: string[];
-  private beforeEndHandler?: (stream: JSXStream<G>) => void;
 
   constructor(
-    root: SXL.Element,
+    root: SXL.StaticElement,
     contextManager: ContextManager<G>,
     logger: ILogger,
     options?: JSXStreamOptions
@@ -269,18 +325,9 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
     });
   }
 
-  beforeEnd(handler: (stream: JSXStream<G>) => void) {
-    this.beforeEndHandler = handler;
-  }
-
   async init() {
     await this.jsxStack.push(this.root);
   }
-
-  // push(chunk: string | null, encoding?: BufferEncoding | undefined): boolean {
-  //     // this.logger.debug({ chunk }, "Push...");
-  //     return this.push(chunk, encoding);
-  // }
 
   onFlush() {}
 
@@ -297,9 +344,6 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
         this.post.forEach((ch) => {
           this.push(ch);
         });
-        // if (this.beforeEndHandler) {
-        //     this.beforeEndHandler(this);
-        // }
         this.push(null);
         return;
       }
@@ -310,7 +354,7 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
 }
 
 export type JSXStreamFactory<G extends SXLGlobalContext> = (
-  root: SXL.Element,
+  root: SXL.StaticElement,
   globalContext: G,
   opts: JSXStreamOptions
 ) => JSXStream<G>;

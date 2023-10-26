@@ -5,38 +5,48 @@ import { ContextManager } from "@/jsx/context/context-manager";
 import { SXLGlobalContext } from "@/types/context";
 
 export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
-    arg: SXL.Element
+  arg: SXL.Element
 ): arg is SXL.IntrinsicElement => {
-    return !isPromise(arg) && !isAsyncGen(arg) && typeof arg.type === "string";
+  return !isPromise(arg) && !isAsyncGen(arg) && typeof arg.type === "string";
 };
+/**
+ * Handle static (intrinsic) JSX elements.
+ *
+ * e.g. <p>Hello</p>, <button>Click</button>
+ *
+ * @param element - the element to handle.
+ * @param contextManager - the context manager.
+ * @returns a wrapper around the decorated element.
+ */
 export const StaticElementHandler: ComponentHandler = (
-    element: SXL.Element,
-    contextManager: ContextManager<SXLGlobalContext>
+  element: SXL.Element,
+  contextManager: ContextManager<SXLGlobalContext>
 ) => {
-    if (!StaticElementTest(element)) {
-        return undefined;
-    }
+  if (!StaticElementTest(element)) {
+    return undefined;
+  }
 
-    const [id, ctx] = contextManager.newIdAndContext();
+  const [id, ctx] = contextManager.newIdAndContext();
 
-    const {
-        element: decoratedElement,
-        handlers
-    } = contextManager.processElement(id, ctx, element);
-    return {
-        id,
-        isAsync: false,
-        element: decoratedElement,
-        context: ctx,
-        handlers
-    };
+  const { element: decoratedElement, handlers } = contextManager.processElement(
+    id,
+    ctx,
+    element
+  );
+  return {
+    id,
+    isAsync: false,
+    element: decoratedElement,
+    context: ctx,
+    handlers,
+  };
 };
 
 export function staticHandler<G extends SXLGlobalContext>(
-    arg: SXL.Element,
-    contextManager: ContextManager<G>
+  arg: SXL.Element,
+  contextManager: ContextManager<G>
 ): ParsedComponent | undefined {
-    if (StaticElementTest(arg)) {
-        return StaticElementHandler(arg, contextManager);
-    }
+  if (StaticElementTest(arg)) {
+    return StaticElementHandler(arg, contextManager);
+  }
 }

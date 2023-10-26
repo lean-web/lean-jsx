@@ -45,7 +45,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
 
   async renderWithTemplate(
     res: Response,
-    element: SXL.Element,
+    element: SXL.StaticElement,
     globalContext: G,
     options: RenderWithTemplateOptions,
     next?: NextFunction | undefined
@@ -81,10 +81,10 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   }
 
   async renderComponent(
-    component: SXL.Element,
+    component: SXL.StaticElement | SXL.AsyncElement,
     globalContext: G
   ): Promise<Readable> {
-    const stream = this.jsxStreamFactory(component, globalContext, {
+    const stream = this.jsxStreamFactory(await component, globalContext, {
       pre: [],
       post: [],
       sync: true,

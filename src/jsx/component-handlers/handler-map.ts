@@ -4,9 +4,12 @@ import { ClassElementHandler } from "./impl/class-component";
 import { FnElementHandler } from "./impl/fn-component";
 import { StaticElementHandler } from "./impl/static-component";
 
+/**
+ * A list of handlers for supported component types.
+ */
 export const ComponentHandlerMap: ComponentHandler[] = [
-    StaticElementHandler,
-    ClassElementHandler,
-    FnElementHandler,
-    AsyncGenElementHandler
+  StaticElementHandler,
+  ClassElementHandler,
+  FnElementHandler,
+  AsyncGenElementHandler,
 ];

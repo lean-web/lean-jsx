@@ -18,6 +18,7 @@ import {
 } from "@/jsx/html/stream/jsx-stack";
 import { ContextManager } from "@/jsx/context/context-manager";
 
+export const TestLogger = new DefaultLogger({defaultLogLevel:'silent'});
 export { DefaultLogger, ErrorHandler, TemplateManager };
 export type { LeanJSX };
 
@@ -51,7 +52,7 @@ export function buildApp<G extends SXLGlobalContext>(
   const errorHandler = new ErrorHandler(logger);
   const templateManager = new TemplateManager(config.templates, errorHandler);
   const jsxStreamFactory: JSXStreamFactory<G> = (
-    root: SXL.Element,
+    root: SXL.StaticElement,
     globalContext: G,
     opts: JSXStreamOptions
   ) =>
