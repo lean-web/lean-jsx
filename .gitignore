@@ -1,2 +1,4 @@
 /types
 lib
+node_modules
+dist
