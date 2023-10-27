@@ -1,5 +1,5 @@
 {
-    "entryPoints": ["src/server/express.ts", "src/components/index.ts", "./src/plugins/vite/index.ts", "./src/types/global.d.ts"],
+    "entryPoints": ["src/server/express.ts", "src/components/index.tsx", "./src/plugins/vite/index.ts", "./src/types/global.d.ts"],
     "out": "docs",
     "name": "@sxl - Server-rendered JSX components",
     "exclude": ["**/node_modules/**"],

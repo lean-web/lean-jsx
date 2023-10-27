@@ -74,17 +74,5 @@ export const AsyncGenElementHandler: ComponentHandler = (
       },
     }
   );
-  const {
-    element: decoratedElement,
-    placeholder: decoratedplaceholder,
-    handlers,
-  } = contextManager.processElement(id, ctx, lazyElement, placeholder);
-  return {
-    id,
-    isAsync: false,
-    element: decoratedElement,
-    loading: decoratedplaceholder,
-    context: ctx,
-    handlers,
-  };
+  return contextManager.processElement(id, ctx, lazyElement, placeholder);
 };

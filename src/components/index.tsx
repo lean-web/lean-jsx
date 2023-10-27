@@ -45,17 +45,7 @@ export class Lazy implements SXL.ClassComponent<ComponentArgs> {
     this.props = props;
   }
 
-  async renderLazy(): SXL.AsyncElement {
-    if (!this.props.children) {
-      throw new Error(
-        "There is no child in Lazy to render. This is probably a mistake. If not, please file a bug."
-      );
-    }
-    const allResolved = await Promise.all(this.props.children);
-    return <>{allResolved}</>;
-  }
-
-  render(): SXL.StaticElement {
+  onLoading(): SXL.StaticElement {
     if (isPromise(this.props.loading)) {
       return <></>;
     }
@@ -63,6 +53,16 @@ export class Lazy implements SXL.ClassComponent<ComponentArgs> {
       return <></>;
     }
     return this.props.loading;
+  }
+
+  async render(): SXL.AsyncElement {
+    if (!this.props.children) {
+      throw new Error(
+        "There is no child in Lazy to render. This is probably a mistake. If not, please file a bug."
+      );
+    }
+    const allResolved = await Promise.all(this.props.children);
+    return <>{allResolved}</>;
   }
 }
 

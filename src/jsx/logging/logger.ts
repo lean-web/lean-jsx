@@ -16,6 +16,9 @@ export interface LoggerConfiguration {
     }
 }
 
+/**
+ * Utility to log information into stdout or log files.
+ */
 export interface ILogger {
     debug(...data: unknown[]): void;
     info(...data: unknown[]): void;
@@ -41,6 +44,10 @@ export function getPinoTransports(config:LoggerConfiguration) {
     return [...pinoPretty, ...fileHandlers]
 }
 
+/**
+ * Default implementation if {@link ILogger}. Internally, this class is 
+ * a wrapper around {@link https://github.com/pinojs/pino}.
+ */
 export class DefaultLogger implements ILogger {
     private logger: PinoLogger;
     private config:LoggerConfiguration;

@@ -2,16 +2,16 @@ import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
 describe("context-manager.test", () => {
-    const { contextManager: ctxManagerFactory } = setupTests();
-    test("processHandlers", () => {
-        const contextManager = ctxManagerFactory({ username: "" });
+  const { contextManager: ctxManagerFactory } = setupTests();
+  test("processHandlers", () => {
+    const contextManager = ctxManagerFactory({ username: "" });
 
-        const handlers = contextManager.processHandlers(
-            "myid",
-            <button onclick={() => console.log("Success")}></button>
-        );
+    const handlers = contextManager.processHandlers(
+      "myid",
+      <button onclick={() => console.log("Success")}></button>
+    );
 
-        expect(handlers).toMatchInlineSnapshot(`
+    expect(handlers).toMatchInlineSnapshot(`
             [
               [
                 "onclick",
@@ -19,59 +19,59 @@ describe("context-manager.test", () => {
               ],
             ]
         `);
-    });
+  });
 
-    test("processElement - static", () => {
-        const contextManager = ctxManagerFactory({ username: "" });
+  test("processElement - static", () => {
+    const contextManager = ctxManagerFactory({ username: "" });
 
-        const processed = contextManager.processElement(
-            "myid",
-            { name: "Pedro" },
-            <button onclick={() => console.log("Success")}></button>
-        );
+    const processed = contextManager.processElement(
+      "myid",
+      { name: "Pedro" },
+      <button onclick={() => console.log("Success")}></button>
+    );
 
-        expect(processed).toMatchInlineSnapshot(`
-            {
-              "context": {
-                "name": "Pedro",
-              },
-              "element": {
-                "children": [],
-                "props": {
-                  "dataset": {
-                    "data-action": "myid",
-                  },
-                  "onclick": "",
-                },
-                "type": "button",
-              },
-              "handlers": [
-                [
-                  "onclick",
-                  "() => console.log("Success")",
-                ],
-              ],
-              "id": "myid",
-              "placeholder": undefined,
-            }
-        `);
-    });
+    expect(processed).toMatchInlineSnapshot(`
+      {
+        "context": {
+          "name": "Pedro",
+        },
+        "element": {
+          "children": [],
+          "props": {
+            "dataset": {
+              "data-action": "myid",
+            },
+            "onclick": "",
+          },
+          "type": "button",
+        },
+        "handlers": [
+          [
+            "onclick",
+            "() => console.log("Success")",
+          ],
+        ],
+        "id": "myid",
+        "loading": undefined,
+      }
+    `);
+  });
 
-    test("processElement - async with no loading state", async () => {
-        const contextManager = ctxManagerFactory({ username: "" });
+  test("processElement - async with no loading state", async () => {
+    const contextManager = ctxManagerFactory({ username: "" });
 
-        async function MyComponent() {
-            await Promise.resolve();
-            return <p>Hello async</p>;
-        }
+    async function MyComponent() {
+      await Promise.resolve();
+      return <p>Hello async</p>;
+    }
 
-        const processed = contextManager.processElement(
-            "myid",
-            { name: "Pedro" },
-            MyComponent()
-        );
+    const processed = contextManager.processElement(
+      "myid",
+      { name: "Pedro" },
+      MyComponent()
+    );
 
-        await expect(processed.element).resolves.toMatchInlineSnapshot(`
+    await expect(processed.element).resolves.toMatchInlineSnapshot(`
             {
               "children": [
                 {
@@ -91,7 +91,7 @@ describe("context-manager.test", () => {
             }
         `);
 
-        expect(processed.placeholder).toMatchInlineSnapshot(`
+    expect(processed.loading).toMatchInlineSnapshot(`
             {
               "children": [],
               "props": {
@@ -102,24 +102,24 @@ describe("context-manager.test", () => {
               "type": "div",
             }
         `);
-    });
+  });
 
-    test("processElement - async with loading state", async () => {
-        const contextManager = ctxManagerFactory({ username: "" });
+  test("processElement - async with loading state", async () => {
+    const contextManager = ctxManagerFactory({ username: "" });
 
-        async function MyComponent() {
-            await Promise.resolve();
-            return <p>Hello async</p>;
-        }
+    async function MyComponent() {
+      await Promise.resolve();
+      return <p>Hello async</p>;
+    }
 
-        const processed = contextManager.processElement(
-            "myid",
-            { name: "Pedro" },
-            MyComponent(),
-            <p>Loading...</p>
-        );
+    const processed = contextManager.processElement(
+      "myid",
+      { name: "Pedro" },
+      MyComponent(),
+      <p>Loading...</p>
+    );
 
-        await expect(processed.element).resolves.toMatchInlineSnapshot(`
+    await expect(processed.element).resolves.toMatchInlineSnapshot(`
             {
               "children": [
                 {
@@ -139,7 +139,7 @@ describe("context-manager.test", () => {
             }
         `);
 
-        expect(processed.placeholder).toMatchInlineSnapshot(`
+    expect(processed.loading).toMatchInlineSnapshot(`
             {
               "children": [
                 {
@@ -160,29 +160,29 @@ describe("context-manager.test", () => {
               "type": "div",
             }
         `);
-    });
+  });
 
-    test("processElement - async with async loading state", async () => {
-        const contextManager = ctxManagerFactory({ username: "" });
+  test("processElement - async with async loading state", async () => {
+    const contextManager = ctxManagerFactory({ username: "" });
 
-        async function MyComponent() {
-            await Promise.resolve();
-            return <p>Hello async</p>;
-        }
+    async function MyComponent() {
+      await Promise.resolve();
+      return <p>Hello async</p>;
+    }
 
-        async function Loading() {
-            await Promise.resolve();
-            return <p>Loading</p>;
-        }
+    async function Loading() {
+      await Promise.resolve();
+      return <p>Loading</p>;
+    }
 
-        const processed = contextManager.processElement(
-            "myid",
-            { name: "Pedro" },
-            MyComponent(),
-            Loading()
-        );
+    const processed = contextManager.processElement(
+      "myid",
+      { name: "Pedro" },
+      MyComponent(),
+      Loading()
+    );
 
-        await expect(processed.element).resolves.toMatchInlineSnapshot(`
+    await expect(processed.element).resolves.toMatchInlineSnapshot(`
             {
               "children": [
                 {
@@ -202,7 +202,7 @@ describe("context-manager.test", () => {
             }
         `);
 
-        await expect(processed.placeholder).resolves.toMatchInlineSnapshot(`
+    await expect(processed.loading).resolves.toMatchInlineSnapshot(`
             {
               "children": [
                 {
@@ -223,5 +223,5 @@ describe("context-manager.test", () => {
               "type": "div",
             }
         `);
-    });
+  });
 });

@@ -18,6 +18,7 @@
     "docs": "npx typedoc --out docs"
   },
   "devDependencies": {
+    "@jest-mock/express": "^2.0.2",
     "@jest/globals": "^29.7.0",
     "@types/compression": "^1.7.4",
     "@types/eslint": "^8.44.6",
@@ -30,6 +31,7 @@
     "@types/uuid": "^9.0.5",
     "eslint": "^8.51.0",
     "husky": "^8.0.3",
+    "jest-mock-express": "^0.1.1",
     "jest-puppeteer": "^9.0.1",
     "jsdom": "^22.1.0",
     "pretty": "^2.0.0",

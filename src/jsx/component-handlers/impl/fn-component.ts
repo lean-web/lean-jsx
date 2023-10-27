@@ -64,19 +64,5 @@ export const FnElementHandler: ComponentHandler = (
     }
   );
 
-  // if (isAsyncGen(newElement)) {}
-
-  const {
-    element: decoratedElement,
-    placeholder: decoratedplaceholder,
-    handlers,
-  } = contextManager.processElement(id, ctx, newElement);
-  return {
-    id,
-    isAsync: false,
-    element: decoratedElement,
-    loading: decoratedplaceholder,
-    context: ctx,
-    handlers,
-  };
+  return contextManager.processElement(id, { ...ctx, props }, newElement);
 };

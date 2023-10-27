@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type{ GetDynamicComponent } from "../components/lazy";
+import type{ GetDynamicComponent } from "../components";
 
 export interface DynamicDataComponent extends Partial<HTMLElement> {
     "data-id": string;

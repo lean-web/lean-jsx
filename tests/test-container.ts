@@ -27,5 +27,7 @@ export function setupTests() {
       globalContext: G
     ): ContextManager<G> =>
       new ContextManager<G>(globalContext, new ErrorHandler(TestLogger)),
+
+    errorHandler: () => new ErrorHandler(TestLogger),
   };
 }

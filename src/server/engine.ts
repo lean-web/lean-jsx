@@ -20,13 +20,15 @@ import {
 import fs from "fs";
 import path from "path";
 
+type RequestLike = Pick<Request, 'originalUrl'>
+
 /**
  * Try to retrieve a DynamicComponent's name out of the URL.
  * If it exists, we can handle it directly from the middleware
  * @param req
  * @returns
  */
-function getComponent(req: Request): string | undefined {
+export function getComponent(req: RequestLike): string | undefined {
   const [_, component] = req.originalUrl.match(/\/components\/([\w-]+)/) ?? [];
   return component;
 }

@@ -28,18 +28,7 @@ export const StaticElementHandler: ComponentHandler = (
 
   const [id, ctx] = contextManager.newIdAndContext();
 
-  const { element: decoratedElement, handlers } = contextManager.processElement(
-    id,
-    ctx,
-    element
-  );
-  return {
-    id,
-    isAsync: false,
-    element: decoratedElement,
-    context: ctx,
-    handlers,
-  };
+  return contextManager.processElement(id, ctx, element);
 };
 
 export function staticHandler<G extends SXLGlobalContext>(

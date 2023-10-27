@@ -24,43 +24,41 @@ export const ClassElementHandler: ComponentHandler = (
   if (!ClassElementTest(element)) {
     return undefined;
   }
-  const [id, ctx] = contextManager.newIdAndContext();
+  const [id] = contextManager.newIdAndContext();
 
+  const globalContext = contextManager.getGlobalContext();
   const props: SXL.Props = {
     ...element.props,
     children: element.children,
-    globalContext: contextManager.getGlobalContext(),
+    globalContext,
   };
 
   const classNode = new element.type(props);
-  const placeholder = contextManager.errorHandler.withErrorHandling(
-    () => classNode.render(),
-    {
-      extraInfo: {
-        classComponent: classNode.render.bind(null).name,
-      },
-    }
-  );
-  const lazyElement = contextManager.errorHandler.withErrorHandling(
-    () => classNode.renderLazy(),
-    {
-      extraInfo: {
-        classComponent: classNode.renderLazy.bind(null).name,
-      },
-    }
-  );
+  const classContext = { ...classNode };
 
-  const {
-    element: decoratedElement,
-    placeholder: decoratedplaceholder,
-    handlers,
-  } = contextManager.processElement(id, ctx, lazyElement, placeholder);
-  return {
+  let placeholder: SXL.StaticElement | undefined;
+
+  // check for "onLoading" hook
+  if (classNode.onLoading) {
+    const onLoadingFn = classNode.onLoading.bind(classContext);
+
+    placeholder = contextManager.errorHandler.withErrorHandling(onLoadingFn, {
+      extraInfo: {
+        classComponent: onLoadingFn.name,
+      },
+    });
+  }
+  const render = classNode.render.bind(classContext);
+  const lazyElement = contextManager.errorHandler.withErrorHandling(render, {
+    extraInfo: {
+      classComponent: render.name,
+    },
+  });
+
+  return contextManager.processElement(
     id,
-    isAsync: false,
-    element: decoratedElement,
-    loading: decoratedplaceholder,
-    context: ctx,
-    handlers,
-  };
+    classContext,
+    lazyElement,
+    placeholder
+  );
 };

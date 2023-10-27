@@ -1,3 +1,4 @@
+import { ParsedComponent } from "../component-handlers";
 import { ContextID, SXLElementWithContext } from "./context-manager";
 
 /**
@@ -23,9 +24,7 @@ export class QuerySelectors {
  * @param element - the element with context
  * @returns a string with JS code.
  */
-export function decorateContext(
-  element: Omit<SXLElementWithContext, "placeholder">
-): string {
+export function decorateContext(element: ParsedComponent): string {
   if (element.handlers.length === 0) {
     return "";
   }

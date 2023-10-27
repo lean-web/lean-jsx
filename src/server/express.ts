@@ -40,11 +40,33 @@ export function shouldCompress(req: Request, res: Response) {
   return compression.filter(req, res);
 }
 
+/**
+ * The configuration to initialize LeanJSX's runtime.
+ */
 interface AppConfig {
+    /**
+     * A map of template configurations. The keys are unique IDs used to render a given HTML template
+     * as the skeleton that LeanJSX will be wrapped around while rendering components.
+     * 
+     * e.g.
+     * templates: {
+        index: {
+            path: INDEX_HTML_PATH,
+            contentPlaceholder: "<!--EAGER_CONTENT-->"
+        }
+    },
+     */
   templates: Record<string, TemplateConfig>;
   logging: LoggerConfiguration;
 }
 
+/**
+ * Create an instance of the LeanJSX runtime. This can be used to render individual components or
+ * setup an Express middleware.
+ * 
+ * @param config - the configuration for the runtime.
+ * @returns an instance of the LeanJSX runtime.
+ */
 export function buildApp<G extends SXLGlobalContext>(
   config: AppConfig
 ): LeanJSX<G> {

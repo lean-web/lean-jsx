@@ -7,7 +7,7 @@ import { IErrorHandler } from "../degradation/error-handler";
 interface SyncJSXWrapper {
   id: ContextID;
   element: SXL.StaticElement;
-  placeholder: undefined;
+  loading: undefined;
   handlers: Array<HandlerPropAndValue>;
   context: SXL.Context<Record<string, unknown>>;
 }
@@ -15,7 +15,7 @@ interface SyncJSXWrapper {
 interface AsyncJSXWrapper {
   id: ContextID;
   element: TrackablePromise<SXL.StaticElement, unknown>;
-  placeholder: SXL.StaticElement;
+  loading: SXL.StaticElement;
   handlers: Array<HandlerPropAndValue>;
   context: SXL.Context<Record<string, unknown>>;
 }
@@ -23,7 +23,7 @@ interface AsyncJSXWrapper {
 interface AsyncGenJSXWrapper {
   id: ContextID;
   element: TrackablePromise<SXL.StaticElement, unknown>;
-  placeholder: SXL.AsyncElement;
+  loading: SXL.AsyncElement;
   handlers: Array<HandlerPropAndValue>;
   context: SXL.Context<Record<string, unknown>>;
 }
@@ -47,7 +47,7 @@ export function isAsyncGenElementWithContext(
   return (
     (element.element instanceof TrackablePromise ||
       isPromise(element.element)) &&
-    isPromise(element.placeholder)
+    isPromise(element.loading)
   );
 }
 
@@ -125,7 +125,7 @@ export class ContextManager<G extends SXLGlobalContext> {
           }),
           id
         ),
-        placeholder: isPromise(placeholder)
+        loading: isPromise(placeholder)
           ? placeholder?.then((p) => this.processPlaceholder(id, p))
           : this.processPlaceholder(id, placeholder),
         handlers: [],
@@ -136,7 +136,7 @@ export class ContextManager<G extends SXLGlobalContext> {
     return {
       id,
       element,
-      placeholder: undefined,
+      loading: undefined,
       handlers: this.processHandlers(id, element),
       context,
     };

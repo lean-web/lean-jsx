@@ -3,6 +3,7 @@ import { ILogger, LoggerConfiguration } from "@/jsx/logging/logger";
 import { SXLGlobalContext } from "@/types/context";
 import { Request, Response, NextFunction } from "express";
 import { Readable } from "stream";
+import {type GetDynamicComponent} from '@/components'
 
 /**
  * Options to render JSX in a stringified HTML document.

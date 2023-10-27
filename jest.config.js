@@ -1,3 +1,5 @@
+// @ts-check
+
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   displayName: "lean-jsx",
@@ -9,6 +11,7 @@ module.exports = {
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.json" }],
   },
+  collectCoverageFrom: ["<rootDir>/src/"],
   testMatch: [
     "<rootDir>/tests/unit/**/*.test.ts",
     "<rootDir>/tests/integration/**/*.test.ts",

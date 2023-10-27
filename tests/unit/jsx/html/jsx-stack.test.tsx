@@ -1,3 +1,4 @@
+import { SXLGlobalContext } from "@/types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
@@ -73,6 +74,39 @@ describe("jsx-stack.test", () => {
     expect(all).toBe("<div><p>E1</p><p>E2</p></div>");
   });
 
+  test("function component: with context", async () => {
+    const stack = jsxStack({ username: "Pedro" });
+
+    function List(
+      this: { greet: string },
+      { globalContext }: { globalContext?: { username: string } }
+    ) {
+      this.greet = "Hi"!;
+      return (
+        <button click={() => console.log(this.greet)}>
+          Hello {globalContext?.username}
+        </button>
+      );
+    }
+    void stack.push(<List />);
+
+    let first = await stack.pop();
+    let all = "";
+
+    while (first) {
+      all += first;
+      first = await stack.pop();
+    }
+
+    expect(all).toMatchInlineSnapshot(`
+      "<button data-action="element-0">Hello Pedro</button><script>
+            (function(){
+              document.querySelector('[data-action="element-0"]').addEventListener('click', () => console.log(this.greet))
+            }).call({"greet":"Hi","props":{"dataset":{},"children":[],"globalContext":{"username":"Pedro"}}})
+          </script>"
+    `);
+  });
+
   test("function component: nested one level", async () => {
     const stack = jsxStack({ username: "Pedro" });
 
@@ -134,7 +168,7 @@ describe("jsx-stack.test", () => {
   test("2 static and 1 async element", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise((resolve) => resolve(<p>E2</p>));
+      return new Promise(resolve => resolve(<p>E2</p>));
     }
     void stack.push(
       <div>
@@ -163,7 +197,7 @@ describe("jsx-stack.test", () => {
   test("2 static and 1 async element - with handler", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise((resolve) =>
+      return new Promise(resolve =>
         resolve(<button onclick={() => "E2"}>E2</button>)
       );
     }
@@ -198,7 +232,7 @@ describe("jsx-stack.test", () => {
   test("2 static and 1 async element - sync mode", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise((resolve) => resolve(<p>E2</p>));
+      return new Promise(resolve => resolve(<p>E2</p>));
     }
     void stack.push(
       <div>
@@ -227,7 +261,7 @@ describe("jsx-stack.test", () => {
   test("test stack events", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise((resolve) =>
+      return new Promise(resolve =>
         resolve(<button onclick={() => "E2"}>E2</button>)
       );
     }
@@ -460,5 +494,115 @@ describe("jsx-stack.test", () => {
              </script>
              "
         `);
+  });
+
+  test("class component", async () => {
+    type Gcontext = { username: string };
+    const stack = jsxStack<Gcontext>({ username: "Pedro" });
+    type ClassProps = SXL.Props & { globalContext?: Gcontext };
+
+    class MyComponent {
+      props: ClassProps;
+
+      greet: string = "Hello";
+
+      constructor(props: ClassProps) {
+        this.props = props;
+      }
+
+      render() {
+        return (
+          <div>
+            {this.greet} {this.props.globalContext?.username}
+          </div>
+        );
+      }
+    }
+
+    await stack.push(<MyComponent />);
+
+    let first = await stack.pop();
+    let all = "";
+
+    while (first) {
+      all += first;
+      first = await stack.pop();
+    }
+
+    expect(all).toMatchInlineSnapshot(`"<div>Hello Pedro</div>"`);
+  });
+
+  test("class component - async", async () => {
+    const stack = jsxStack({ username: "Pedro" });
+    class MyComponent {
+      props: SXL.Props;
+
+      constructor(props: SXL.Props) {
+        this.props = props;
+      }
+
+      onLoading() {
+        return <div>Loading...</div>;
+      }
+      async render() {
+        await Promise.resolve();
+        return <div>Loaded</div>;
+      }
+    }
+
+    await stack.push(<MyComponent />);
+
+    let first = await stack.pop();
+    let all = "";
+
+    while (first) {
+      all += first;
+      first = await stack.pop();
+    }
+
+    expect(all).toMatchInlineSnapshot(`
+      "<div data-placeholder="element-0"><div>Loading...</div></div><template id="element-0"><div>Loaded</div></template><script>
+          sxl.fillPlaceHolder("element-0");  
+       </script>
+       "
+    `);
+  });
+
+  test("class component with handlers", async () => {
+    type Gcontext = { username: string };
+    const stack = jsxStack<Gcontext>({ username: "Pedro" });
+    type ClassProps = SXL.Props & { globalContext?: Gcontext };
+
+    class MyComponent {
+      props: ClassProps;
+
+      greet: string = "Hello";
+
+      constructor(props: ClassProps) {
+        this.props = props;
+      }
+
+      render() {
+        return <button onclick={() => console.log(this.greet)}>Say hi!</button>;
+      }
+    }
+
+    await stack.push(<MyComponent />);
+
+    let first = await stack.pop();
+    let all = "";
+
+    while (first) {
+      all += first;
+      first = await stack.pop();
+    }
+
+    expect(all).toMatchInlineSnapshot(`
+      "<button data-action="element-0">Say hi!</button><script>
+            (function(){
+              document.querySelector('[data-action="element-0"]').addEventListener('click', () => console.log(this.greet))
+            }).call({"props":{"dataset":{},"children":[],"globalContext":{"username":"Pedro"}},"greet":"Hello"})
+          </script>"
+    `);
   });
 });

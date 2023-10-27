@@ -12,9 +12,8 @@ export interface ErrorHandlerOptions {
 export interface IErrorHandler {
   getFallback(context: Record<string, unknown>): SXL.StaticElement;
   reportError(errorType: ErrorType, err: Error): void;
-  withErrorHandling<
-    T extends SXL.Element | SXL.AsyncElement | SXL.AsyncGenElement
-  >(
+  reportWarning(msg: string): void;
+  withErrorHandling<T extends SXL.Element>(
     handler: () => T,
     { timesRetried, extraInfo }: ErrorHandlerOptions
   ): T;
@@ -28,14 +27,18 @@ export class ErrorHandler implements IErrorHandler {
   constructor(logger: ILogger) {
     this.logger = logger;
   }
+  reportWarning(msg: string): void {
+    this.logger.warn(msg);
+  }
 
   getFallback(_context: Record<string, unknown>): SXL.StaticElement {
     return getDefaultErrorComponent();
   }
 
-  withErrorHandling<
-    T extends SXL.Element | SXL.AsyncElement | SXL.AsyncGenElement
-  >(handler: () => T, { timesRetried, extraInfo }: ErrorHandlerOptions): T {
+  withErrorHandling<T extends SXL.Element>(
+    handler: () => T,
+    { timesRetried, extraInfo }: ErrorHandlerOptions
+  ): T {
     try {
       const newElement = handler();
       if (isPromise(newElement)) {
