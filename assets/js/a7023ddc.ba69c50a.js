@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklean_jsx_docs=self.webpackChunklean_jsx_docs||[]).push([[1713],{3457:l=>{l.exports=JSON.parse('[{"label":"leanjsx","permalink":"/blog/tags/leanjsx","count":3},{"label":"release","permalink":"/blog/tags/release","count":3},{"label":"alpha","permalink":"/blog/tags/alpha","count":3},{"label":"hola","permalink":"/blog/tags/hola","count":1}]')}}]);

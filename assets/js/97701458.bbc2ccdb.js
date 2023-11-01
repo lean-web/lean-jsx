@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklean_jsx_docs=self.webpackChunklean_jsx_docs||[]).push([[8250],{270:a=>{a.exports=JSON.parse('{"label":"alpha","permalink":"/blog/tags/alpha","allTagsPath":"/blog/tags","count":3}')}}]);

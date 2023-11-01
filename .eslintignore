@@ -1,5 +1,0 @@
-**/*.js
-**/**/jest.config.js
-/types
-/dist
-/lib
