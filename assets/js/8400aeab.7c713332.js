@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklean_jsx_docs=self.webpackChunklean_jsx_docs||[]).push([[7466],{9930:e=>{e.exports=JSON.parse('{"permalink":"/lean-jsx/blog/tags/hola","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
