@@ -1,22 +1,85 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-namespace */
-/// <reference lib="dom" />
-
 import { SXLGlobalContext } from "./context";
 
 /**
- * A utility type for making {@link HTMLElement} properties optional.
+ * A web handler.
+ *
+ * This is the type we expect for event handlers (e.g. onclick).
  */
-export type HTMLAttributes<T extends HTMLElement> = Partial<
-  Omit<T, "style">
-> & {
-  style?: Partial<T["style"]>;
+interface IWebHandler<EventType, WebContext> {
+  handler: (ev?: EventType, data?: WebContext) => unknown;
+  data: WebContext;
+}
+
+/**
+ * Mapped types for converting HTMLElement default event handler function types
+ * into the event handlers expected by LeanJSX
+ */
+type EventHandler<T, WebContext> = T extends (
+  this: GlobalEventHandlers,
+  ev: infer E
+) => unknown
+  ? IWebHandler<E, WebContext> | T
+  : T;
+
+// We exclude properties that are actual
+// JavaScript methods for HTMLElement:
+type SkippedProps =
+  | "click"
+  | "attachInternals"
+  | "hidePopover"
+  | "showPopover"
+  | "togglePopover"
+  | "addEventListener"
+  | "removeEventListener";
+
+/**
+ * A utility type for shaping {@link HTMLElement} properties in the way
+ * LeanJSX expects.
+ */
+type HTMLAttributes<T extends HTMLElement> = {
+  [K in keyof T]?: K extends SkippedProps
+    ? never
+    : T[K] extends object
+    ? Partial<T[K]>
+    : EventHandler<T[K], any>;
 };
+
+interface CustomEventMap {
+  lean: CustomEvent<{
+    id: string;
+    queryParams: Record<string, string | number | boolean>;
+  }>;
+}
 
 /**
  * Global namespace
  */
 declare global {
+  interface LeanJSXDocument extends Document {
+    //adds definition to Document, but you can do the same with HTMLElement
+    addEventListener<K extends keyof CustomEventMap>(
+      type: K,
+      listener: (
+        this: Document,
+        ev: CustomEventMap[K]
+      ) => boolean | Promise<void>,
+      options?: boolean | AddEventListenerOptions
+    ): void;
+    dispatchEvent<K extends keyof CustomEventMap>(
+      ev: CustomEventMap[K]
+    ): boolean;
+
+    removeEventListener<K extends keyof CustomEventMap>(
+      type: K,
+      listener: (
+        this: Document,
+        ev: CustomEventMap[K]
+      ) => boolean | Promise<void>,
+      options?: boolean | EventListenerOptions
+    ): void;
+  }
   /**
    * The namespaces for all JSX components.
    *
@@ -27,6 +90,10 @@ declare global {
    * with a React project.
    */
   export namespace SXL {
+    export type WebHandler<EventType extends Event, WebContext> = IWebHandler<
+      EventType,
+      WebContext
+    >;
     /**
      * Represents a set of data create for each JSX component.
      */
@@ -100,6 +167,7 @@ declare global {
       children: Children;
       isDynamic?: boolean;
       ctx?: Context<Record<string, unknown>>;
+      refs?: unknown[];
     };
 
     /**
@@ -112,6 +180,7 @@ declare global {
       children: Children;
       isDynamic?: boolean;
       ctx?: Context<Record<string, unknown>>;
+      refs?: unknown[];
     };
 
     /**
@@ -124,6 +193,7 @@ declare global {
       children: Children;
       isDynamic?: boolean;
       ctx?: Context<Record<string, unknown>>;
+      refs?: unknown[];
     };
 
     export type FunctionAsyncGenElement = {
@@ -132,6 +202,7 @@ declare global {
       children: Children;
       isDynamic?: boolean;
       ctx?: Context<Record<string, unknown>>;
+      refs?: unknown[];
     };
 
     /**
@@ -149,11 +220,16 @@ declare global {
      * The properties of a JSX component.
      */
     export type StaticElement = {
-      type: string | NodeFactory<SXL.Props> | ClassFactory<SXL.Props>;
+      type:
+        | string
+        | NodeFactory<SXL.Props>
+        | ClassFactory<SXL.Props>
+        | ((args: SXL.Props) => AsyncGenElement);
       props: Props;
       children: Children;
       isDynamic?: boolean;
       ctx?: Context<Record<string, unknown>>;
+      refs?: unknown[];
     };
 
     /**
@@ -176,12 +252,7 @@ declare global {
       | SXL.AsyncGenFactory
       | SXL.ClassFactory<any>;
     type Element = SXL.StaticElement;
-    // interface ElementClass extends SXL.ClassComponent {
-    //     foo: "string";
-    // }
-    // type IntrinsicClassAttributes<T> = {
-    //     [K in keyof T]: T[K];
-    // };
+
     interface ElementAttributesProperty {
       props;
     }
@@ -304,68 +375,6 @@ declare global {
       var: HTMLAttributes<HTMLElement>;
       video: HTMLAttributes<HTMLVideoElement>;
       wbr: HTMLAttributes<HTMLElement>;
-      webview: HTMLAttributes<HTMLWebViewElement>;
-
-      // SVG
-      svg: React.SVGProps<SVGSVGElement>;
-
-      animate: React.SVGProps<SVGElement>; // TODO: It is SVGAnimateElement but is not in TypeScript's lib.dom.d.ts for now.
-      animateMotion: React.SVGProps<SVGElement>;
-      animateTransform: React.SVGProps<SVGElement>; // TODO: It is SVGAnimateTransformElement but is not in TypeScript's lib.dom.d.ts for now.
-      circle: React.SVGProps<SVGCircleElement>;
-      clipPath: React.SVGProps<SVGClipPathElement>;
-      defs: React.SVGProps<SVGDefsElement>;
-      desc: React.SVGProps<SVGDescElement>;
-      ellipse: React.SVGProps<SVGEllipseElement>;
-      feBlend: React.SVGProps<SVGFEBlendElement>;
-      feColorMatrix: React.SVGProps<SVGFEColorMatrixElement>;
-      feComponentTransfer: React.SVGProps<SVGFEComponentTransferElement>;
-      feComposite: React.SVGProps<SVGFECompositeElement>;
-      feConvolveMatrix: React.SVGProps<SVGFEConvolveMatrixElement>;
-      feDiffuseLighting: React.SVGProps<SVGFEDiffuseLightingElement>;
-      feDisplacementMap: React.SVGProps<SVGFEDisplacementMapElement>;
-      feDistantLight: React.SVGProps<SVGFEDistantLightElement>;
-      feDropShadow: React.SVGProps<SVGFEDropShadowElement>;
-      feFlood: React.SVGProps<SVGFEFloodElement>;
-      feFuncA: React.SVGProps<SVGFEFuncAElement>;
-      feFuncB: React.SVGProps<SVGFEFuncBElement>;
-      feFuncG: React.SVGProps<SVGFEFuncGElement>;
-      feFuncR: React.SVGProps<SVGFEFuncRElement>;
-      feGaussianBlur: React.SVGProps<SVGFEGaussianBlurElement>;
-      feImage: React.SVGProps<SVGFEImageElement>;
-      feMerge: React.SVGProps<SVGFEMergeElement>;
-      feMergeNode: React.SVGProps<SVGFEMergeNodeElement>;
-      feMorphology: React.SVGProps<SVGFEMorphologyElement>;
-      feOffset: React.SVGProps<SVGFEOffsetElement>;
-      fePointLight: React.SVGProps<SVGFEPointLightElement>;
-      feSpecularLighting: React.SVGProps<SVGFESpecularLightingElement>;
-      feSpotLight: React.SVGProps<SVGFESpotLightElement>;
-      feTile: React.SVGProps<SVGFETileElement>;
-      feTurbulence: React.SVGProps<SVGFETurbulenceElement>;
-      filter: React.SVGProps<SVGFilterElement>;
-      foreignObject: React.SVGProps<SVGForeignObjectElement>;
-      g: React.SVGProps<SVGGElement>;
-      image: React.SVGProps<SVGImageElement>;
-      line: React.SVGLineElementAttributes<SVGLineElement>;
-      linearGradient: React.SVGProps<SVGLinearGradientElement>;
-      marker: React.SVGProps<SVGMarkerElement>;
-      mask: React.SVGProps<SVGMaskElement>;
-      metadata: React.SVGProps<SVGMetadataElement>;
-      mpath: React.SVGProps<SVGElement>;
-      path: React.SVGProps<SVGPathElement>;
-      pattern: React.SVGProps<SVGPatternElement>;
-      polygon: React.SVGProps<SVGPolygonElement>;
-      polyline: React.SVGProps<SVGPolylineElement>;
-      radialGradient: React.SVGProps<SVGRadialGradientElement>;
-      rect: React.SVGProps<SVGRectElement>;
-      stop: React.SVGProps<SVGStopElement>;
-      switch: React.SVGProps<SVGSwitchElement>;
-      symbol: React.SVGProps<SVGSymbolElement>;
-      text: React.SVGTextElementAttributes<SVGTextElement>;
-      textPath: React.SVGProps<SVGTextPathElement>;
-      tspan: React.SVGProps<SVGTSpanElement>;
-      use: React.SVGProps<SVGUseElement>;
-      view: React.SVGProps<SVGViewElement>;
     }
   }
 }

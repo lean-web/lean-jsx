@@ -1,5 +1,5 @@
 import { ParsedComponent } from "../component-handlers";
-import { ContextID, SXLElementWithContext } from "./context-manager";
+import { ContextID } from "./context-manager";
 
 /**
  * A set of query selectors to use while

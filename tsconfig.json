@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext", 
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "outDir": "./lib",
 
     /* Bundler mode */
@@ -31,7 +31,10 @@
         "@tests/*": ["./tests/*"],
         "@/": ["./src/"],
         "@/*": ["./src/*"]
-    }
+    },
+    "types": [
+        "node", "jest", "express"
+      ],
   },
   "include": ["src", "tests"]
 }

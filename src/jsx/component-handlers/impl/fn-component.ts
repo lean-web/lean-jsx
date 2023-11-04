@@ -64,5 +64,5 @@ export const FnElementHandler: ComponentHandler = (
     }
   );
 
-  return contextManager.processElement(id, { ...ctx, props }, newElement);
+  return contextManager.processElement(id, ctx, newElement);
 };

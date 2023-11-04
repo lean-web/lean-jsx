@@ -1,4 +1,4 @@
-# Lean-JSX
+# LeanJSX
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Lean-JSX is a server-driven web framework that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.
+LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.
 
 ## Features
 

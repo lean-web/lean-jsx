@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { SXLGlobalContext } from "@/types/context";
+export { webAction } from "./web-action";
 
 export function toQueryString(
   url: string,
@@ -103,6 +104,11 @@ export interface DynamicController {
    * @returns - a JSX component
    */
   Api: (props: SXL.Props) => SXL.AsyncElement;
+
+  /**
+   * The parameters associated to this component
+   */
+  queryParams?: Record<string, string | number | boolean>;
 }
 
 /**
@@ -121,7 +127,8 @@ export interface DynamicController {
 export function GetDynamicComponent<T>(
   contentId: string,
   fetcher: () => Promise<T>,
-  render: (data: TrackedPromise<T>) => SXL.StaticElement | SXL.AsyncElement
+  render: (data: TrackedPromise<T>) => SXL.StaticElement | SXL.AsyncElement,
+  queryParams?: Record<string, string | number | boolean>
 ): DynamicController {
   return {
     Render: (props: SXL.Props) => (
@@ -148,6 +155,7 @@ export function GetDynamicComponent<T>(
       });
     },
     contentId,
+    queryParams,
   };
 }
 

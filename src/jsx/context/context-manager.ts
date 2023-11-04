@@ -3,6 +3,8 @@ import { UIDGenerator } from "../html/uuid";
 import { TrackablePromise } from "../html/stream/stream-utils/trackable-promise";
 import { SXLGlobalContext } from "@/types/context";
 import { IErrorHandler } from "../degradation/error-handler";
+import { ParsedComponent } from "../component-handlers";
+import { isPureActionHandler, isWebHandler } from "@/components/web-action";
 
 interface SyncJSXWrapper {
   id: ContextID;
@@ -96,7 +98,7 @@ export class ContextManager<G extends SXLGlobalContext> {
     context: SXL.Context<Record<string, unknown>>,
     element: SXL.StaticElement | SXL.AsyncElement,
     placeholder?: SXL.StaticElement | SXL.AsyncElement
-  ): SXLElementWithContext {
+  ): ParsedComponent {
     if (isPromise(element)) {
       return {
         id,
@@ -146,22 +148,32 @@ export class ContextManager<G extends SXLGlobalContext> {
     id: ContextID,
     element: SXL.StaticElement
   ): Array<HandlerPropAndValue> {
-    const handlers: Array<[string, unknown]> = Object.entries(
-      element.props
-    ).filter(([key, v]) => /^on/.test(key) || typeof v === "function");
-
     const _handlers: Array<HandlerPropAndValue> = [];
 
-    handlers.forEach(([key, v]) => {
-      let handlerContent = "";
-      if (typeof v === "function") {
-        handlerContent = v.toString();
-      } else if (typeof v === "string") {
-        handlerContent = v;
-      }
-      element.props[key] = "";
-      _handlers.push([key as keyof GlobalEventHandlers, handlerContent]);
-    });
+    // handle web actions with data:
+    Object.entries(element.props)
+      .filter(isWebHandler)
+      .forEach(([key, v]) => {
+        let handlerContent: string = "";
+        if (Object.entries(v.data).length === 0) {
+          handlerContent = v.handler.toString();
+        } else {
+          handlerContent = `(ev) => { const h = ${v.handler.toString()};\n h(ev, ${JSON.stringify(
+            v.data
+          )}) }`;
+        }
+        element.props[key] = "";
+        _handlers.push([key as keyof GlobalEventHandlers, handlerContent]);
+      });
+
+    // handle pure-function handlers:
+    Object.entries(element.props)
+      .filter(isPureActionHandler)
+      .forEach(([key, v]) => {
+        const handlerContent = v.toString();
+        element.props[key as string] = "";
+        _handlers.push([key, handlerContent]);
+      });
 
     if (_handlers.length) {
       element.props.dataset = element.props.dataset ?? {};
