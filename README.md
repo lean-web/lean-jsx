@@ -19,6 +19,15 @@ LeanJSX is a server-driven library that allows you to build HTML components usin
 
 ### Installation
 
+To create a project using LeanJSX, use the `create-lean-jsx-app` generator:
+
 ```bash
-npm install lean-jsx
+npx create-lean-jsx-app@latest <dir>
 ```
+
+Replace `<dir>` with the name of the directory you want the generator to create with the project
+
+## Usage documentation
+
+You can find the usage documentation for LeanJSX here:
+https://lean-web.github.io/lean-jsx/
