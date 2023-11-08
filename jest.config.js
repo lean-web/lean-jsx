@@ -18,4 +18,5 @@ module.exports = {
     "<rootDir>/tests/unit/**/*.test.tsx",
     "<rootDir>/tests/integration/**/*.test.tsx",
   ],
+  prettierPath: require.resolve("prettier-2"),
 };

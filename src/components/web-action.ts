@@ -1,5 +1,17 @@
 import { EventHandlerKeys } from "@/jsx/context/eventHandlerMap";
 
+interface WebActions {
+  refetchElement: (
+    id: string,
+    queryParams: Record<string, string | number | boolean>
+  ) => void;
+}
+
+interface WebContext<Data extends Record<string, unknown>> {
+  data: Data;
+  actions: WebActions;
+}
+
 /**
  * Utility that allows component developers to explicitely pass data to the browser
  * for a given event handler (e.g. onclick) in a JSX element.
@@ -17,7 +29,7 @@ export function webAction<
   handler: (
     this: GlobalEventHandlers | null,
     ev?: Event,
-    data?: Data
+    webContext?: WebContext<Data>
   ) => unknown
 ): SXL.WebHandler<Ev, Data> {
   return {
@@ -31,30 +43,30 @@ export function webAction<
  * @param pair [key, value]
  * @returns true if value is a web handler
  */
-export function isWebHandler(pair:
-    [key: string,
-    value: unknown]
-  ): pair is [string, SXL.WebHandler<Event, Record<string, unknown>>] {
-      const [key, value] = pair
-    if (!value || !key || !EventHandlerKeys[key]) {
-      return false;
-    }
-    if (typeof value === "object") {
-      return "handler" in value && "data" in value;
-    }
+export function isWebHandler(
+  pair: [key: string, value: unknown]
+): pair is [string, SXL.WebHandler<Event, Record<string, unknown>>] {
+  const [key, value] = pair;
+  if (!value || !key || !EventHandlerKeys[key]) {
     return false;
   }
-  
-  
-  /**
-   * Checks if a property tuple is a pure function (no external data used)
-   * @param pair [key, value]
-   * @returns true if the event handler is a pure function
-   */
-  export function isPureActionHandler(pair:
-      [key: string,
-      value: unknown]
-    ): pair is [keyof GlobalEventHandlers, NonNullable<GlobalEventHandlers[keyof GlobalEventHandlers]>] {
-      const [key, value] = pair
-      return key in EventHandlerKeys && typeof value === 'function'
-    }
+  if (typeof value === "object") {
+    return "handler" in value && "data" in value;
+  }
+  return false;
+}
+
+/**
+ * Checks if a property tuple is a pure function (no external data used)
+ * @param pair [key, value]
+ * @returns true if the event handler is a pure function
+ */
+export function isPureActionHandler(
+  pair: [key: string, value: unknown]
+): pair is [
+  keyof GlobalEventHandlers,
+  NonNullable<GlobalEventHandlers[keyof GlobalEventHandlers]>
+] {
+  const [key, value] = pair;
+  return key in EventHandlerKeys && typeof value === "function";
+}

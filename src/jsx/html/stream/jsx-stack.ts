@@ -221,7 +221,9 @@ export class JSXStack<G extends SXLGlobalContext> {
       if (!wrapped) {
         throw new Error(
           `Unexpected component type: ${
-            typeof element.type === "string" ? element.type : element.type.name
+            typeof element.type === "string"
+              ? element.type
+              : element.type?.name ?? element
           }`
         );
       }

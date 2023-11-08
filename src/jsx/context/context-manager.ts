@@ -65,6 +65,15 @@ export interface ContextManagerOptions {
   sync: boolean;
 }
 
+function buildWebContextString(data: Record<string, unknown>) {
+  return `{
+            data: ${JSON.stringify(data)},
+            actions: {
+                refetchElement: sxl.refetchElement
+            }
+         }`;
+}
+
 export class ContextManager<G extends SXLGlobalContext> {
   private options: ContextManagerOptions;
   errorHandler: IErrorHandler;
@@ -155,13 +164,24 @@ export class ContextManager<G extends SXLGlobalContext> {
       .filter(isWebHandler)
       .forEach(([key, v]) => {
         let handlerContent: string = "";
-        if (Object.entries(v.data).length === 0) {
-          handlerContent = v.handler.toString();
-        } else {
-          handlerContent = `(ev) => { const h = ${v.handler.toString()};\n h(ev, ${JSON.stringify(
-            v.data
-          )}) }`;
-        }
+        /*
+
+        interface WebActions {
+  refetchElement: (
+    id: string,
+    queryParams: Record<string, string | number | boolean>
+  ) => void;
+}
+
+interface WebContext<Data> {
+  data: Data;
+  actions: WebActions;
+}*/
+
+        handlerContent = `(ev) => { const h = ${v.handler.toString()};\n h(ev, ${buildWebContextString(
+          v.data
+        )}); }`;
+
         element.props[key] = "";
         _handlers.push([key as keyof GlobalEventHandlers, handlerContent]);
       });

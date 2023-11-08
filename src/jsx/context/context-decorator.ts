@@ -33,7 +33,7 @@ export function decorateContext(element: ParsedComponent): string {
       ([ev, h]) =>
         `document.querySelector('${QuerySelectors.eventSource(
           element.id
-        )}').addEventListener('${ev.replace(/^on/, "")}', ${h?.toString()})`
+        )}').addEventListener('${ev.replace(/^on/, "")}', ${h})`
     )
     .join(";\n");
   const fns = Object.entries(element.context)
@@ -46,10 +46,16 @@ export function decorateContext(element: ParsedComponent): string {
 
   const functionBody = `${fns}${handlers}`.trim();
 
-  const source = `<script>
+  if (Object.entries(element.context).length === 0) {
+    return `<script type="application/javascript">
+        ${functionBody};
+    </script>`;
+  }
+
+  const source = `<script type="application/javascript">
       (function(){
-        ${functionBody}
-      }).call(${JSON.stringify(element.context)})
+        ${functionBody};
+      }).call(${JSON.stringify(element.context)});
     </script>`;
   return source;
 }

@@ -2,14 +2,26 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { SXLGlobalContext } from "./context";
 
+interface WebActions {
+  refetchElement: (
+    id: string,
+    queryParams: Record<string, string | number | boolean>
+  ) => void;
+}
+
+interface WebContext<Data> {
+  data: Data;
+  actions: WebActions;
+}
+
 /**
  * A web handler.
  *
  * This is the type we expect for event handlers (e.g. onclick).
  */
-interface IWebHandler<EventType, WebContext> {
-  handler: (ev?: EventType, data?: WebContext) => unknown;
-  data: WebContext;
+export interface IWebHandler<EventType, WebData> {
+  handler: (ev?: EventType, webContext?: WebContext<WebData>) => unknown;
+  data: WebData;
 }
 
 /**
@@ -41,6 +53,8 @@ type SkippedProps =
 type HTMLAttributes<T extends HTMLElement> = {
   [K in keyof T]?: K extends SkippedProps
     ? never
+    : K extends "children"
+    ? SXL.Children
     : T[K] extends object
     ? Partial<T[K]>
     : EventHandler<T[K], any>;
@@ -57,7 +71,7 @@ interface CustomEventMap {
  * Global namespace
  */
 declare global {
-  interface LeanJSXDocument extends Document {
+  export interface LeanJSXDocument extends Document {
     //adds definition to Document, but you can do the same with HTMLElement
     addEventListener<K extends keyof CustomEventMap>(
       type: K,
@@ -107,11 +121,11 @@ declare global {
     /**
      * The base properties that a JSX component can receive.
      */
-    export interface Props
+    export interface Props<G = SXLGlobalContext>
       extends Omit<HTMLAttributes<HTMLElement>, "children"> {
       children?: Children;
       dataset?: DOMStringMap;
-      globalContext?: SXLGlobalContext;
+      globalContext?: G;
     }
 
     /**
@@ -243,20 +257,8 @@ declare global {
      * of by an async function (an async component) as {@link SXL.AsyncElement}
      */
     export type Element = StaticElement | AsyncElement | AsyncGenElement;
-  }
 
-  namespace JSX {
-    export type ElementType =
-      | keyof IntrinsicElements
-      | SXL.NodeFactory<any>
-      | SXL.AsyncGenFactory
-      | SXL.ClassFactory<any>;
-    type Element = SXL.StaticElement;
-
-    interface ElementAttributesProperty {
-      props;
-    }
-    interface IntrinsicElements {
+    export interface IntrinsicElements {
       a: HTMLAttributes<HTMLAnchorElement>;
       abbr: HTMLAttributes<HTMLElement>;
       address: HTMLAttributes<HTMLElement>;
@@ -376,6 +378,20 @@ declare global {
       video: HTMLAttributes<HTMLVideoElement>;
       wbr: HTMLAttributes<HTMLElement>;
     }
+  }
+
+  export namespace JSX {
+    export type ElementType =
+      | keyof IntrinsicElements
+      | SXL.NodeFactory<any>
+      | SXL.AsyncGenFactory
+      | SXL.ClassFactory<any>;
+    type Element = SXL.StaticElement;
+
+    interface ElementAttributesProperty {
+      props;
+    }
+    interface IntrinsicElements extends SXL.IntrinsicElements {}
   }
 }
 

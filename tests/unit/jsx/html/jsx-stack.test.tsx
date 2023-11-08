@@ -1,9 +1,10 @@
-import { SXLGlobalContext } from "@/types/context";
+import { webAction } from "@/components/web-action";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
 describe("jsx-stack.test", () => {
   const { jsxStack } = setupTests();
+
   test("static elements", async () => {
     const stack = jsxStack({ username: "Pedro" });
     void stack.push(
@@ -26,11 +27,18 @@ describe("jsx-stack.test", () => {
 
   test("static elements - with handlers", async () => {
     const stack = jsxStack({ username: "Pedro" });
+
     void stack.push(
       <div>
         <p>E1</p>
         <p>E2</p>
-        <button onclick={() => console.log("clicked")}>Click</button>
+        <button
+          onclick={webAction<MouseEvent, Record<string, unknown>>({}, () =>
+            console.log("clicked")
+          )}
+        >
+          Click
+        </button>
       </div>
     );
 
@@ -43,12 +51,16 @@ describe("jsx-stack.test", () => {
     }
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><p>E1</p><p>E2</p><button data-action="element-3">Click</button><script>
-                  (function(){
-                    document.querySelector('[data-action="element-3"]').addEventListener('click', () => console.log("clicked"))
-                  }).call({})
-                </script></div>"
-        `);
+      "<div><p>E1</p><p>E2</p><button data-action="element-3">Click</button><script type="application/javascript">
+              document.querySelector('[data-action="element-3"]').addEventListener('click', (ev) => { const h = () => console.log("clicked");
+       h(ev, {
+                  data: {},
+                  actions: {
+                      refetchElement: sxl.refetchElement
+                  }
+               }); });
+          </script></div>"
+    `);
   });
 
   test("function component", async () => {
@@ -83,7 +95,7 @@ describe("jsx-stack.test", () => {
     ) {
       this.greet = "Hi"!;
       return (
-        <button click={() => console.log(this.greet)}>
+        <button onclick={webAction({}, () => console.log(this.greet))}>
           Hello {globalContext?.username}
         </button>
       );
@@ -99,10 +111,60 @@ describe("jsx-stack.test", () => {
     }
 
     expect(all).toMatchInlineSnapshot(`
-      "<button data-action="element-0">Hello Pedro</button><script>
+      "<button data-action="element-0">Hello Pedro</button><script type="application/javascript">
             (function(){
-              document.querySelector('[data-action="element-0"]').addEventListener('click', () => console.log(this.greet))
-            }).call({"greet":"Hi","props":{"dataset":{},"children":[],"globalContext":{"username":"Pedro"}}})
+              document.querySelector('[data-action="element-0"]').addEventListener('click', (ev) => { const h = () => console.log(this.greet);
+       h(ev, {
+                  data: {},
+                  actions: {
+                      refetchElement: sxl.refetchElement
+                  }
+               }); });
+            }).call({"greet":"Hi"});
+          </script>"
+    `);
+  });
+
+  test("function component: with explicit data", async () => {
+    const stack = jsxStack({ username: "Pedro" });
+
+    function List(
+      this: { greet: string },
+      { globalContext }: { globalContext?: { username: string } }
+    ) {
+      this.greet = "Hi"!;
+      const someInternalData = "This is internal";
+      return (
+        <button
+          onclick={webAction({ someInternalData }, (ev, inner) =>
+            console.log(this.greet, inner?.data?.someInternalData)
+          )}
+        >
+          Hello {globalContext?.username}
+        </button>
+      );
+    }
+    void stack.push(<List />);
+
+    let first = await stack.pop();
+    let all = "";
+
+    while (first) {
+      all += first;
+      first = await stack.pop();
+    }
+
+    expect(all).toMatchInlineSnapshot(`
+      "<button data-action="element-0">Hello Pedro</button><script type="application/javascript">
+            (function(){
+              document.querySelector('[data-action="element-0"]').addEventListener('click', (ev) => { const h = (ev, inner) => console.log(this.greet, inner?.data?.someInternalData);
+       h(ev, {
+                  data: {"someInternalData":"This is internal"},
+                  actions: {
+                      refetchElement: sxl.refetchElement
+                  }
+               }); });
+            }).call({"greet":"Hi"});
           </script>"
     `);
   });
@@ -168,7 +230,7 @@ describe("jsx-stack.test", () => {
   test("2 static and 1 async element", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise(resolve => resolve(<p>E2</p>));
+      return new Promise((resolve) => resolve(<p>E2</p>));
     }
     void stack.push(
       <div>
@@ -197,8 +259,8 @@ describe("jsx-stack.test", () => {
   test("2 static and 1 async element - with handler", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise(resolve =>
-        resolve(<button onclick={() => "E2"}>E2</button>)
+      return new Promise((resolve) =>
+        resolve(<button onclick={webAction({}, () => "E2")}>E2</button>)
       );
     }
     void stack.push(
@@ -218,21 +280,25 @@ describe("jsx-stack.test", () => {
     }
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><button data-action="element-4">E2</button><script>
-                  (function(){
-                    document.querySelector('[data-action="element-4"]').addEventListener('click', () => "E2")
-                  }).call({})
-                </script></template><script>
-                sxl.fillPlaceHolder("element-2");  
-             </script>
-             "
-        `);
+      "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><button data-action="element-4">E2</button><script type="application/javascript">
+              document.querySelector('[data-action="element-4"]').addEventListener('click', (ev) => { const h = () => "E2";
+       h(ev, {
+                  data: {},
+                  actions: {
+                      refetchElement: sxl.refetchElement
+                  }
+               }); });
+          </script></template><script>
+          sxl.fillPlaceHolder("element-2");  
+       </script>
+       "
+    `);
   });
 
   test("2 static and 1 async element - sync mode", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise(resolve => resolve(<p>E2</p>));
+      return new Promise((resolve) => resolve(<p>E2</p>));
     }
     void stack.push(
       <div>
@@ -261,8 +327,8 @@ describe("jsx-stack.test", () => {
   test("test stack events", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
-      return new Promise(resolve =>
-        resolve(<button onclick={() => "E2"}>E2</button>)
+      return new Promise((resolve) =>
+        resolve(<button onclick={webAction({}, () => "E2")}>E2</button>)
       );
     }
     void stack.push(
@@ -297,15 +363,19 @@ describe("jsx-stack.test", () => {
     await consume();
 
     expect(flushes).toMatchInlineSnapshot(`
-            [
-              "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p>",
-              "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><button data-action="element-4">E2</button><script>
-                  (function(){
-                    document.querySelector('[data-action="element-4"]').addEventListener('click', () => "E2")
-                  }).call({})
-                </script></template>",
-            ]
-        `);
+      [
+        "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p>",
+        "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><button data-action="element-4">E2</button><script type="application/javascript">
+              document.querySelector('[data-action="element-4"]').addEventListener('click', (ev) => { const h = () => "E2";
+       h(ev, {
+                  data: {},
+                  actions: {
+                      refetchElement: sxl.refetchElement
+                  }
+               }); });
+          </script></template>",
+      ]
+    `);
   });
 
   test("fragment elements", async () => {
@@ -398,7 +468,7 @@ describe("jsx-stack.test", () => {
   test("async gen function component", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function* E1() {
-      yield (<p>Loading</p>);
+      yield <p>Loading</p>;
       await Promise.resolve();
       return <p>E1</p>;
     }
@@ -433,7 +503,7 @@ describe("jsx-stack.test", () => {
 
     async function* E1() {
       throw new Error("Oh no!");
-      yield (<p>Loading</p>);
+      yield <p>Loading</p>;
 
       await failingResource();
       return <p>E1</p>;
@@ -468,7 +538,7 @@ describe("jsx-stack.test", () => {
     }
 
     async function* E1() {
-      yield (<p>Loading</p>);
+      yield <p>Loading</p>;
 
       await failingResource();
       return <p>E1</p>;
@@ -583,7 +653,11 @@ describe("jsx-stack.test", () => {
       }
 
       render() {
-        return <button onclick={() => console.log(this.greet)}>Say hi!</button>;
+        return (
+          <button onclick={webAction({}, () => console.log(this.greet))}>
+            Say hi!
+          </button>
+        );
       }
     }
 
@@ -598,10 +672,16 @@ describe("jsx-stack.test", () => {
     }
 
     expect(all).toMatchInlineSnapshot(`
-      "<button data-action="element-0">Say hi!</button><script>
+      "<button data-action="element-0">Say hi!</button><script type="application/javascript">
             (function(){
-              document.querySelector('[data-action="element-0"]').addEventListener('click', () => console.log(this.greet))
-            }).call({"props":{"dataset":{},"children":[],"globalContext":{"username":"Pedro"}},"greet":"Hello"})
+              document.querySelector('[data-action="element-0"]').addEventListener('click', (ev) => { const h = () => console.log(this.greet);
+       h(ev, {
+                  data: {},
+                  actions: {
+                      refetchElement: sxl.refetchElement
+                  }
+               }); });
+            }).call({"props":{"dataset":{},"children":[],"globalContext":{"username":"Pedro"}},"greet":"Hello"});
           </script>"
     `);
   });

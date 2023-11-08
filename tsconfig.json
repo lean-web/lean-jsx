@@ -2,16 +2,14 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "module": "ESNext", 
+    "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": false,
     "outDir": "./lib",
 
     /* Bundler mode */
-    "declaration": true,
-    "emitDeclarationOnly": true,
+    "noEmit": true,
     "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
@@ -27,14 +25,12 @@
     "jsx": "react-jsx", // support JSX
     "jsxImportSource": "@/jsx/core",
     "paths": {
-        "@tests/": ["./tests/"],
-        "@tests/*": ["./tests/*"],
-        "@/": ["./src/"],
-        "@/*": ["./src/*"]
+      "@tests/": ["./tests/"],
+      "@tests/*": ["./tests/*"],
+      "@/": ["./src/"],
+      "@/*": ["./src/*"]
     },
-    "types": [
-        "node", "jest", "express"
-      ],
+    "types": ["node", "jest", "express"]
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "@/types/polyfil"]
 }

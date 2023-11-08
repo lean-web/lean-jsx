@@ -32,7 +32,7 @@ export function stringToDom(data: string): [JSDOM, string[]] {
     throw err;
   });
 
-  dom.virtualConsole.on("log", function(this: unknown, err) {
+  dom.virtualConsole.on("log", function (this: unknown, err) {
     console.log(err);
   });
 
@@ -92,7 +92,7 @@ export interface Deferred<T> {
 
 export function defer<T>(): Deferred<T> {
   const deferred = {} as Deferred<T>;
-  const promise = new Promise<T>(function(resolve, reject) {
+  const promise = new Promise<T>(function (resolve, reject) {
     deferred.resolve = resolve;
     deferred.reject = reject;
   });

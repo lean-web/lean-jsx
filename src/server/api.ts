@@ -35,9 +35,20 @@ export interface SXLMiddlewareOptions<G extends SXLGlobalContext> {
    *
    * These can be created with {@link GetDynamicComponent}
    */
-  components: DynamicController[];
+  components?: DynamicController<G>[];
+  /**
+   * Configure the server response before it's returned
+   * @param response
+   * @returns
+   */
   configResponse?: (response: Response) => Response;
-  globalContextParser: (args: Request) => G;
+  /**
+   * Parse the request params
+   * @param args - the request made to the server
+   * @param componentName - the name of the component, if this is an async call
+   * @returns an object containing parameters for the JSX root component
+   */
+  globalContextParser: (args: Request, componentName?: string) => G;
 }
 
 /**
@@ -55,13 +66,19 @@ export interface RenderWithTemplateOptions
 export type ExpressMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => void;
 
 /**
  * Main server actions for LeanJSX.
  */
 export interface LeanJSX<G extends SXLGlobalContext> {
+  render(
+    res: Response,
+    element: SXL.Element,
+    options?: { globalContext?: G; templateName?: string },
+    next?: NextFunction | undefined,
+  );
   /**
    * Render a JSX component synchronously. This is meant to be used in API endpoints
    * that return the contents for a subset of components in the application.
@@ -99,7 +116,7 @@ export interface LeanJSX<G extends SXLGlobalContext> {
     element: SXL.Element,
     globalContext: G,
     options: RenderWithTemplateOptions,
-    next?: NextFunction
+    next?: NextFunction,
   ): Promise<void>;
 
   /**

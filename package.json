@@ -1,18 +1,15 @@
 {
   "name": "lean-jsx",
-  "version": "0.0.5-alpha",
+  "version": "0.0.6-alpha",
   "author": "Pedro Marquez-Soto",
   "license": "MPL-2.0",
   "description": "LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.",
   "main": "index.js",
-  "types": "./src/types/global.d.ts",
-  "files": [
-    "lib",
-    "./src/types"
-  ],
+  "types": "./lib/types/global.d.ts",
+  "files": ["lib"],
   "scripts": {
-    "build": "tsup",
-    "watch": "tsup --watch",
+    "build": "rollup -c",
+    "watch": "rollup -c --watch",
     "test": "jest",
     "test:e2e": "jest -c ../../jest.integration.config.js",
     "docs": "npx typedoc --out docs"
@@ -20,6 +17,10 @@
   "devDependencies": {
     "@jest-mock/express": "^2.0.2",
     "@jest/globals": "^29.7.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.5",
     "@types/compression": "^1.7.4",
     "@types/eslint": "^8.44.6",
     "@types/express": "^4.17.18",
@@ -35,8 +36,11 @@
     "jest-puppeteer": "^9.0.1",
     "jsdom": "^22.1.0",
     "pretty": "^2.0.0",
+    "prettier-2": "npm:prettier@^2",
+    "rollup": "^4.3.0",
+    "rollup-plugin-alias": "^2.2.0",
+    "rollup-plugin-dts": "^6.1.0",
     "ts-jest": "^29.1.1",
-    "tsup": "^7.2.0",
     "typedoc-plugin-mdn-links": "^3.1.0",
     "typedoc-plugin-missing-exports": "^2.1.0",
     "typescript": "^5.2.2",

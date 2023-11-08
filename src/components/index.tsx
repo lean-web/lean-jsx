@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { SXLGlobalContext } from "@/types/context";
+import { registerDynamicController } from "./component-registry";
 export { webAction } from "./web-action";
 
-export function toQueryString(
+export function toQueryString<G extends SXLGlobalContext = SXLGlobalContext>(
   url: string,
-  globalContext?: SXLGlobalContext
+  globalContext?: G
 ): string {
   if (!globalContext) {
     return url;
@@ -90,20 +91,22 @@ type TrackedPromise<T> = PendingResolve | ResolvedPromise<T>;
  * This object is meant to be created by the factory method {@link GetDynamicComponent},
  * as it relies on a very specific implementation.
  */
-export interface DynamicController {
+export interface DynamicController<
+  G extends SXLGlobalContext = SXLGlobalContext
+> {
   contentId: string;
   /**
    * Render the component's loading state.
    * @param props - the component's properties {@link SXL.Props}
    * @returns - a JSX component
    */
-  Render: (props: SXL.Props) => SXL.Element;
+  Render: (props: SXL.Props<G>) => SXL.Element;
   /**
    * Renders the component's loaded state.
    * @param props - the component's properties {@link SXL.Props}
    * @returns - a JSX component
    */
-  Api: (props: SXL.Props) => SXL.AsyncElement;
+  Api: (props: SXL.Props<G>) => SXL.AsyncElement;
 
   /**
    * The parameters associated to this component
@@ -124,44 +127,51 @@ export interface DynamicController {
  *  and can return different JSX content depending on the promise state.
  * @returns A {@link DynamicController}
  */
-export function GetDynamicComponent<T>(
+export function GetDynamicComponent<T, GContext extends SXLGlobalContext>(
   contentId: string,
   fetcher: () => Promise<T>,
-  render: (data: TrackedPromise<T>) => SXL.StaticElement | SXL.AsyncElement,
+  render: (
+    data: TrackedPromise<T>,
+    props: SXL.Props<GContext>
+  ) => SXL.StaticElement | SXL.AsyncElement,
   queryParams?: Record<string, string | number | boolean>
-): DynamicController {
-  return {
-    Render: (props: SXL.Props) => (
+): DynamicController<GContext> {
+  return registerDynamicController({
+    Render: (props: SXL.Props<GContext>) => (
       <dynamic-component
         data-id={toQueryString(contentId, props.globalContext)}
       >
-        {render({
-          isPending: true,
-          isError: false,
-          isResolved: false,
-          value: null,
-          ...props,
-        })}
+        {render(
+          {
+            isPending: true,
+            isError: false,
+            isResolved: false,
+            value: null,
+          },
+          props
+        )}
       </dynamic-component>
     ),
-    Api: async (props: SXL.Props) => {
+    Api: async (props: SXL.Props<GContext>) => {
       const data = await fetcher();
-      return render({
-        isPending: false,
-        isError: false,
-        isResolved: true,
-        value: data,
-        ...props,
-      });
+      return render(
+        {
+          isPending: false,
+          isError: false,
+          isResolved: true,
+          value: data,
+        },
+        props
+      );
     },
     contentId,
     queryParams,
-  };
+  });
 }
 
 declare global {
   namespace JSX {
-    interface IntrinsicElements {
+    interface IntrinsicElements extends SXL.IntrinsicElements {
       "dynamic-component": Partial<HTMLElement>;
     }
   }

@@ -140,9 +140,11 @@ describe("engine.test", () => {
     expect(engine.renderComponent).toHaveBeenCalled();
 
     const [componentRender, context] =
-      (engine.renderComponent as jest.MockedFunction<
-        typeof engine.renderComponent
-      >).mock.lastCall ?? [];
+      (
+        engine.renderComponent as jest.MockedFunction<
+          typeof engine.renderComponent
+        >
+      ).mock.lastCall ?? [];
 
     expect(context).toStrictEqual({ myGlobalContext: "hello" });
     await expect(componentRender).resolves.toMatchInlineSnapshot(`
