@@ -81,7 +81,10 @@ module.exports = [
     external,
   },
   {
-    input: "src/types/global.ts",
+    input: {
+      global: "src/types/global.ts",
+      context: "src/types/context.ts",
+    },
     output: {
       dir: "lib",
       format: "es",

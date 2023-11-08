@@ -1,7 +1,7 @@
 # LeanJSX
 
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
-![Version](https://img.shields.io/badge/version-0.0.6--alpha-orange)
+![Version](https://img.shields.io/badge/version-0.0.7--alpha-orange)
 
 ## Overview
 
