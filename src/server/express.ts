@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import compression from "compression";
 
 import { LeanJSX } from "./api";
@@ -68,7 +68,7 @@ interface AppConfig {
  * @returns an instance of the LeanJSX runtime.
  */
 export function buildApp<G extends SXLGlobalContext>(
-  config: AppConfig
+  config: AppConfig,
 ): LeanJSX<G> {
   const logger: ILogger = new DefaultLogger(config.logging);
   const errorHandler = new ErrorHandler(logger);
@@ -76,13 +76,13 @@ export function buildApp<G extends SXLGlobalContext>(
   const jsxStreamFactory: JSXStreamFactory<G> = (
     root: SXL.StaticElement,
     globalContext: G,
-    opts: JSXStreamOptions
+    opts: JSXStreamOptions,
   ) =>
     new JSXStream(
       root,
       new ContextManager(globalContext, errorHandler),
       logger,
-      opts
+      opts,
     );
   return new LeanAppEngine(templateManager, jsxStreamFactory);
 }

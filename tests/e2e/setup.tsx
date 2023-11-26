@@ -2,7 +2,7 @@
 import express, { type Express } from "express";
 import { LeanJSX, buildApp } from "@/server/express";
 import fs from "fs";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { Page } from "puppeteer";
 import { expect } from "@jest/globals";
 import { Server } from "net";
@@ -10,7 +10,7 @@ import { Server } from "net";
 function loadScript() {
   const scriptContent = fs.readFileSync(
     require.resolve("lean-jsx/lib/web/sxl.js"),
-    "utf-8"
+    "utf-8",
   );
   return scriptContent;
 }
@@ -34,9 +34,9 @@ export function getTestLeanEngine<G extends SXLGlobalContext>(): LeanJSX<G> {
 }
 
 export async function startExpress<G extends SXLGlobalContext>(
-  decorate: (app: Express, engine: LeanJSX<G>) => void
+  decorate: (app: Express, engine: LeanJSX<G>) => void,
 ): Promise<Server> {
-  const engine = getTestLeanEngine();
+  const engine = getTestLeanEngine<G>();
 
   const app = express();
 

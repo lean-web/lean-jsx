@@ -23,13 +23,12 @@ describe("DOM test", () => {
     );
 
     expect(doms).toMatchInlineSnapshot(`
-[
-  "<div><h1>Hello</h1><div data-placeholder="element-2"></div></div>",
-  "<div><h1>Hello</h1><div data-placeholder="element-2"></div></div><template id="element-2"><p>Hello world</p></template>",
-  "<div><h1>Hello</h1><p>Hello world</p></div><script> sxl.fillPlaceHolder("element-2"); </script> ",
-  "<div><h1>Hello</h1><p>Hello world</p></div><script> sxl.fillPlaceHolder("element-2"); </script>",
-]
-`);
+      [
+        "<div><h1>Hello</h1><div data-placeholder="element-2"></div></div>",
+        "<div><h1>Hello</h1><div data-placeholder="element-2"></div></div><template id="element-2"><p>Hello world</p></template>",
+        "<div><h1>Hello</h1><p>Hello world</p></div><script> sxl.fillPlaceHolder("element-2"); </script> ",
+      ]
+    `);
   });
 
   test("Async flow with loading state", async () => {
@@ -48,16 +47,13 @@ describe("DOM test", () => {
     );
 
     expect(doms).toMatchInlineSnapshot(`
-[
-  "<div><h1>Hello</h1><div data-placeholder="element-2">Loading</div></div>",
-  "<div><h1>Hello</h1><div data-placeholder="element-2">Loading</div></div><template id="element-2"><div data-placeholder="element-3"></div></template>",
-  "<div><h1>Hello</h1><div data-placeholder="element-2">Loading</div></div><template id="element-2"><div data-placeholder="element-3"></div></template>",
-  "<div><h1>Hello</h1><div data-placeholder="element-3">Loading</div></div><script> sxl.fillPlaceHolder("element-2"); </script> <template id="element-3"><p>Hello world</p></template>",
-  "<div><h1>Hello</h1><div data-placeholder="element-3">Loading</div></div><script> sxl.fillPlaceHolder("element-2"); </script>",
-  "<div><h1>Hello</h1><p>Hello world</p></div><script> sxl.fillPlaceHolder("element-2"); </script> <script> sxl.fillPlaceHolder("element-3"); </script> ",
-  "<div><h1>Hello</h1><div data-placeholder="element-3">Loading</div></div><script> sxl.fillPlaceHolder("element-2"); </script>",
-  "<div><h1>Hello</h1><p>Hello world</p></div><script> sxl.fillPlaceHolder("element-2"); </script> <script> sxl.fillPlaceHolder("element-3"); </script>",
-]
-`);
+      [
+        "<div><h1>Hello</h1><div data-placeholder="element-2">Loading</div></div>",
+        "<div><h1>Hello</h1><div data-placeholder="element-2">Loading</div></div><template id="element-2"><div data-placeholder="element-3"></div></template>",
+        "<div><h1>Hello</h1><div data-placeholder="element-2">Loading</div></div><template id="element-2"><div data-placeholder="element-3"></div></template>",
+        "<div><h1>Hello</h1><div data-placeholder="element-3">Loading</div></div><script> sxl.fillPlaceHolder("element-2"); </script> <template id="element-3"><p>Hello world</p></template>",
+        "<div><h1>Hello</h1><p>Hello world</p></div><script> sxl.fillPlaceHolder("element-2"); </script> <script> sxl.fillPlaceHolder("element-3"); </script> ",
+      ]
+    `);
   });
 });

@@ -79,7 +79,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const result = await readableToString(stream);
     const clean = result.replace(/[ \n]{1,}/g, " ");
     expect(clean).toMatchInlineSnapshot(
-      `"<button data-action="element-0"></button><script type="application/javascript"> document.querySelector('[data-action="element-0"]').addEventListener('click', function (ev) { console.log(ev); }); </script>"`
+      `"<button data-action="element-0"></button><script type="application/javascript"> sxl.addEventListener('[data-action="element-0"]', 'click',function (ev) { console.log(ev); }); </script>"`
     );
   }, 2000);
 

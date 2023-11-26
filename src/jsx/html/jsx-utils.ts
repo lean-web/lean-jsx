@@ -11,7 +11,7 @@ export interface ClassNode extends Omit<SXL.StaticElement, "type"> {
 }
 
 export function isClass(
-  func: string | SXL.NodeFactory<SXL.Props> | SXL.ClassFactory<SXL.Props>
+  func: string | SXL.NodeFactory<SXL.Props> | SXL.ClassFactory<SXL.Props>,
 ): func is SXL.ClassFactory<SXL.Props> {
   return (
     typeof func === "function" &&
@@ -20,13 +20,13 @@ export function isClass(
 }
 
 export function isTextNode(
-  jsx: SXL.Element | SXL.AsyncElement | string
+  jsx: SXL.Element | SXL.AsyncElement | string,
 ): jsx is TextNode {
   return typeof jsx === "string";
 }
 
 export function isFunctionNode(
-  jsx: SXL.Element | SXL.Children
+  jsx: SXL.Element | SXL.Children,
 ): jsx is FunctionNode {
   if (typeof jsx === "string" || Array.isArray(jsx)) {
     return false;
@@ -46,7 +46,7 @@ export function isPromise(
     | Promise<SXL.StaticElement>
     | SXL.AsyncGenElement
     | undefined
-    | string
+    | string,
 ): jsx is Promise<SXL.StaticElement> {
   return typeof jsx !== "string" && !!jsx && "then" in jsx;
 }
@@ -57,7 +57,7 @@ export function isAsyncGen(
     | Promise<SXL.StaticElement>
     | SXL.AsyncGenElement
     | undefined
-    | string
+    | string,
 ): jsx is SXL.AsyncGenElement {
   return typeof jsx !== "string" && !!jsx && "next" in jsx;
 }
@@ -76,13 +76,13 @@ export function isClassNode(jsx: SXL.Element | SXL.Children): jsx is ClassNode {
 }
 
 export function isArrayOfNodes(
-  jsx: SXL.StaticElement | SXL.Children
+  jsx: SXL.StaticElement | SXL.Children,
 ): jsx is Array<SXL.StaticElement | string> {
   return Array.isArray(jsx);
 }
 
 export function isStaticNode(
-  jsx: SXL.StaticElement | SXL.AsyncGenElement | SXL.AsyncElement | string
+  jsx: SXL.StaticElement | SXL.AsyncGenElement | SXL.AsyncElement | string,
 ): jsx is StaticNode {
   return (
     !isAsyncGen(jsx) &&
@@ -95,7 +95,7 @@ export function isStaticNode(
 }
 
 export function isFragmentNode(
-  jsx: SXL.Element | undefined
+  jsx: SXL.Element | undefined,
 ): jsx is FunctionNode {
   return (
     !!jsx &&
@@ -107,7 +107,7 @@ export function isFragmentNode(
 }
 
 export function unwrapFragments(
-  element: SXL.StaticElement | string | number | boolean
+  element: SXL.StaticElement | string | number | boolean,
 ): Array<SXL.StaticElement | string> {
   if (
     typeof element === "string" ||
@@ -118,7 +118,7 @@ export function unwrapFragments(
   }
   if (element.type === "fragment") {
     const children = element.children.flatMap((child) =>
-      unwrapFragments(child)
+      unwrapFragments(child),
     );
     return children;
   }

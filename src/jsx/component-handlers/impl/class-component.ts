@@ -1,10 +1,10 @@
 import { ComponentTest, ComponentHandler } from "..";
 import { isClassNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 
 export const ClassElementTest: ComponentTest<SXL.ClassElement> = (
-  arg: SXL.Element
+  arg: SXL.Element,
 ): arg is SXL.ClassElement => {
   return isClassNode(arg);
   // return !isPromise(arg) && !isAsyncGen(arg) && typeof arg.type === "string";
@@ -19,7 +19,7 @@ export const ClassElementTest: ComponentTest<SXL.ClassElement> = (
  */
 export const ClassElementHandler: ComponentHandler = (
   element: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>
+  contextManager: ContextManager<SXLGlobalContext>,
 ) => {
   if (!ClassElementTest(element)) {
     return undefined;
@@ -40,25 +40,31 @@ export const ClassElementHandler: ComponentHandler = (
 
   // check for "onLoading" hook
   if (classNode.onLoading) {
-    const onLoadingFn = classNode.onLoading.bind(classContext);
+    const onLoadingFn = classNode.onLoading.bind(classNode);
 
-    placeholder = contextManager.errorHandler.withErrorHandling(onLoadingFn, {
-      extraInfo: {
-        classComponent: onLoadingFn.name,
+    placeholder = contextManager.errorHandler.withErrorHandling(
+      () => onLoadingFn(),
+      {
+        extraInfo: {
+          classComponent: onLoadingFn.name,
+        },
       },
-    });
+    );
   }
-  const render = classNode.render.bind(classContext);
-  const lazyElement = contextManager.errorHandler.withErrorHandling(render, {
-    extraInfo: {
-      classComponent: render.name,
+  const render = classNode.render.bind(classNode);
+  const lazyElement = contextManager.errorHandler.withErrorHandling(
+    () => render(),
+    {
+      extraInfo: {
+        classComponent: render.name,
+      },
     },
-  });
+  );
 
   return contextManager.processElement(
     id,
     classContext,
     lazyElement,
-    placeholder
+    placeholder,
   );
 };

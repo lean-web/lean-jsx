@@ -9,7 +9,7 @@ import {
   unwrapFragments,
 } from "../jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import {
   decorateContext,
   wirePlaceholder,
@@ -81,7 +81,7 @@ export class JSXStack<G extends SXLGlobalContext> {
   constructor(
     logger: ILogger,
     contextManager: ContextManager<G>,
-    options?: JSXStackOptions
+    options?: JSXStackOptions,
   ) {
     this.contextManager = contextManager;
     this.options = options ?? { sync: false };
@@ -134,7 +134,7 @@ export class JSXStack<G extends SXLGlobalContext> {
 
   private async processElement(
     element: SXL.StaticElement,
-    wrap: ParsedComponent
+    wrap: ParsedComponent,
   ) {
     // TODO: Find a better place to clean fragments
     if (isStaticNode(element) && element.type === "fragment") {
@@ -154,6 +154,7 @@ export class JSXStack<G extends SXLGlobalContext> {
     const [open, close] = JSXToHTMLUtils.jsxNodeToHTMLTag(element);
     this.doneList.push(open);
     const jsCode = decorateContext(wrap);
+
     if (jsCode.trim().length > 0) {
       this.inProgressStack.push(jsCode);
     }
@@ -182,13 +183,13 @@ export class JSXStack<G extends SXLGlobalContext> {
    * @param element - the element to process.
    */
   async push(
-    element: string | number | boolean | SXL.StaticElement | SXL.AsyncElement
+    element: string | number | boolean | SXL.StaticElement | SXL.AsyncElement,
   ): Promise<void> {
     if (!this.started) {
       this.started = true;
       this.logger.debug(
         { sync: this.options.sync },
-        "Start processing JSX element"
+        "Start processing JSX element",
       );
     }
     if (typeof element === "number" || typeof element === "boolean") {
@@ -215,7 +216,7 @@ export class JSXStack<G extends SXLGlobalContext> {
       children.reverse().forEach((child) => this.inProgressStack.push(child));
     } else {
       const wrapped = ComponentHandlerMap.map((handler) =>
-        handler(element, this.contextManager)
+        handler(element, this.contextManager),
       ).find((el) => el);
 
       if (!wrapped) {
@@ -224,7 +225,7 @@ export class JSXStack<G extends SXLGlobalContext> {
             typeof element.type === "string"
               ? element.type
               : element.type?.name ?? element
-          }`
+          }`,
         );
       }
 
@@ -316,7 +317,7 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
     root: SXL.StaticElement,
     contextManager: ContextManager<G>,
     logger: ILogger,
-    options?: JSXStreamOptions
+    options?: JSXStreamOptions,
   ) {
     super({ ...options, encoding: "utf-8" });
     this.pre = options?.pre ?? [];
@@ -358,5 +359,5 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
 export type JSXStreamFactory<G extends SXLGlobalContext> = (
   root: SXL.StaticElement,
   globalContext: G,
-  opts: JSXStreamOptions
+  opts: JSXStreamOptions,
 ) => JSXStream<G>;

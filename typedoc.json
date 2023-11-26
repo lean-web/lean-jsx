@@ -2,8 +2,8 @@
   "entryPoints": [
     "src/server/express.ts",
     "src/components/index.tsx",
-    "./src/plugins/vite/index.ts",
-    "./src/types/global.ts"
+    "./src/plugins/vite.ts",
+    "./src/plugins/esbuild.ts"
   ],
   "out": "docs",
   "name": "@sxl - Server-rendered JSX components",

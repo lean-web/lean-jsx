@@ -2,10 +2,10 @@ import { isPromise } from "util/types";
 import { ComponentTest, ComponentHandler } from "..";
 import { isAsyncGen, isFunctionNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 
 export const FnElementTest: ComponentTest<SXL.FunctionElement> = (
-  arg: SXL.Element
+  arg: SXL.Element,
 ): arg is SXL.FunctionElement => {
   return (
     !isPromise(arg) &&
@@ -39,7 +39,7 @@ export const FnElementTest: ComponentTest<SXL.FunctionElement> = (
  */
 export const FnElementHandler: ComponentHandler = (
   element: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>
+  contextManager: ContextManager<SXLGlobalContext>,
 ) => {
   if (!FnElementTest(element)) {
     return undefined;
@@ -61,7 +61,7 @@ export const FnElementHandler: ComponentHandler = (
       extraInfo: {
         componentFunction: element.type.name,
       },
-    }
+    },
   );
 
   return contextManager.processElement(id, ctx, newElement);

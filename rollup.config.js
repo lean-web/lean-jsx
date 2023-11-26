@@ -4,6 +4,18 @@ const commonjs = require("@rollup/plugin-commonjs");
 const json = require("@rollup/plugin-json");
 const { dts } = require("rollup-plugin-dts");
 const alias = require("rollup-plugin-alias");
+const packageJSON = require("./package.json");
+const analyze = require("rollup-plugin-analyzer");
+const { visualizer } = require("rollup-plugin-visualizer");
+const terser = require("@rollup/plugin-terser");
+
+const { dependencies } = packageJSON;
+
+const compact = false;
+
+const analyzeConf = {
+  showExports: true,
+};
 
 /**
  * NodeJS, server-side dependencies:
@@ -11,7 +23,15 @@ const alias = require("rollup-plugin-alias");
 const cjsInput = {
   server: "src/server/express.ts",
   "server/components": "src/components/index.tsx",
-  "plugins/vite": "./src/plugins/vite/index.ts",
+  "plugins/vite": "./src/plugins/vite.ts",
+  "plugins/esbuild": "./src/plugins/esbuild.ts",
+  "jsx/jsx-dev-runtime": "./src/jsx/core/jsx-dev-runtime.ts",
+  "jsx/jsx-runtime": "./src/jsx/core/jsx-runtime.ts",
+};
+
+const esInput = {
+  "plugins/vite": "./src/plugins/vite.ts",
+  "plugins/esbuild": "./src/plugins/esbuild.ts",
   "jsx/jsx-dev-runtime": "./src/jsx/core/jsx-dev-runtime.ts",
   "jsx/jsx-runtime": "./src/jsx/core/jsx-runtime.ts",
 };
@@ -30,10 +50,16 @@ const external = [
   "lean-jsx/lib/web/sxl.js",
   "body-parser",
   "pino",
+  "pino-http",
   "raw-body",
   "express",
   "compression",
   "stream",
+  "esbuild",
+  "typescript",
+  "fs",
+  "crypto",
+  ...Object.keys(dependencies),
 ];
 
 /**
@@ -44,6 +70,54 @@ const aliasConfig = alias({
   "@/*": ["./src/*"],
 });
 
+const tsConfig = typescript({
+  exclude: ["tests/**"],
+  noEmit: true,
+});
+
+const buildPlugins = (filename, minify = false) => {
+  const plugins = [
+    tsConfig,
+    nodeResolve({ preferBuiltins: true }),
+    commonjs(),
+    json(),
+    aliasConfig,
+    // analyze(analyzeConf),
+    visualizer({
+      emitFile: true,
+      open: true,
+      filename,
+    }),
+  ];
+
+  if (minify) {
+    plugins.push(terser({ maxWorkers: 4 }));
+  }
+
+  return plugins;
+};
+
+const dtsPlugins = (filename, minify = false) => {
+  const plugins = [
+    typescript({
+      exclude: ["tests/**"],
+    }),
+    dts(),
+    // analyze(analyzeConf),
+    visualizer({
+      emitFile: true,
+      open: true,
+      filename,
+    }),
+  ];
+
+  if (minify) {
+    plugins.push(terser({ maxWorkers: 4 }));
+  }
+
+  return plugins;
+};
+
 module.exports = [
   {
     input: cjsInput,
@@ -51,17 +125,20 @@ module.exports = [
       dir: "lib",
       format: "cjs",
       entryFileNames: "[name].js",
+      compact,
     },
-    plugins: [
-      typescript({
-        exclude: ["tests/**"],
-        noEmit: true,
-      }),
-      nodeResolve({ preferBuiltins: true }),
-      commonjs(),
-      json(),
-      aliasConfig,
-    ],
+    plugins: buildPlugins("stats_cjs.html"),
+    external,
+  },
+  {
+    input: esInput,
+    output: {
+      dir: "lib",
+      format: "es",
+      entryFileNames: "[name].mjs",
+      compact,
+    },
+    plugins: buildPlugins("stats_esm.html"),
     external,
   },
   // Generate .d.ts files:
@@ -71,32 +148,9 @@ module.exports = [
       dir: "lib",
       format: "es",
       entryFileNames: "[name].d.ts",
+      compact,
     },
-    plugins: [
-      typescript({
-        exclude: ["tests/**"],
-      }),
-      dts(),
-    ],
-    external,
-  },
-  {
-    input: {
-      global: "src/types/global.ts",
-      context: "src/types/context.ts",
-    },
-    output: {
-      dir: "lib",
-      format: "es",
-      entryFileNames: "[name].d.ts",
-    },
-    plugins: [
-      typescript({
-        exclude: ["tests/**"],
-        noEmit: false,
-      }),
-      dts(),
-    ],
+    plugins: dtsPlugins("stats_dts.html"),
     external,
   },
   // generate browser dependencies:
@@ -107,17 +161,9 @@ module.exports = [
       format: "iife",
       entryFileNames: "[name].js",
       name: "sxl",
+      compact,
     },
-    plugins: [
-      typescript({
-        exclude: ["tests/**"],
-        noEmit: true,
-      }),
-      nodeResolve({ preferBuiltins: true }),
-      commonjs(),
-      json(),
-      aliasConfig,
-    ],
+    plugins: buildPlugins("stats_iife.html", true),
     external,
   },
 ];

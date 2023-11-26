@@ -1,5 +1,9 @@
 import fs from "node:fs";
 import { Plugin } from "vite";
+import { createRequire } from "node:module";
+import path from "node:path";
+
+const require = createRequire(import.meta.url);
 
 /**
  * A Vite plugin to inject lean-jsx/lib/web/sxl.js into the
@@ -23,21 +27,19 @@ export default function injectScript(packageName: string): Plugin {
       enforce: "post",
       transform(html, context) {
         if (context.bundle) {
-          const injectedFileName = Object.keys(context.bundle).find((key) =>
-            /injected_/.test(key)
+          const injectedFileNames = Object.keys(context.bundle).filter((key) =>
+            /injected_/.test(key),
           );
 
           //   context.
-          if (injectedFileName) {
+          if (injectedFileNames.length > 0) {
             return {
               html,
-              tags: [
-                {
-                  tag: "script",
-                  attrs: { src: `/${injectedFileName}` },
-                  injectTo: "head",
-                },
-              ],
+              tags: injectedFileNames.map((injectedFileName) => ({
+                tag: "script",
+                attrs: { src: `/${injectedFileName}` },
+                injectTo: "head",
+              })),
             };
           }
         }
@@ -48,17 +50,28 @@ export default function injectScript(packageName: string): Plugin {
       // Read the script content from the package
       const scriptContent = fs.readFileSync(
         require.resolve("lean-jsx/lib/web/sxl.js"),
-        "utf-8"
+        "utf-8",
       );
 
-      // const loaded = await this.resolve(
-      //     "lean-jsx/lib/web/sxl.js"
-      // );
+      const handlersFile = path.join(process.cwd(), ".lean/action-handlers.js");
+      if (fs.existsSync(handlersFile)) {
+        const scriptContent2 = fs.readFileSync(handlersFile, "utf-8");
+
+        const injectedFileName2 = options.sanitizeFileName(
+          `assets/injected_action_handlers.js`,
+        );
+
+        this.emitFile({
+          type: "prebuilt-chunk",
+          fileName: injectedFileName2,
+          code: scriptContent2,
+        });
+      }
 
       // Create an injected script asset
       // TODO: Get assets dir from config
       const injectedFileName = options.sanitizeFileName(
-        `assets/injected_${packageName}.js`
+        `assets/injected_${packageName}.js`,
       );
 
       this.emitFile({

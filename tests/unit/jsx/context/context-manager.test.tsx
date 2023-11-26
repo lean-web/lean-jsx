@@ -1,3 +1,6 @@
+import { toQueryString } from "@/components";
+import { webAction } from "lean-web-utils/lib/server";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
@@ -8,7 +11,7 @@ describe("context-manager.test", () => {
 
     const handlers = contextManager.processHandlers(
       "myid",
-      <button onclick={() => console.log("Success")}></button>
+      <button onclick={() => console.log("Success")}></button>,
     );
 
     expect(handlers).toMatchInlineSnapshot(`
@@ -27,7 +30,7 @@ describe("context-manager.test", () => {
     const processed = contextManager.processElement(
       "myid",
       { name: "Pedro" },
-      <button onclick={() => console.log("Success")}></button>
+      <button onclick={() => console.log("Success")}></button>,
     );
 
     expect(processed).toMatchInlineSnapshot(`
@@ -68,7 +71,7 @@ describe("context-manager.test", () => {
     const processed = contextManager.processElement(
       "myid",
       { name: "Pedro" },
-      MyComponent()
+      MyComponent(),
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
@@ -116,7 +119,7 @@ describe("context-manager.test", () => {
       "myid",
       { name: "Pedro" },
       MyComponent(),
-      <p>Loading...</p>
+      <p>Loading...</p>,
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
@@ -179,7 +182,7 @@ describe("context-manager.test", () => {
       "myid",
       { name: "Pedro" },
       MyComponent(),
-      Loading()
+      Loading(),
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
@@ -223,5 +226,73 @@ describe("context-manager.test", () => {
               "type": "div",
             }
         `);
+  });
+
+  test("Decorates with web action", () => {
+    function ProductListDetails({
+      product,
+      globalContext,
+    }: { product: { id: string; name: string; description: string } } & {
+      globalContext?: SXLGlobalContext;
+    }) {
+      return (
+        <div>
+          <button
+            onclick={webAction({ id: product.id }, async (ev, ctx) => {
+              console.log("Delete1");
+              await fetch(`/product/${ctx?.data.id}`, {
+                method: "DELETE",
+              });
+              void ctx?.actions.refetchElement("product-list", {});
+            })}
+          >
+            Delete
+          </button>
+          <a
+            href={toQueryString(`/product/${product.id}`, globalContext)}
+            className="product"
+          >
+            <h3>{product.name}</h3>
+            <p>{product.description.slice(0, 50)}</p>
+          </a>
+        </div>
+      );
+    }
+
+    const contextManager = ctxManagerFactory({ username: "" });
+
+    const processed = contextManager.processElement(
+      "myid",
+      { name: "Pedro" },
+      <ProductListDetails
+        product={{
+          id: "123",
+          name: "Some product",
+          description: "Lorem ipsum dolor",
+        }}
+      />,
+      <p>Loading...</p>,
+    );
+
+    expect(processed.element).toMatchInlineSnapshot(`
+      {
+        "children": [],
+        "props": {
+          "dataset": {},
+          "product": {
+            "description": "Lorem ipsum dolor",
+            "id": "123",
+            "name": "Some product",
+          },
+        },
+        "type": [Function],
+      }
+    `);
+    expect(processed.context).toMatchInlineSnapshot(`
+      {
+        "name": "Pedro",
+      }
+    `);
+    expect(processed.handlers).toMatchInlineSnapshot(`[]`);
   });
 });

@@ -6,7 +6,7 @@ import {
 import { readableToString } from "@/jsx/html/stream/stream-utils/readable-to-string";
 import { LeanAppEngine, getComponent } from "@/server/engine";
 import { TemplateManager, TestLogger } from "@/server/express";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { describe, expect, test } from "@jest/globals";
 import { DynamicComponentT } from "@tests/e2e/test-app";
 import { setupTests } from "@tests/test-container";
@@ -22,32 +22,32 @@ describe("engine.test", () => {
 
   test("getComponent identifies component routes correctly", () => {
     expect(getComponent({ originalUrl: "/components/my-component/" })).toBe(
-      "my-component"
+      "my-component",
     );
 
     expect(getComponent({ originalUrl: "/components/my-component" })).toBe(
-      "my-component"
+      "my-component",
     );
 
     expect(
       getComponent({
         originalUrl: "https://localhost:8080/components/my-component",
-      })
+      }),
     ).toBe("my-component");
 
     expect(
-      getComponent({ originalUrl: "/something/my-component" })
+      getComponent({ originalUrl: "/something/my-component" }),
     ).toBeFalsy();
     expect(
-      getComponent({ originalUrl: "https://localhost:8080/" })
-    ).toBeFalsy();
-
-    expect(
-      getComponent({ originalUrl: "https://localhost:8080/component" })
+      getComponent({ originalUrl: "https://localhost:8080/" }),
     ).toBeFalsy();
 
     expect(
-      getComponent({ originalUrl: "https://localhost:8080/components" })
+      getComponent({ originalUrl: "https://localhost:8080/component" }),
+    ).toBeFalsy();
+
+    expect(
+      getComponent({ originalUrl: "https://localhost:8080/components" }),
     ).toBeFalsy();
   });
 
@@ -59,13 +59,13 @@ describe("engine.test", () => {
           tail: "</body>",
         },
       },
-      errorHandler()
+      errorHandler(),
     );
 
     const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
       root: SXL.StaticElement,
       globalContext: SXLGlobalContext,
-      opts: JSXStreamOptions
+      opts: JSXStreamOptions,
     ) => new JSXStream(root, contextManager(globalContext), TestLogger, opts);
 
     const engine = new LeanAppEngine(tm, jsxStreamFactory);
@@ -83,7 +83,7 @@ describe("engine.test", () => {
       </main>,
       {},
       { templateName: "index" },
-      next
+      next,
     );
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -95,11 +95,11 @@ describe("engine.test", () => {
     expect(lastCall).toBeTruthy();
 
     const result = await readableToString(
-      (lastCall as JSXStream<SXLGlobalContext>[])[1]
+      (lastCall as JSXStream<SXLGlobalContext>[])[1],
     );
 
     expect(result).toMatchInlineSnapshot(
-      `"<body><main><div>Hello</div></main></body>"`
+      `"<body><main><div>Hello</div></main></body>"`,
     );
   });
 
@@ -111,13 +111,13 @@ describe("engine.test", () => {
           tail: "</body>",
         },
       },
-      errorHandler()
+      errorHandler(),
     );
 
     const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
       root: SXL.StaticElement,
       globalContext: SXLGlobalContext,
-      opts: JSXStreamOptions
+      opts: JSXStreamOptions,
     ) => new JSXStream(root, contextManager(globalContext), TestLogger, opts);
 
     const engine = new LeanAppEngine(tm, jsxStreamFactory);

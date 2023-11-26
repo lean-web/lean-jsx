@@ -2,10 +2,10 @@ import { isPromise } from "util/types";
 import { ComponentTest, ComponentHandler, ParsedComponent } from "..";
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 
 export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
-  arg: SXL.Element
+  arg: SXL.Element,
 ): arg is SXL.IntrinsicElement => {
   return !isPromise(arg) && !isAsyncGen(arg) && typeof arg.type === "string";
 };
@@ -20,7 +20,7 @@ export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
  */
 export const StaticElementHandler: ComponentHandler = (
   element: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>
+  contextManager: ContextManager<SXLGlobalContext>,
 ) => {
   if (!StaticElementTest(element)) {
     return undefined;
@@ -33,7 +33,7 @@ export const StaticElementHandler: ComponentHandler = (
 
 export function staticHandler<G extends SXLGlobalContext>(
   arg: SXL.Element,
-  contextManager: ContextManager<G>
+  contextManager: ContextManager<G>,
 ): ParsedComponent | undefined {
   if (StaticElementTest(arg)) {
     return StaticElementHandler(arg, contextManager);

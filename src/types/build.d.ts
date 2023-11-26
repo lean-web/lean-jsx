@@ -8,3 +8,6 @@ export default interface BuildOptions {
     esbuildOptions: ESBuildOptions;
   };
 }
+
+/// <reference types="lean-jsx-types/lib/global" />
+/// <reference lib="dom" />

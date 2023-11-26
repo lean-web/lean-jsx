@@ -1,12 +1,12 @@
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { DynamicController } from ".";
 
 export const REGISTRY_SYMBOL = Symbol("DCRegistry");
 
-type ComponentRegistry<G extends SXLGlobalContext> = Record<
-  string,
-  DynamicController<G>
->;
+type ComponentRegistry<
+  GContext extends SXLGlobalContext,
+  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
+> = Record<string, DynamicController<GContext, Props>>;
 
 /**
  * A global state container for the list of dynamic components.
@@ -16,15 +16,21 @@ type ComponentRegistry<G extends SXLGlobalContext> = Record<
 const registry: ComponentRegistry<SXLGlobalContext> = {};
 global[REGISTRY_SYMBOL] = registry;
 
-export function registerDynamicController<G extends SXLGlobalContext>(
-  controller: DynamicController<G>
-): DynamicController<G> {
-  (global[REGISTRY_SYMBOL] as ComponentRegistry<G>)[controller.contentId] =
-    controller;
-
+export function registerDynamicController<
+  GContext extends SXLGlobalContext,
+  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
+>(
+  controller: DynamicController<GContext, Props>,
+): DynamicController<GContext, Props> {
+  (global[REGISTRY_SYMBOL] as ComponentRegistry<GContext, Props>)[
+    controller.contentId
+  ] = controller;
   return controller;
 }
 
-export function getDynamicComponentRegistry<G extends SXLGlobalContext>() {
-  return global[REGISTRY_SYMBOL] as ComponentRegistry<G>;
+export function getDynamicComponentRegistry<
+  GContext extends SXLGlobalContext,
+  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
+>() {
+  return global[REGISTRY_SYMBOL] as ComponentRegistry<GContext, Props>;
 }

@@ -31,15 +31,15 @@ export function decorateContext(element: ParsedComponent): string {
   const handlers = element.handlers
     .map(
       ([ev, h]) =>
-        `document.querySelector('${QuerySelectors.eventSource(
-          element.id
-        )}').addEventListener('${ev.replace(/^on/, "")}', ${h})`
+        `sxl.addEventListener('${QuerySelectors.eventSource(
+          element.id,
+        )}', '${ev.replace(/^on/, "")}',${h})`,
     )
     .join(";\n");
   const fns = Object.entries(element.context)
     .filter(
       // eslint-disable-next-line @typescript-eslint/ban-types
-      (entry): entry is [string, Function] => typeof entry[1] === "function"
+      (entry): entry is [string, Function] => typeof entry[1] === "function",
     )
     .map(([key, fn]) => `this.${key} =  ${fn.toString()}`)
     .join("\n");

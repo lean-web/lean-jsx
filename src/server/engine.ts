@@ -1,6 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express";
 import bodyParser from "body-parser";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import {
   ExpressMiddleware,
   LeanJSX,
@@ -35,6 +35,9 @@ export function getComponent(req: RequestLike): string | undefined {
   return component;
 }
 
+/**
+ * Main factory for LeanJSX Engine.
+ */
 export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   private templateManager: TemplateManager;
   private jsxStreamFactory: JSXStreamFactory<G>;
@@ -46,6 +49,14 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     this.templateManager = templateManager;
     this.jsxStreamFactory = jsxStreamFactory;
   }
+
+  /**
+   * Render a JSX element into an HTTP response.
+   * @param res - the HTTP response
+   * @param element - the JSX to render
+   * @param options - the rendering options
+   * @param next - The Express server "next" hook
+   */
   async render(
     res: Response,
     element: SXL.StaticElement,
@@ -58,12 +69,15 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
       const [head, tail] = this.templateManager.getHeadAndTail(
         options?.templateName ?? "index",
       );
-
-      const appHtmlStream = this.jsxStreamFactory(element, {} as G, {
-        pre: [head],
-        post: [tail],
-        sync: false,
-      });
+      const appHtmlStream = this.jsxStreamFactory(
+        element,
+        options?.globalContext as G,
+        {
+          pre: [head],
+          post: [tail],
+          sync: false,
+        },
+      );
 
       await appHtmlStream.init();
 
@@ -176,11 +190,14 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
         }
         try {
           const maybeComponentName = getComponent(req);
-
           if (maybeComponentName && controllerMap[maybeComponentName]) {
-            const globalContext = globalContextParser(req, maybeComponentName);
+            const component = controllerMap[maybeComponentName];
+            const globalContext = {
+              ...globalContextParser(req, maybeComponentName),
+              ...component.queryParams?.call(component, req),
+            };
             void this.renderComponent(
-              controllerMap[maybeComponentName].Api({
+              component.Api({
                 globalContext,
               }),
               globalContext,
@@ -198,7 +215,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
             if (maybeComponentName) {
               if (process.env.NODE_ENV === "development") {
                 const err = new Error(
-                  `Requested component ${maybeComponentName} could not be found. Did you add it to the middleware configuration?`,
+                  `Requested component ${maybeComponentName} could not be found. Did you add it to the middleware configuration, or decorated the component class with @Autowire?`,
                 );
                 const errStr = JSON.stringify(
                   err,

@@ -1,6 +1,6 @@
-import { DynamicController } from "@/components";
+import type { DynamicController } from "@/components";
 import { ILogger, LoggerConfiguration } from "@/jsx/logging/logger";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { Request, Response, NextFunction } from "express";
 import { Readable } from "stream";
 

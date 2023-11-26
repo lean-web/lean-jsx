@@ -1,10 +1,10 @@
 import { ComponentTest, ComponentHandler } from "..";
 import { isFunctionNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 
 export const AsyncGenElementTest: ComponentTest<SXL.FunctionAsyncGenElement> = (
-  arg: SXL.Element
+  arg: SXL.Element,
 ): arg is SXL.FunctionAsyncGenElement => {
   return (
     isFunctionNode(arg) && !!arg.type.prototype && "next" in arg.type.prototype
@@ -33,7 +33,7 @@ export const AsyncGenElementTest: ComponentTest<SXL.FunctionAsyncGenElement> = (
  */
 export const AsyncGenElementHandler: ComponentHandler = (
   element: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>
+  contextManager: ContextManager<SXLGlobalContext>,
 ) => {
   if (!AsyncGenElementTest(element)) {
     return undefined;
@@ -58,7 +58,7 @@ export const AsyncGenElementHandler: ComponentHandler = (
       extraInfo: {
         asyncGeneratorComponent: element.type.name,
       },
-    }
+    },
   );
   const lazyElement = contextManager.errorHandler.withErrorHandling(
     () =>
@@ -72,7 +72,7 @@ export const AsyncGenElementHandler: ComponentHandler = (
       extraInfo: {
         asyncGeneratorComponent: element.type.name,
       },
-    }
+    },
   );
   return contextManager.processElement(id, ctx, lazyElement, placeholder);
 };

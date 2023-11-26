@@ -1,10 +1,10 @@
 import { isPromise, unwrapFragments } from "../html/jsx-utils";
 import { UIDGenerator } from "../html/uuid";
 import { TrackablePromise } from "../html/stream/stream-utils/trackable-promise";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { IErrorHandler } from "../degradation/error-handler";
 import { ParsedComponent } from "../component-handlers";
-import { isPureActionHandler, isWebHandler } from "@/components/web-action";
+import { isPureActionHandler, isWebHandler } from "lean-web-utils/lib/server";
 
 interface SyncJSXWrapper {
   id: ContextID;
@@ -36,7 +36,7 @@ export type SXLElementWithContext =
   | AsyncGenJSXWrapper;
 
 export function isAsyncElementWithContext(
-  element: SXLElementWithContext
+  element: SXLElementWithContext,
 ): element is AsyncJSXWrapper {
   return (
     element.element instanceof TrackablePromise || isPromise(element.element)
@@ -44,7 +44,7 @@ export function isAsyncElementWithContext(
 }
 
 export function isAsyncGenElementWithContext(
-  element: SXLElementWithContext
+  element: SXLElementWithContext,
 ): element is AsyncGenJSXWrapper {
   return (
     (element.element instanceof TrackablePromise ||
@@ -66,12 +66,7 @@ export interface ContextManagerOptions {
 }
 
 function buildWebContextString(data: Record<string, unknown>) {
-  return `{
-            data: ${JSON.stringify(data)},
-            actions: {
-                refetchElement: sxl.refetchElement
-            }
-         }`;
+  return JSON.stringify(data);
 }
 
 export class ContextManager<G extends SXLGlobalContext> {
@@ -83,7 +78,7 @@ export class ContextManager<G extends SXLGlobalContext> {
   constructor(
     globalContext: G,
     errorHandler: IErrorHandler,
-    options?: ContextManagerOptions
+    options?: ContextManagerOptions,
   ) {
     this.globalContext = globalContext;
     this.options = options ?? { sync: false };
@@ -106,7 +101,7 @@ export class ContextManager<G extends SXLGlobalContext> {
     id: ContextID,
     context: SXL.Context<Record<string, unknown>>,
     element: SXL.StaticElement | SXL.AsyncElement,
-    placeholder?: SXL.StaticElement | SXL.AsyncElement
+    placeholder?: SXL.StaticElement | SXL.AsyncElement,
   ): ParsedComponent {
     if (isPromise(element)) {
       return {
@@ -114,7 +109,7 @@ export class ContextManager<G extends SXLGlobalContext> {
         element: new TrackablePromise(
           element.then((e) => {
             if (!e) {
-              console.trace(`Failed to decorated async element`, element);
+              console.trace(`Failed to decorate async element`, element);
               return this.errorHandler.getFallback({});
             }
             // if operating in sync mode,
@@ -134,7 +129,7 @@ export class ContextManager<G extends SXLGlobalContext> {
               children: unwrapFragments(e),
             };
           }),
-          id
+          id,
         ),
         loading: isPromise(placeholder)
           ? placeholder?.then((p) => this.processPlaceholder(id, p))
@@ -144,18 +139,20 @@ export class ContextManager<G extends SXLGlobalContext> {
       };
     }
 
+    const handlers = this.processHandlers(id, element);
+
     return {
       id,
       element,
       loading: undefined,
-      handlers: this.processHandlers(id, element),
+      handlers,
       context,
     };
   }
 
   processHandlers(
     id: ContextID,
-    element: SXL.StaticElement
+    element: SXL.StaticElement,
   ): Array<HandlerPropAndValue> {
     const _handlers: Array<HandlerPropAndValue> = [];
 
@@ -164,23 +161,9 @@ export class ContextManager<G extends SXLGlobalContext> {
       .filter(isWebHandler)
       .forEach(([key, v]) => {
         let handlerContent: string = "";
-        /*
-
-        interface WebActions {
-  refetchElement: (
-    id: string,
-    queryParams: Record<string, string | number | boolean>
-  ) => void;
-}
-
-interface WebContext<Data> {
-  data: Data;
-  actions: WebActions;
-}*/
-
-        handlerContent = `(ev) => { const h = ${v.handler.toString()};\n h(ev, ${buildWebContextString(
-          v.data
-        )}); }`;
+        handlerContent += `sxl.actionHandler(${v.handler.toString()}, ${buildWebContextString(
+          v.data,
+        )})`;
 
         element.props[key] = "";
         _handlers.push([key as keyof GlobalEventHandlers, handlerContent]);
@@ -205,7 +188,7 @@ interface WebContext<Data> {
 
   private processPlaceholder(
     id: ContextID,
-    placehoder?: SXL.StaticElement
+    placehoder?: SXL.StaticElement,
   ): SXL.StaticElement {
     return {
       type: "div",
@@ -220,5 +203,5 @@ interface WebContext<Data> {
 }
 
 export type ContextManagerFactory<G extends SXLGlobalContext> = (
-  globalContext: G
+  globalContext: G,
 ) => ContextManager<G>;

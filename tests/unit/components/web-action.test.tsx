@@ -1,4 +1,4 @@
-import { webAction } from "@/components/web-action";
+import { webAction } from "lean-web-utils/lib/server";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
@@ -37,15 +37,9 @@ describe("web-action.test", () => {
 
     expect(all).toMatchInlineSnapshot(`
       "<button data-action="element-0">Click here!</button><script type="application/javascript">
-              document.querySelector('[data-action="element-0"]').addEventListener('click', (ev) => { const h = (ev, data) => 
+              sxl.addEventListener('[data-action="element-0"]', 'click',sxl.actionHandler((ev, data) => 
                       // eslint-disable-next-line lean-jsx/no-outer-scope-in-handlers
-                      console.log(data?.data?.arg, nonWebArg);
-       h(ev, {
-                  data: {"arg":"This is a client parameter"},
-                  actions: {
-                      refetchElement: sxl.refetchElement
-                  }
-               }); });
+                      console.log(data?.data?.arg, nonWebArg), {"arg":"This is a client parameter"}));
           </script>"
     `);
   });

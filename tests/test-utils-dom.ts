@@ -1,30 +1,24 @@
 import { JSDOM } from "jsdom";
-import { fillPlaceHolder as fp } from "@/web/wiring";
 import { JSXStack } from "@/jsx/html/stream/jsx-stack";
-import { SXLGlobalContext } from "@/types/context";
+import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { setupTests } from "@tests/test-container";
+import fs from "fs";
+
+const scriptContent = fs.readFileSync(
+  require.resolve("lean-jsx/lib/web/sxl.js"),
+  "utf-8",
+);
 
 export function stringToDom(data: string): [JSDOM, string[]] {
   const domChanges: string[] = [];
+
   const dom = new JSDOM(
     `<html>
-    <head></head>
+    <head><script>${scriptContent}</script></head>
     ${data}</html>`,
     {
       runScripts: "dangerously",
-      beforeParse(window) {
-        const document = window.document;
-        globalThis.document = document;
-        window.sxl = {
-          fillPlaceHolder(placeHolderId: string) {
-            fp.call({ document }, placeHolderId);
-            domChanges.push(
-              window.document.body.innerHTML.replace(/[ \n]{1,}/g, " ")
-            );
-          },
-        };
-      },
-    }
+    },
   );
 
   dom.virtualConsole.on("error", (err) => {
@@ -41,7 +35,7 @@ export function stringToDom(data: string): [JSDOM, string[]] {
 
 async function consumeStack(
   stack: JSXStack<SXLGlobalContext>,
-  cb: (curValue: string) => void
+  cb: (curValue: string) => void,
 ): Promise<string> {
   let first = await stack.pop();
   let all = "";

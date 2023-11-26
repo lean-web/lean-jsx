@@ -1,5 +1,3 @@
-import "@/types/global";
-
 function formatChildren(children: SXL.Children) {
   if (!Array.isArray(children)) {
     return [children];
@@ -17,7 +15,7 @@ function formatChildren(children: SXL.Children) {
 
 export function jsxElement(
   type: string | SXL.NodeFactory<SXL.Props>,
-  props: SXL.Props
+  props: SXL.Props,
 ): SXL.StaticElement {
   props.dataset = props.dataset ?? {};
 

@@ -124,7 +124,7 @@ function styleDeclarationToString(styles: CSSStyleDeclaration): string {
 
 function isCSSDeclaration(
   propKey: string,
-  propValue: unknown
+  propValue: unknown,
 ): propValue is CSSStyleDeclaration {
   return /style/.test(propKey);
 }
@@ -157,11 +157,16 @@ function flatten(props: SXL.Props): [string, string | number][] {
       return value ? [[key, value]] : [[key, null]];
     }
 
+    if (typeof value === "object") {
+      console.log([key, JSON.stringify(value)]);
+      return [[key, JSON.stringify(value).replace(/"/g, "'")]];
+    }
+
     if (typeof value !== "string" && typeof value !== "number") {
       throw new Error(
         `Not implemented: Handing property ${key} with value ${JSON.stringify(
-          value
-        )}`
+          value,
+        )}`,
       );
     }
     return [[key, value]];
@@ -176,7 +181,7 @@ export class JSXToHTMLUtils {
       throw new Error(
         "Cannot handle JSX nodes with function or class types." +
           "Please construct the node before calling this method. Component: " +
-          JSON.stringify(jsx)
+          JSON.stringify(jsx),
       );
     }
 
