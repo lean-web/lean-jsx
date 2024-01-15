@@ -3,7 +3,7 @@
 exports[`extract-events.test ts event extractor - large file 1`] = `
 "import { withClientData } from "@/components";
 export function DeeplyNestedComponent() {
-    return (<button onclick={withClientData({}, (ev, webContext) => { window.sxl_user.fnd081dcab1e53b3a4c4d0ea0bac08a145(ev, webContext); })}>
+    return (<button onclick={withClientData({}, (ev, webContext) => { return window.sxl_user.fnd081dcab1e53b3a4c4d0ea0bac08a145(ev, webContext); })}>
       Click to greet user
     </button>);
 }
@@ -12,14 +12,14 @@ export function DeeplyNestedComponent() {
  * @returns
  */
 export function DeeplyNestedComponent2() {
-    return (<button onclick={withClientData({}, (ev, webContext) => { window.sxl_user.fnd081dcab1e53b3a4c4d0ea0bac08a145(ev, webContext); })}>
+    return (<button onclick={withClientData({}, (ev, webContext) => { return window.sxl_user.fnd081dcab1e53b3a4c4d0ea0bac08a145(ev, webContext); })}>
       Click to greet user
     </button>);
 }
 export function NestedComponent() {
     return (<div>
       <DeeplyNestedComponent />
-      <button onclick={withClientData({}, (ev, webContext) => { window.sxl_user.fn7a4096670ef04924e2d51e34d5ce00bb(ev, webContext); })}>
+      <button onclick={withClientData({}, (ev, webContext) => { return window.sxl_user.fn7a4096670ef04924e2d51e34d5ce00bb(ev, webContext); })}>
         Click to greet user
       </button>
       <DeeplyNestedComponent2 />
@@ -27,7 +27,7 @@ export function NestedComponent() {
 }
 function LoopedComponent() {
     return (<>
-      {new Array(5).fill(true).map((_, index) => (<button onclick={withClientData({ index }, (ev, ctx) => { window.sxl_user.fne2d1baf08cbabd3ac0dcb1567d9daca6(ev, ctx); })}>
+      {new Array(5).fill(true).map((_, index) => (<button onclick={withClientData({ index }, (ev, ctx) => { return window.sxl_user.fne2d1baf08cbabd3ac0dcb1567d9daca6(ev, ctx); })}>
           Click {index}
         </button>))}
     </>);
@@ -37,7 +37,7 @@ export function MyComponent() {
     return (<div>
       <NestedComponent />
       <LoopedComponent />
-      <button onclick={withClientData(user, (ev, webContext) => { window.sxl_user.fn1df5886bdd2568fbcf9dd57a969949e8(ev, webContext); })}>
+      <button onclick={withClientData(user, (ev, webContext) => { return window.sxl_user.fn1df5886bdd2568fbcf9dd57a969949e8(ev, webContext); })}>
         Click to greet user
       </button>
     </div>);

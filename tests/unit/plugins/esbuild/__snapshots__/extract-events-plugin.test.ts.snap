@@ -49,7 +49,7 @@ export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
 
 exports[`extract-events-plugin test plugin - simulate rebuild 3`] = `
 "export function MyComponent() {
-    return <button onclick={(ev) => { window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
+    return <button onclick={(ev) => { return window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
 }
 
 export function MyComponent2() {
@@ -60,7 +60,7 @@ export function MyComponent2() {
 
 exports[`extract-events-plugin test plugin - simulate rebuild: rebuild components code 1`] = `
 "export function MyComponent() {
-    return <button onclick={(ev) => { window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
+    return <button onclick={(ev) => { return window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
 }
 
 export function MyComponent2() {
@@ -177,7 +177,7 @@ export const fn65934597b0f8eb9debfc0762c97da7a6 = (c) => c;
 
 exports[`extract-events-plugin test plugin 3`] = `
 "export function MyComponent() {
-    return <button onclick={(ev) => { window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
+    return <button onclick={(ev) => { return window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
 }
 
 export function MyComponent2() {
@@ -185,7 +185,7 @@ export function MyComponent2() {
 }
 
 export function MyComponent3() {
-    return <button onclick={(c1) => { window.sxl_user.fnc811db883db9743ff5764cd85fb9d030(c1); }} onchange={(c) => { window.sxl_user.fn65934597b0f8eb9debfc0762c97da7a6(c); }} onload={(c) => { window.sxl_user.fn65934597b0f8eb9debfc0762c97da7a6(c); }}>Click</button>;
+    return <button onclick={(c1) => { return window.sxl_user.fnc811db883db9743ff5764cd85fb9d030(c1); }} onchange={(c) => { return window.sxl_user.fn65934597b0f8eb9debfc0762c97da7a6(c); }} onload={(c) => { return window.sxl_user.fn65934597b0f8eb9debfc0762c97da7a6(c); }}>Click</button>;
 }
 "
 `;

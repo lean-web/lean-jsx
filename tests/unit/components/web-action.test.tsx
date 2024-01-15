@@ -10,7 +10,6 @@ describe("web-action.test", () => {
       return (
         <button
           onclick={withClientData({ arg }, (ev, data) =>
-            // eslint-disable-next-line lean-jsx/no-outer-scope-in-handlers
             console.log(data?.data?.arg, nonWebArg)
           )}
         >
@@ -37,9 +36,7 @@ describe("web-action.test", () => {
 
     expect(all).toMatchInlineSnapshot(`
       "<button data-action="element-1">Click here!</button><script data-action-script="element-1">
-              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, data) => 
-                      // eslint-disable-next-line lean-jsx/no-outer-scope-in-handlers
-                      console.log(data?.data?.arg, nonWebArg), {"arg":"This is a client parameter"}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, data) => console.log(data?.data?.arg, nonWebArg), {"arg":"This is a client parameter"}));
           </script>"
     `);
   });

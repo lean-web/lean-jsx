@@ -13,13 +13,12 @@ describe("context-decorator.test", () => {
   test("decorateContext", () => {
     function MyComponent(
       this: { myOtherName: string },
-      { name }: { name: string }
+      { name }: { name: string },
     ) {
       function Hello({ arg2 }: { arg2: string }) {
         return (
           <div
             onload={() => {
-              // eslint-disable-next-line lean-jsx/no-outer-scope-in-handlers
               console.log(arg2);
             }}
           >
@@ -30,7 +29,6 @@ describe("context-decorator.test", () => {
 
       this.myOtherName = "x";
       return (
-        // eslint-disable-next-line lean-jsx/no-outer-scope-in-handlers
         <button onclick={() => console.log(this.myOtherName, name)}>
           Click <Hello arg2="" />
         </button>
@@ -40,7 +38,7 @@ describe("context-decorator.test", () => {
     const parsed = FnElementHandler(
       <MyComponent name="Pedro" />,
       contextManager({}),
-      { sync: false }
+      { sync: false },
     );
 
     expect(parsed).toBeTruthy();
@@ -64,7 +62,7 @@ describe("context-decorator.test", () => {
         globalContext,
       }: { product: { id: string; name: string; description: string } } & {
         globalContext?: SXLGlobalContext;
-      }
+      },
     ) {
       this.id = product.id;
       return (
@@ -100,7 +98,7 @@ describe("context-decorator.test", () => {
         }}
       />,
       contextManager({}),
-      { sync: false }
+      { sync: false },
     )!;
 
     expect(parsed).toBeTruthy();
@@ -183,7 +181,7 @@ describe("context-decorator.test", () => {
           | WebContext<{
               id: number;
             }>
-          | undefined
+          | undefined,
       ) => {
         console.log(ev);
         await ctx?.actions.refetchElement("some-el", {});

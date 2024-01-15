@@ -14,7 +14,7 @@ function replaceHandlerContent(handler: ts.Expression, ident: ts.Expression) {
     return handler;
   }
   const newBody = ts.factory.createBlock([
-    ts.factory.createExpressionStatement(
+    ts.factory.createReturnStatement(
       ts.factory.createCallExpression(
         ident,
         undefined,
