@@ -1,0 +1,191 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`extract-events-plugin test plugin - simulate rebuild 1`] = `
+[
+  "var sxl_user = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // <stdin>
+  var stdin_exports = {};
+  __export(stdin_exports, {
+    fn14533fb3b06a348bf24a9f456f6b9275: () => fn14533fb3b06a348bf24a9f456f6b9275
+  });
+  var fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
+  return __toCommonJS(stdin_exports);
+})();
+",
+]
+`;
+
+exports[`extract-events-plugin test plugin - simulate rebuild 2`] = `
+[
+  [
+    ".lean/handlers/file.ts",
+    "
+import { withClientData } from "lean-web-utils/lib/server";
+type Arg = Parameters<typeof withClientData>[1]
+// file.tsx
+export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
+",
+  ],
+]
+`;
+
+exports[`extract-events-plugin test plugin - simulate rebuild 3`] = `
+"export function MyComponent() {
+    return <button onclick={(ev) => { window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
+}
+
+export function MyComponent2() {
+    return <div>Hello</div>;
+}
+"
+`;
+
+exports[`extract-events-plugin test plugin - simulate rebuild: rebuild components code 1`] = `
+"export function MyComponent() {
+    return <button onclick={(ev) => { window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
+}
+
+export function MyComponent2() {
+    return <div>Hello</div>;
+}
+"
+`;
+
+exports[`extract-events-plugin test plugin - simulate rebuild: rebuild handlers code 1`] = `
+[
+  "var sxl_user = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // <stdin>
+  var stdin_exports = {};
+  __export(stdin_exports, {
+    fnacbebc5075e7518791459a102562cdfc: () => fnacbebc5075e7518791459a102562cdfc
+  });
+  var fnacbebc5075e7518791459a102562cdfc = (ev1) => console.log(ev1);
+  return __toCommonJS(stdin_exports);
+})();
+",
+]
+`;
+
+exports[`extract-events-plugin test plugin - simulate rebuild: rebuild written files 1`] = `
+[
+  [
+    ".lean/handlers/file.ts",
+    "
+import { withClientData } from "lean-web-utils/lib/server";
+type Arg = Parameters<typeof withClientData>[1]
+// file.tsx
+export const fnacbebc5075e7518791459a102562cdfc = (ev1) => console.log(ev1);
+",
+  ],
+]
+`;
+
+exports[`extract-events-plugin test plugin 1`] = `
+"var sxl_user = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // <stdin>
+  var stdin_exports = {};
+  __export(stdin_exports, {
+    fn14533fb3b06a348bf24a9f456f6b9275: () => fn14533fb3b06a348bf24a9f456f6b9275,
+    fn65934597b0f8eb9debfc0762c97da7a6: () => fn65934597b0f8eb9debfc0762c97da7a6,
+    fnc811db883db9743ff5764cd85fb9d030: () => fnc811db883db9743ff5764cd85fb9d030
+  });
+  var fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
+  var fnc811db883db9743ff5764cd85fb9d030 = (c1) => c1;
+  var fn65934597b0f8eb9debfc0762c97da7a6 = (c) => c;
+  return __toCommonJS(stdin_exports);
+})();
+"
+`;
+
+exports[`extract-events-plugin test plugin 2`] = `
+[
+  [
+    ".lean/handlers/file.ts",
+    "
+import { withClientData } from "lean-web-utils/lib/server";
+type Arg = Parameters<typeof withClientData>[1]
+// file.tsx
+export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
+",
+  ],
+  [
+    ".lean/handlers/file3.ts",
+    "
+import { withClientData } from "lean-web-utils/lib/server";
+type Arg = Parameters<typeof withClientData>[1]
+// file3.tsx
+export const fnc811db883db9743ff5764cd85fb9d030 = (c1) => c1;
+export const fn65934597b0f8eb9debfc0762c97da7a6 = (c) => c;
+",
+  ],
+]
+`;
+
+exports[`extract-events-plugin test plugin 3`] = `
+"export function MyComponent() {
+    return <button onclick={(ev) => { window.sxl_user.fn14533fb3b06a348bf24a9f456f6b9275(ev); }}>Click</button>;
+}
+
+export function MyComponent2() {
+    return <div>Hello</div>;
+}
+
+export function MyComponent3() {
+    return <button onclick={(c1) => { window.sxl_user.fnc811db883db9743ff5764cd85fb9d030(c1); }} onchange={(c) => { window.sxl_user.fn65934597b0f8eb9debfc0762c97da7a6(c); }} onload={(c) => { window.sxl_user.fn65934597b0f8eb9debfc0762c97da7a6(c); }}>Click</button>;
+}
+"
+`;

@@ -18,6 +18,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const stream = jsxStream(
       {
         type: "p",
+        componentType: "string",
         props: {
           className: "hello",
           dataset: {},
@@ -36,6 +37,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const stream = jsxStream(
       {
         type: "p",
+        componentType: "string",
         props: {
           style: {
             backgroundColor: "red",
@@ -61,6 +63,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const stream = jsxStream(
       {
         type: "button",
+        componentType: "string",
         props: {
           onclick: function (ev) {
             console.log(ev);
@@ -79,7 +82,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const result = await readableToString(stream);
     const clean = result.replace(/[ \n]{1,}/g, " ");
     expect(clean).toMatchInlineSnapshot(
-      `"<button data-action="element-0"></button><script type="application/javascript"> sxl.addEventListener('[data-action="element-0"]', 'click',function (ev) { console.log(ev); }); </script>"`
+      `"<button data-action="element-1"></button><script data-action-script="element-1"> sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler(function (ev) { console.log(ev); }, {})); </script>"`
     );
   }, 2000);
 
@@ -88,11 +91,13 @@ describe("JSXToHTMLStream - Unit Tests", () => {
       {
         type: ({ className }) => ({
           type: "button",
+          componentType: "string",
           props: {
             className,
           },
           children: ["Click"],
         }),
+        componentType: "function",
         props: {
           className: "btn",
           dataset: {},
@@ -113,6 +118,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const stream = jsxStream(
       {
         type: "div",
+        componentType: "string",
         props: {
           className: "container",
           dataset: {},
@@ -120,6 +126,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
         children: [
           {
             type: "span",
+            componentType: "string",
             props: {},
             children: ["hello"],
           },
@@ -143,6 +150,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const stream = jsxStream(
       {
         type: "fragment",
+        componentType: "string",
         props: {
           className: "container",
           dataset: {},
@@ -150,6 +158,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
         children: [
           {
             type: "span",
+            componentType: "string",
             props: {},
             children: ["hello"],
           },
@@ -178,6 +187,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
                 ? children[0]
                 : undefined,
           }),
+        componentType: "function",
         props: {
           className: "container",
           dataset: {},
@@ -185,6 +195,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
         children: [
           {
             type: "span",
+            componentType: "string",
             props: {},
             children: ["hello"],
           },
@@ -200,7 +211,7 @@ describe("JSXToHTMLStream - Unit Tests", () => {
     const result = await readableToString(stream);
 
     expect(result).toMatchInlineSnapshot(
-      `"<div data-placeholder="element-0"></div><template id="element-0"><p><span>hello</span></p></template><script> sxl.fillPlaceHolder("element-0"); </script>"`
+      `"<div data-placeholder="element-1"></div><template id="element-1"><p><span>hello</span></p></template><script> sxl.fillPlaceHolder("element-1"); </script>"`
     );
   }, 2000);
 });

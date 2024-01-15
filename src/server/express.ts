@@ -74,7 +74,7 @@ export function buildApp<G extends SXLGlobalContext>(
   const errorHandler = new ErrorHandler(logger);
   const templateManager = new TemplateManager(config.templates, errorHandler);
   const jsxStreamFactory: JSXStreamFactory<G> = (
-    root: SXL.StaticElement,
+    root: SXL.Element,
     globalContext: G,
     opts: JSXStreamOptions,
   ) =>

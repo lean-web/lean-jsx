@@ -40,6 +40,23 @@ export function isFunctionNode(
   return typeof jsx.type === "function" && !isClass(jsx.type);
 }
 
+export function isAsyncGenNode(arg: SXL.Element | SXL.Children) {
+  if (typeof arg === "string" || Array.isArray(arg)) {
+    return false;
+  }
+  if (isPromise(arg)) {
+    return false;
+  }
+  if (isAsyncGen(arg)) {
+    return false;
+  }
+  return (
+    typeof arg.type === "function" &&
+    !!arg.type.prototype &&
+    "next" in arg.type.prototype
+  );
+}
+
 export function isPromise(
   jsx:
     | SXL.StaticElement
@@ -117,9 +134,9 @@ export function unwrapFragments(
     return [`${element}`];
   }
   if (element.type === "fragment") {
-    const children = element.children.flatMap((child) =>
-      unwrapFragments(child),
-    );
+    const children = element.children
+      .flatMap((child) => (Array.isArray(child) ? child : [child]))
+      .flatMap((child) => unwrapFragments(child));
     return children;
   }
   if (isFragmentNode(element)) {

@@ -1,4 +1,4 @@
-import { webAction, toQueryString } from "@/components";
+import { withClientData, toQueryString } from "@/components";
 import { ParsedComponent } from "@/jsx/component-handlers";
 import { FnElementHandler } from "@/jsx/component-handlers/impl/fn-component";
 import { decorateContext } from "@/jsx/context/context-decorator";
@@ -39,7 +39,8 @@ describe("context-decorator.test", () => {
 
     const parsed = FnElementHandler(
       <MyComponent name="Pedro" />,
-      contextManager({})
+      contextManager({}),
+      { sync: false }
     );
 
     expect(parsed).toBeTruthy();
@@ -47,9 +48,9 @@ describe("context-decorator.test", () => {
     const decorated = decorateContext(parsed as ParsedComponent);
 
     expect(decorated).toMatchInlineSnapshot(`
-      "<script type="application/javascript">
+      "<script data-action-script="element-1">
             (function(){
-              sxl.addEventListener('[data-action="element-0"]', 'click',() => console.log(this.myOtherName, name));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler(() => console.log(this.myOtherName, name), {}));
             }).call({"myOtherName":"x"});
           </script>"
     `);
@@ -69,7 +70,7 @@ describe("context-decorator.test", () => {
       return (
         <div>
           <button
-            onclick={webAction({}, async (ev, ctx) => {
+            onclick={withClientData({}, async (ev, ctx) => {
               console.log("Delete1");
               await fetch(`/product/${this.id}`, {
                 method: "DELETE",
@@ -98,7 +99,8 @@ describe("context-decorator.test", () => {
           description: "Lorem ipsum dolor",
         }}
       />,
-      contextManager({})
+      contextManager({}),
+      { sync: false }
     )!;
 
     expect(parsed).toBeTruthy();
@@ -114,6 +116,7 @@ describe("context-decorator.test", () => {
               "children": [
                 "Delete",
               ],
+              "componentType": "string",
               "props": {
                 "dataset": {},
                 "onclick": {
@@ -129,6 +132,7 @@ describe("context-decorator.test", () => {
                   "children": [
                     "Some product",
                   ],
+                  "componentType": "string",
                   "props": {
                     "dataset": {},
                   },
@@ -138,12 +142,14 @@ describe("context-decorator.test", () => {
                   "children": [
                     "Lorem ipsum dolor",
                   ],
+                  "componentType": "string",
                   "props": {
                     "dataset": {},
                   },
                   "type": "p",
                 },
               ],
+              "componentType": "string",
               "props": {
                 "className": "product",
                 "dataset": {},
@@ -152,13 +158,14 @@ describe("context-decorator.test", () => {
               "type": "a",
             },
           ],
+          "componentType": "string",
           "props": {
             "dataset": {},
           },
           "type": "div",
         },
         "handlers": [],
-        "id": "element-0",
+        "id": "element-1",
         "loading": undefined,
       }
     `);
@@ -184,7 +191,9 @@ describe("context-decorator.test", () => {
       return (
         <>
           {new Array(5).fill(true).map((_, ind) => (
-            <button onclick={webAction({ id: ind }, evv)}>Click {ind}</button>
+            <button onclick={withClientData({ id: ind }, evv)}>
+              Click {ind}
+            </button>
           ))}
         </>
       );
@@ -193,28 +202,28 @@ describe("context-decorator.test", () => {
     const result = await renderToString(<MyList />);
 
     expect(result).toMatchInlineSnapshot(`
-      "<button data-action="element-2">Click </button><script type="application/javascript">
-              sxl.addEventListener('[data-action="element-2"]', 'click',sxl.actionHandler(async (ev, ctx) => {
-                      console.log(ev);
-                      await ctx?.actions.refetchElement("some-el", {});
-                  }, {"id":0}));
-          </script><button data-action="element-3">Click 1</button><script type="application/javascript">
+      "<button data-action="element-3">Click </button><script data-action-script="element-3">
               sxl.addEventListener('[data-action="element-3"]', 'click',sxl.actionHandler(async (ev, ctx) => {
                       console.log(ev);
                       await ctx?.actions.refetchElement("some-el", {});
-                  }, {"id":1}));
-          </script><button data-action="element-4">Click 2</button><script type="application/javascript">
+                  }, {"id":0}));
+          </script><button data-action="element-4">Click 1</button><script data-action-script="element-4">
               sxl.addEventListener('[data-action="element-4"]', 'click',sxl.actionHandler(async (ev, ctx) => {
                       console.log(ev);
                       await ctx?.actions.refetchElement("some-el", {});
-                  }, {"id":2}));
-          </script><button data-action="element-5">Click 3</button><script type="application/javascript">
+                  }, {"id":1}));
+          </script><button data-action="element-5">Click 2</button><script data-action-script="element-5">
               sxl.addEventListener('[data-action="element-5"]', 'click',sxl.actionHandler(async (ev, ctx) => {
                       console.log(ev);
                       await ctx?.actions.refetchElement("some-el", {});
-                  }, {"id":3}));
-          </script><button data-action="element-6">Click 4</button><script type="application/javascript">
+                  }, {"id":2}));
+          </script><button data-action="element-6">Click 3</button><script data-action-script="element-6">
               sxl.addEventListener('[data-action="element-6"]', 'click',sxl.actionHandler(async (ev, ctx) => {
+                      console.log(ev);
+                      await ctx?.actions.refetchElement("some-el", {});
+                  }, {"id":3}));
+          </script><button data-action="element-7">Click 4</button><script data-action-script="element-7">
+              sxl.addEventListener('[data-action="element-7"]', 'click',sxl.actionHandler(async (ev, ctx) => {
                       console.log(ev);
                       await ctx?.actions.refetchElement("some-el", {});
                   }, {"id":4}));

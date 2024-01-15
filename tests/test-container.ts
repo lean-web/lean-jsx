@@ -1,5 +1,10 @@
 import { ContextManager } from "@/jsx/context/context-manager";
-import { JSXStack, JSXStream } from "@/jsx/html/stream/jsx-stack";
+import {
+  JSXStack,
+  JSXStackOptions,
+  JSXStream,
+  JSXStreamOptions,
+} from "@/jsx/html/stream/jsx-stack";
 import { TestLogger, ErrorHandler } from "@/server/express";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 
@@ -16,10 +21,14 @@ export function setupTests() {
       );
     },
 
-    jsxStack: <G extends SXLGlobalContext>(globalContext: G) => {
+    jsxStack: <G extends SXLGlobalContext>(
+      globalContext: G,
+      options?: JSXStackOptions,
+    ) => {
       return new JSXStack<G>(
         TestLogger,
         new ContextManager(globalContext, new ErrorHandler(TestLogger)),
+        options,
       );
     },
 
@@ -44,6 +53,19 @@ export function setupTests() {
 
       void stack.push(element);
 
+      let first = await stack.pop();
+      let all = "";
+
+      while (first) {
+        all += first;
+        first = await stack.pop();
+      }
+      return all;
+    },
+
+    renderStackToString: async <G extends SXLGlobalContext>(
+      stack: JSXStack<G>,
+    ) => {
       let first = await stack.pop();
       let all = "";
 

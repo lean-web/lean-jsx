@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
-import { registerDynamicController } from "./component-registry";
+import {
+  registerAPIComponent,
+  registerDynamicController,
+} from "./component-registry";
 import { Request } from "express";
-export { webAction } from "lean-web-utils/lib/server";
+export { withClientData } from "lean-web-utils/lib/server";
 
 /**
  * Convert the contents of the global context into a valid URL.
@@ -116,7 +119,7 @@ export type TrackedPromise<T> = PendingResolve | ResolvedPromise<T>;
  */
 export interface DynamicController<
   GContext extends SXLGlobalContext = SXLGlobalContext,
-  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
+  Props extends SXL.Props<object, GContext> = SXL.Props<object, GContext>,
 > {
   contentId: string;
   /**
@@ -124,18 +127,22 @@ export interface DynamicController<
    * @param props - the component's properties {@link SXL.Props}
    * @returns - a JSX component
    */
-  Render: (props: Props) => SXL.Element;
+  Render?: (props: Props) => SXL.Element;
   /**
    * Renders the component's loaded state.
    * @param props - the component's properties {@link SXL.Props}
    * @returns - a JSX component
    */
-  Api: (props: Props) => SXL.AsyncElement;
+  Api: (
+    props: Props,
+  ) => SXL.AsyncElement | SXL.StaticElement | SXL.AsyncGenElement;
 
   /**
    * The parameters associated to this component
    */
   queryParams?: (request: Request) => Record<string, string | number | boolean>;
+
+  cache?: string;
 }
 
 /**
@@ -154,7 +161,7 @@ export interface DynamicController<
 export function GetDynamicComponent<
   T,
   GContext extends SXLGlobalContext = SXLGlobalContext,
-  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
+  Props extends SXL.Props<object, GContext> = SXL.Props<object, GContext>,
 >(
   contentId: string,
   fetcher: (props: Props) => Promise<T>,
@@ -206,7 +213,6 @@ export function Register<
   T extends DCConstructor<unknown, SXLGlobalContext, SXL.Props>,
 >(constructor: T, _arg?: unknown): T {
   const ddc = new constructor({} as SXL.Props);
-
   registerDynamicController({
     Render: () => (
       <dynamic-component
@@ -250,7 +256,7 @@ export function Register<
 interface DCConstructor<
   T,
   GContext extends SXLGlobalContext = SXLGlobalContext,
-  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
+  Props extends SXL.Props<object, GContext> = SXL.Props<object, GContext>,
 > {
   new (props: Props): DynamicComponent<T, GContext, Props>;
   componentID: string;
@@ -262,8 +268,8 @@ interface DCConstructor<
 export abstract class DynamicComponent<
   T,
   GContext extends SXLGlobalContext = SXLGlobalContext,
-  Props extends SXL.Props<GContext> = SXL.Props<GContext>,
-> implements SXL.ClassComponent<SXL.Props<GContext>>
+  Props extends SXL.Props<object, GContext> = SXL.Props<object, GContext>,
+> implements SXL.ClassComponent<SXL.Props<object, GContext>>
 {
   props: Props;
   constructor(props: Props) {
@@ -325,20 +331,33 @@ export abstract class DynamicComponent<
         )}
       </dynamic-component>
     );
-    // return (
-    //   <div hx-get={`/components/${this.componentID}`} hx-trigger="load">
-    //     {this.dynamicRender(
-    //       {
-    //         isPending: true,
-    //         isError: false,
-    //         isResolved: false,
-    //         value: null,
-    //       },
-    //       props,
-    //     )}
-    //   </div>
-    // );
   }
+}
+
+type SerializableParams = Record<string, string | number | boolean> | undefined;
+
+interface APIComponentConfig<P extends SerializableParams> {
+  id: string;
+  queryParams: (req: Request) => P;
+  cache?: string;
+}
+
+export function APIComponent<
+  P extends SerializableParams | undefined,
+  T extends
+    | SXL.AsyncElement
+    | SXL.StaticElement
+    | SXL.AsyncGenElement
+    | SXL.ClassElement,
+>(config: APIComponentConfig<NonNullable<P>>, fn: (props: P) => T) {
+  registerAPIComponent<SXLGlobalContext, NonNullable<P>>({
+    Api: fn,
+    contentId: config.id,
+    queryParams: config.queryParams ?? ((_) => ({})),
+    cache: config.cache,
+  });
+
+  return (props: P) => <div ref={config.id}>{fn(props)}</div>;
 }
 
 declare global {

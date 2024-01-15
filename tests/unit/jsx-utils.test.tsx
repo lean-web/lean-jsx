@@ -5,10 +5,10 @@ describe("jsx-utils.test", () => {
     const children = unwrapFragments(<>Hello</>);
 
     expect(children).toMatchInlineSnapshot(`
-[
-  "Hello",
-]
-`);
+      [
+        "Hello",
+      ]
+    `);
   });
 
   test("isFragmentNode", () => {
@@ -47,10 +47,10 @@ describe("jsx-utils.test", () => {
     );
 
     expect(children).toMatchInlineSnapshot(`
-[
-  "Hello",
-]
-`);
+      [
+        "Hello",
+      ]
+    `);
   });
 
   test("unwrapFragments", () => {
@@ -61,18 +61,19 @@ describe("jsx-utils.test", () => {
     );
 
     expect(children).toMatchInlineSnapshot(`
-[
-  {
-    "children": [
-      "Hello",
-    ],
-    "props": {
-      "data-arg": "one",
-      "dataset": {},
-    },
-    "type": "p",
-  },
-]
-`);
+      [
+        {
+          "children": [
+            "Hello",
+          ],
+          "componentType": "string",
+          "props": {
+            "data-arg": "one",
+            "dataset": {},
+          },
+          "type": "p",
+        },
+      ]
+    `);
   });
 });

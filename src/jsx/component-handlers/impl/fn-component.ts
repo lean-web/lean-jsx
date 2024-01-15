@@ -40,6 +40,9 @@ export const FnElementTest: ComponentTest<SXL.FunctionElement> = (
 export const FnElementHandler: ComponentHandler = (
   element: SXL.Element,
   contextManager: ContextManager<SXLGlobalContext>,
+  handlingOptions: {
+    sync: boolean;
+  },
 ) => {
   if (!FnElementTest(element)) {
     return undefined;
@@ -50,8 +53,6 @@ export const FnElementHandler: ComponentHandler = (
     children: element.children,
     globalContext: contextManager.getGlobalContext(),
   };
-
-  // const newElement = element.type.bind(ctx)(props);
 
   const newElement = contextManager.errorHandler.withErrorHandling(
     () => {
@@ -64,5 +65,11 @@ export const FnElementHandler: ComponentHandler = (
     },
   );
 
-  return contextManager.processElement(id, ctx, newElement);
+  return contextManager.processElement(
+    id,
+    ctx,
+    newElement,
+    undefined,
+    handlingOptions.sync,
+  );
 };

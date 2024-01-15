@@ -55,10 +55,11 @@ export const DynamicComponentT = GetDynamicComponent(
       return <p id="loading2">Loading...</p>;
     }
     return <p id="loaded2">{resource.value}</p>;
-  }
+  },
 );
 
 export function App({ loadtime }: { loadtime: number }) {
+  const List = DynamicComponentT.Render ?? (() => <></>);
   return (
     <main>
       <p>Hello world</p>
@@ -66,7 +67,7 @@ export function App({ loadtime }: { loadtime: number }) {
         <Slow2 loadtime={loadtime} />
       </Lazy>
       <Slow />
-      <DynamicComponentT.Render />
+      <List />
       <WithHandlers />
       <NewComponent />
     </main>

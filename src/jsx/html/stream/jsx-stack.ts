@@ -7,6 +7,8 @@ import {
   isPromise,
   isStaticNode,
   unwrapFragments,
+  isAsyncGen,
+  isAsyncGenNode,
 } from "../jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
@@ -18,6 +20,7 @@ import { ILogger } from "@/jsx/logging/logger";
 import { ComponentHandlerMap } from "@/jsx/component-handlers/handler-map";
 import { ParsedComponent } from "@/jsx/component-handlers";
 import { TrackablePromise } from "./stream-utils/trackable-promise";
+import { LeanError, RenderError } from "@/jsx/degradation/errors";
 
 /**
  * A utility stack used to pre-process elements outside of the main JSXStack.
@@ -36,7 +39,7 @@ class SubStack {
   }
 }
 
-interface JSXStackOptions {
+export interface JSXStackOptions {
   sync: boolean;
 }
 
@@ -75,6 +78,9 @@ export class JSXStack<G extends SXLGlobalContext> {
   asyncInProgress: Promise<void>[] = [];
   // a flag to indicate whether this stack has already started processing elements.
   started: boolean = false;
+
+  jsQueue: string[] = [];
+
   private contextManager: ContextManager<G>;
   private logger: ILogger;
 
@@ -102,29 +108,48 @@ export class JSXStack<G extends SXLGlobalContext> {
     this.eventListeners[ev]?.forEach((cb) => cb());
   }
 
-  private processElementInSubqueue(element: SXL.StaticElement) {
+  private async processElementInSubqueue(element: SXL.StaticElement) {
     const localStack = new SubStack();
     // TODO: Find a better place to clean fragments
     if (isStaticNode(element) && element.type === "fragment") {
       element.children
+        .flatMap((child) => (Array.isArray(child) ? child : [child]))
         .reverse()
-        .forEach((child) => localStack.inProgressStack.push(child));
+        .forEach((child) => {
+          localStack.inProgressStack.push(child);
+        });
+      return;
+    }
+
+    if (
+      isFunctionNode(element) ||
+      isClassNode(element) ||
+      isAsyncGenNode(element)
+    ) {
+      await this.push(element);
+      // element to process is a constructor/function
+      // we put it in the queue and return
       return;
     }
 
     const [open, close] = JSXToHTMLUtils.jsxNodeToHTMLTag(element);
 
     if (!element.props.id) {
-      throw new Error("Resolved async element should have an ID");
+      const error = new RenderError("Resolved async element should have an ID");
+      this.logger.error(error, element.type);
+      throw error;
     }
 
     this.logger.debug("Pushing async component");
     localStack.inProgressStack.push(MARKERS.ASYNC_END);
     localStack.inProgressStack.push(wirePlaceholder(element.props.id));
     localStack.inProgressStack.push(close);
-    element.children.reverse().forEach((child) => {
-      localStack.inProgressStack.push(child);
-    });
+    element.children
+      .flatMap((child) => (Array.isArray(child) ? child : [child]))
+      .reverse()
+      .forEach((child) => {
+        localStack.inProgressStack.push(child);
+      });
 
     localStack.inProgressStack.push(open);
     localStack.inProgressStack.push(MARKERS.ASYNC_START);
@@ -139,6 +164,7 @@ export class JSXStack<G extends SXLGlobalContext> {
     // TODO: Find a better place to clean fragments
     if (isStaticNode(element) && element.type === "fragment") {
       element.children
+        .flatMap((child) => (Array.isArray(child) ? child : [child]))
         .reverse()
         .forEach((child) => this.inProgressStack.push(child));
       return;
@@ -156,12 +182,19 @@ export class JSXStack<G extends SXLGlobalContext> {
     const jsCode = decorateContext(wrap);
 
     if (jsCode.trim().length > 0) {
-      this.inProgressStack.push(jsCode);
+      if (this.options.sync) {
+        this.jsQueue.push(jsCode);
+      } else {
+        this.inProgressStack.push(jsCode);
+      }
     }
     this.inProgressStack.push(close);
-    element.children.reverse().forEach((child) => {
-      this.inProgressStack.push(child);
-    });
+    element.children
+      .flatMap((child) => (Array.isArray(child) ? child : [child]))
+      .reverse()
+      .forEach((child) => {
+        this.inProgressStack.push(child);
+      });
   }
 
   /**
@@ -182,9 +215,7 @@ export class JSXStack<G extends SXLGlobalContext> {
    *
    * @param element - the element to process.
    */
-  async push(
-    element: string | number | boolean | SXL.StaticElement | SXL.AsyncElement,
-  ): Promise<void> {
+  async push(element: string | number | boolean | SXL.Element): Promise<void> {
     if (!this.started) {
       this.started = true;
       this.logger.debug(
@@ -207,26 +238,75 @@ export class JSXStack<G extends SXLGlobalContext> {
           const currentPromise = this.asyncInProgress.indexOf(p);
           this.asyncInProgress.splice(currentPromise, 1);
         });
-        this.processElementInSubqueue(e);
+        return this.processElementInSubqueue(e);
       });
 
       this.asyncInProgress.push(p);
     } else if (isStaticNode(element) && element.type === "fragment") {
       const children = unwrapFragments(element);
       children.reverse().forEach((child) => this.inProgressStack.push(child));
+    } else if (isAsyncGen(element)) {
+      // the pushed element is the result of an AsyncGen function.
+
+      if (this.options.sync === true) {
+        // ignore the first yield (loading state).
+        await element.next();
+        const n = await element.next();
+        if (n.value) {
+          await this.push(n.value);
+        }
+        return;
+      }
+
+      const v = this.contextManager.decorateAsyncGenResult(
+        element.next().then((v) => v.value),
+        element.next().then((v) => v.value),
+      );
+      if (v.loading && !this.options.sync) {
+        await this.processElement(await v.loading, v);
+      }
+      if (v.element instanceof TrackablePromise) {
+        await this.push(v.element.promise);
+      } else {
+        await this.processElement(v.element, v);
+      }
+
+      //   const asyncGenValues = [element.next(), element.next()]
+      //     .map((el) =>
+      //       this.contextManager.decorateAsyncGenResult(el.then((v) => v.value)),
+      //     )
+      //     .reverse()
+      //     .map((v) => {
+      //       if (v.element instanceof TrackablePromise) {
+      //         return this.push(v.element.promise);
+      //       }
+      //       return this.processElement(v.element, v);
+      //     });
+
+      //   await Promise.all(asyncGenValues);
     } else {
+      // find the correct handler for the given component type
+      // e.g. function component, class component, etc:
       const wrapped = ComponentHandlerMap.map((handler) =>
-        handler(element, this.contextManager),
+        handler(element, this.contextManager, { sync: this.options.sync }),
       ).find((el) => el);
 
       if (!wrapped) {
-        throw new Error(
+        if (isAsyncGen(element)) {
+          const error = new RenderError("Unexpected async gen");
+
+          this.logger.error(error, "");
+          throw error;
+        }
+        const error = new RenderError(
           `Unexpected component type: ${
             typeof element.type === "string"
               ? element.type
               : element.type?.name ?? element
           }`,
         );
+        this.logger.error(error, "");
+        throw error;
       }
 
       if (wrapped.loading && !this.options.sync) {
@@ -249,6 +329,8 @@ export class JSXStack<G extends SXLGlobalContext> {
     ];
   }
 
+  marked = false;
+
   /**
    * Returns the next processed string available in the "done" list. It
    * also processes the next element in the "in-progress" stack, pushing into
@@ -261,8 +343,15 @@ export class JSXStack<G extends SXLGlobalContext> {
     // we have async components pending to be processed,
     // we wait for the first one to complete.
     if (this.inProgressStack.length === 0 && this.asyncInProgress.length > 0) {
+      if (!this.marked) {
+        this.marked = true;
+        return `<!-- ASYNC -->`;
+      }
+      //
       await Promise.race(this.asyncInProgress);
     }
+
+    this.marked = false;
 
     // get an element out of the in-progress stack
     // and push it to be processed.
@@ -291,10 +380,16 @@ export class JSXStack<G extends SXLGlobalContext> {
     // get the next completed element
     const last = this.doneList.shift();
     if (!last) {
+      if (this.options.sync && this.jsQueue.length > 0) {
+        this.jsQueue.forEach((js) => {
+          this.doneList.push(js);
+        });
+        this.jsQueue = [];
+        return await this.pop();
+      }
       this.fire("END");
       this.logger.debug("Finished processing all JSX elements in the stack");
     }
-
     return last;
   }
 }
@@ -308,13 +403,13 @@ interface AdditionalChunks {
 export type JSXStreamOptions = Partial<ReadableOptions> & AdditionalChunks;
 
 export class JSXStream<G extends SXLGlobalContext> extends Readable {
-  private root: SXL.StaticElement;
+  private root: SXL.Element;
   private jsxStack: JSXStack<G>;
   private pre: string[];
   private post: string[];
 
   constructor(
-    root: SXL.StaticElement,
+    root: SXL.Element,
     contextManager: ContextManager<G>,
     logger: ILogger,
     options?: JSXStreamOptions,
@@ -326,6 +421,11 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
     this.jsxStack = new JSXStack(logger, contextManager, {
       sync: options?.sync ?? false,
     });
+  }
+
+  push(chunk: string | null, encoding?: BufferEncoding | undefined): boolean {
+    // console.log(chunk);
+    return super.push(chunk, encoding);
   }
 
   async init() {
@@ -342,22 +442,29 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
       }
       return;
     }
-    void this.jsxStack.pop().then((chunk) => {
-      if (!chunk) {
-        this.post.forEach((ch) => {
-          this.push(ch);
-        });
-        this.push(null);
-        return;
-      }
+    void this.jsxStack
+      .pop()
+      .then((chunk) => {
+        if (!chunk) {
+          this.post.forEach((ch) => {
+            this.push(ch);
+          });
+          this.push(null);
+          return;
+        }
 
-      this.push(chunk);
-    });
+        this.push(chunk);
+      })
+      .catch((err) => {
+        const uuid = err instanceof LeanError ? err.uuid : "";
+        this.push(`<span class="error" data-uuid="${uuid}"></span>`);
+        console.error(err);
+      });
   }
 }
 
 export type JSXStreamFactory<G extends SXLGlobalContext> = (
-  root: SXL.StaticElement,
+  root: SXL.Element,
   globalContext: G,
   opts: JSXStreamOptions,
 ) => JSXStream<G>;

@@ -1,5 +1,5 @@
 import { toQueryString } from "@/components";
-import { webAction } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/lib/server";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
@@ -11,17 +11,17 @@ describe("context-manager.test", () => {
 
     const handlers = contextManager.processHandlers(
       "myid",
-      <button onclick={() => console.log("Success")}></button>,
+      <button onclick={() => console.log("Success")}></button>
     );
 
     expect(handlers).toMatchInlineSnapshot(`
-            [
-              [
-                "onclick",
-                "() => console.log("Success")",
-              ],
-            ]
-        `);
+      [
+        [
+          "onclick",
+          "sxl.actionHandler(() => console.log("Success"), {})",
+        ],
+      ]
+    `);
   });
 
   test("processElement - static", () => {
@@ -30,7 +30,7 @@ describe("context-manager.test", () => {
     const processed = contextManager.processElement(
       "myid",
       { name: "Pedro" },
-      <button onclick={() => console.log("Success")}></button>,
+      <button onclick={() => console.log("Success")}></button>
     );
 
     expect(processed).toMatchInlineSnapshot(`
@@ -40,6 +40,7 @@ describe("context-manager.test", () => {
         },
         "element": {
           "children": [],
+          "componentType": "string",
           "props": {
             "dataset": {
               "data-action": "myid",
@@ -51,7 +52,7 @@ describe("context-manager.test", () => {
         "handlers": [
           [
             "onclick",
-            "() => console.log("Success")",
+            "sxl.actionHandler(() => console.log("Success"), {})",
           ],
         ],
         "id": "myid",
@@ -71,40 +72,43 @@ describe("context-manager.test", () => {
     const processed = contextManager.processElement(
       "myid",
       { name: "Pedro" },
-      MyComponent(),
+      MyComponent()
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
-            {
-              "children": [
-                {
-                  "children": [
-                    "Hello async",
-                  ],
-                  "props": {
-                    "dataset": {},
-                  },
-                  "type": "p",
-                },
-              ],
-              "props": {
-                "id": "myid",
-              },
-              "type": "template",
-            }
-        `);
+      {
+        "children": [
+          {
+            "children": [
+              "Hello async",
+            ],
+            "componentType": "string",
+            "props": {
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "id": "myid",
+        },
+        "type": "template",
+      }
+    `);
 
     expect(processed.loading).toMatchInlineSnapshot(`
-            {
-              "children": [],
-              "props": {
-                "dataset": {
-                  "data-placeholder": "myid",
-                },
-              },
-              "type": "div",
-            }
-        `);
+      {
+        "children": [],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "myid",
+          },
+        },
+        "type": "div",
+      }
+    `);
   });
 
   test("processElement - async with loading state", async () => {
@@ -119,50 +123,54 @@ describe("context-manager.test", () => {
       "myid",
       { name: "Pedro" },
       MyComponent(),
-      <p>Loading...</p>,
+      <p>Loading...</p>
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
-            {
-              "children": [
-                {
-                  "children": [
-                    "Hello async",
-                  ],
-                  "props": {
-                    "dataset": {},
-                  },
-                  "type": "p",
-                },
-              ],
-              "props": {
-                "id": "myid",
-              },
-              "type": "template",
-            }
-        `);
+      {
+        "children": [
+          {
+            "children": [
+              "Hello async",
+            ],
+            "componentType": "string",
+            "props": {
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "id": "myid",
+        },
+        "type": "template",
+      }
+    `);
 
     expect(processed.loading).toMatchInlineSnapshot(`
-            {
-              "children": [
-                {
-                  "children": [
-                    "Loading...",
-                  ],
-                  "props": {
-                    "dataset": {},
-                  },
-                  "type": "p",
-                },
-              ],
-              "props": {
-                "dataset": {
-                  "data-placeholder": "myid",
-                },
-              },
-              "type": "div",
-            }
-        `);
+      {
+        "children": [
+          {
+            "children": [
+              "Loading...",
+            ],
+            "componentType": "string",
+            "props": {
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "myid",
+          },
+        },
+        "type": "div",
+      }
+    `);
   });
 
   test("processElement - async with async loading state", async () => {
@@ -182,50 +190,54 @@ describe("context-manager.test", () => {
       "myid",
       { name: "Pedro" },
       MyComponent(),
-      Loading(),
+      Loading()
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
-            {
-              "children": [
-                {
-                  "children": [
-                    "Hello async",
-                  ],
-                  "props": {
-                    "dataset": {},
-                  },
-                  "type": "p",
-                },
-              ],
-              "props": {
-                "id": "myid",
-              },
-              "type": "template",
-            }
-        `);
+      {
+        "children": [
+          {
+            "children": [
+              "Hello async",
+            ],
+            "componentType": "string",
+            "props": {
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "id": "myid",
+        },
+        "type": "template",
+      }
+    `);
 
     await expect(processed.loading).resolves.toMatchInlineSnapshot(`
-            {
-              "children": [
-                {
-                  "children": [
-                    "Loading",
-                  ],
-                  "props": {
-                    "dataset": {},
-                  },
-                  "type": "p",
-                },
-              ],
-              "props": {
-                "dataset": {
-                  "data-placeholder": "myid",
-                },
-              },
-              "type": "div",
-            }
-        `);
+      {
+        "children": [
+          {
+            "children": [
+              "Loading",
+            ],
+            "componentType": "string",
+            "props": {
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "myid",
+          },
+        },
+        "type": "div",
+      }
+    `);
   });
 
   test("Decorates with web action", () => {
@@ -238,7 +250,7 @@ describe("context-manager.test", () => {
       return (
         <div>
           <button
-            onclick={webAction({ id: product.id }, async (ev, ctx) => {
+            onclick={withClientData({ id: product.id }, async (ev, ctx) => {
               console.log("Delete1");
               await fetch(`/product/${ctx?.data.id}`, {
                 method: "DELETE",
@@ -271,12 +283,13 @@ describe("context-manager.test", () => {
           description: "Lorem ipsum dolor",
         }}
       />,
-      <p>Loading...</p>,
+      <p>Loading...</p>
     );
 
     expect(processed.element).toMatchInlineSnapshot(`
       {
         "children": [],
+        "componentType": "function",
         "props": {
           "dataset": {},
           "product": {

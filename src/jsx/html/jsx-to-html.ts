@@ -158,7 +158,6 @@ function flatten(props: SXL.Props): [string, string | number][] {
     }
 
     if (typeof value === "object") {
-      console.log([key, JSON.stringify(value)]);
       return [[key, JSON.stringify(value).replace(/"/g, "'")]];
     }
 

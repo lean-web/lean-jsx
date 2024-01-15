@@ -11,6 +11,9 @@ export type ComponentTest<E extends SXL.ComponentElementUnion> = (
 export type ComponentHandler = (
   arg: SXL.Element,
   contextManager: ContextManager<SXLGlobalContext>,
+  handlingOptions: {
+    sync: boolean;
+  },
 ) => ParsedComponent | undefined;
 
 export interface ParsedComponent {

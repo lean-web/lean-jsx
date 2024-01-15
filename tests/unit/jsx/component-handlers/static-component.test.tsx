@@ -41,7 +41,8 @@ describe("static-component.test", () => {
   test("StaticElementHandler works as expected", () => {
     const handled = StaticElementHandler(
       <p data-hello="123">Hello</p>,
-      contextManager({})
+      contextManager({}),
+      { sync: false }
     );
     expect(handled?.id).toBeTruthy();
     expect(handled?.element).toStrictEqual(<p data-hello="123">Hello</p>);
@@ -53,7 +54,8 @@ describe("static-component.test", () => {
   test("StaticElementHandler works as expected with handlers", () => {
     const handled = StaticElementHandler(
       <button onclick={() => console.log("Hello")}>Hello</button>,
-      contextManager({})
+      contextManager({}),
+      { sync: false }
     );
     expect(handled?.id).toBeTruthy();
     expect(handled?.element).toMatchInlineSnapshot(`
@@ -61,9 +63,10 @@ describe("static-component.test", () => {
         "children": [
           "Hello",
         ],
+        "componentType": "string",
         "props": {
           "dataset": {
-            "data-action": "element-0",
+            "data-action": "element-1",
           },
           "onclick": "",
         },

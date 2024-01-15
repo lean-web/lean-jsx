@@ -25,8 +25,33 @@ export function jsxElement(
     type,
     props: others,
     children: formatChildren(children),
+    componentType: getComponentType(type),
   };
   return node;
+}
+
+function getComponentType(
+  type: string | SXL.NodeFactory<SXL.Props>,
+): SXL.ComponentType {
+  if (typeof type === "string") {
+    return "string";
+  }
+  if (
+    typeof type === "function" &&
+    !!type.prototype &&
+    "next" in type.prototype
+  ) {
+    return "async-gen";
+  }
+
+  if (
+    typeof type === "function" &&
+    /^class\s/.test(Function.prototype.toString.call(type))
+  ) {
+    return "class";
+  }
+
+  return "function";
 }
 
 export function jsxFragment(props: SXL.Props): SXL.StaticElement {
@@ -36,5 +61,6 @@ export function jsxFragment(props: SXL.Props): SXL.StaticElement {
     type: "fragment",
     props,
     children: formatChildren(children),
+    componentType: "string",
   };
 }

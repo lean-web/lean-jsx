@@ -97,11 +97,17 @@ export class ContextManager<G extends SXLGlobalContext> {
     return this.globalContext;
   }
 
+  decorateAsyncGenResult(loading: SXL.AsyncElement, element: SXL.AsyncElement) {
+    const [id, ctx] = this.newIdAndContext();
+    return this.processElement(id, ctx, element, loading);
+  }
+
   processElement(
     id: ContextID,
     context: SXL.Context<Record<string, unknown>>,
     element: SXL.StaticElement | SXL.AsyncElement,
     placeholder?: SXL.StaticElement | SXL.AsyncElement,
+    processSync = false,
   ): ParsedComponent {
     if (isPromise(element)) {
       return {
@@ -115,7 +121,7 @@ export class ContextManager<G extends SXLGlobalContext> {
             // if operating in sync mode,
             // we don't need to wrap the async element
             // in a template
-            if (this.options.sync) {
+            if (this.options.sync || processSync) {
               return e;
             }
             if (!e.props.dataset) {
@@ -126,6 +132,7 @@ export class ContextManager<G extends SXLGlobalContext> {
               props: {
                 id,
               },
+              componentType: "string",
               children: unwrapFragments(e),
             };
           }),
@@ -161,9 +168,13 @@ export class ContextManager<G extends SXLGlobalContext> {
       .filter(isWebHandler)
       .forEach(([key, v]) => {
         let handlerContent: string = "";
-        handlerContent += `sxl.actionHandler(${v.handler.toString()}, ${buildWebContextString(
-          v.data,
-        )})`;
+        if (typeof v === "function") {
+          handlerContent += `sxl.actionHandler(${v.toString()}, {})`;
+        } else {
+          handlerContent += `sxl.actionHandler(${v.handler.toString()}, ${buildWebContextString(
+            v.data,
+          )})`;
+        }
 
         element.props[key] = "";
         _handlers.push([key as keyof GlobalEventHandlers, handlerContent]);
@@ -197,6 +208,7 @@ export class ContextManager<G extends SXLGlobalContext> {
           ["data-placeholder"]: id,
         },
       },
+      componentType: "string",
       children: placehoder ? unwrapFragments(placehoder) : [],
     };
   }

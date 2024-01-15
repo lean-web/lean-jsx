@@ -47,12 +47,12 @@ export function decorateContext(element: ParsedComponent): string {
   const functionBody = `${fns}${handlers}`.trim();
 
   if (Object.entries(element.context).length === 0) {
-    return `<script type="application/javascript">
+    return `<script data-action-script="${element.id}">
         ${functionBody};
     </script>`;
   }
 
-  const source = `<script type="application/javascript">
+  const source = `<script data-action-script="${element.id}">
       (function(){
         ${functionBody};
       }).call(${JSON.stringify(element.context)});
@@ -71,7 +71,7 @@ export function decorateContext(element: ParsedComponent): string {
  */
 export function wirePlaceholder(id: ContextID) {
   return `<script>
-    sxl.fillPlaceHolder("${id}");  
+   sxl.fillPlaceHolder("${id}");  
  </script>
  `;
 }

@@ -21,6 +21,9 @@ export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
 export const StaticElementHandler: ComponentHandler = (
   element: SXL.Element,
   contextManager: ContextManager<SXLGlobalContext>,
+  _handlingOptions: {
+    sync: boolean;
+  },
 ) => {
   if (!StaticElementTest(element)) {
     return undefined;
@@ -34,8 +37,11 @@ export const StaticElementHandler: ComponentHandler = (
 export function staticHandler<G extends SXLGlobalContext>(
   arg: SXL.Element,
   contextManager: ContextManager<G>,
+  handlingOptions: {
+    sync: boolean;
+  },
 ): ParsedComponent | undefined {
   if (StaticElementTest(arg)) {
-    return StaticElementHandler(arg, contextManager);
+    return StaticElementHandler(arg, contextManager, handlingOptions);
   }
 }

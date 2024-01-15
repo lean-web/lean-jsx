@@ -1,10 +1,10 @@
 import { Component } from "@/components";
-import { webAction } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/lib/server";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
 describe("jsx-stack.test", () => {
-  const { jsxStack } = setupTests();
+  const { jsxStack, renderStackToString } = setupTests();
 
   test("static elements", async () => {
     const stack = jsxStack({ username: "Pedro" });
@@ -15,13 +15,7 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toBe("<div><p>E1</p><p>E2</p></div>");
   });
@@ -34,7 +28,7 @@ describe("jsx-stack.test", () => {
         <p>E1</p>
         <p>E2</p>
         <button
-          onclick={webAction<MouseEvent, Record<string, unknown>>({}, () =>
+          onclick={withClientData<MouseEvent, Record<string, unknown>>({}, () =>
             console.log("clicked")
           )}
         >
@@ -43,17 +37,11 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<div><p>E1</p><p>E2</p><button data-action="element-3">Click</button><script type="application/javascript">
-              sxl.addEventListener('[data-action="element-3"]', 'click',sxl.actionHandler(() => console.log("clicked"), {}));
+      "<div><p>E1</p><p>E2</p><button data-action="element-4">Click</button><script data-action-script="element-4">
+              sxl.addEventListener('[data-action="element-4"]', 'click',sxl.actionHandler(() => console.log("clicked"), {}));
           </script></div>"
     `);
   });
@@ -70,15 +58,63 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toBe("<div><p>E1</p><p>E2</p></div>");
+  });
+
+  test("async function component", async () => {
+    const stack = jsxStack({ username: "Pedro" });
+    async function E1() {
+      await Promise.resolve();
+      return <p>E1</p>;
+    }
+    void stack.push(
+      <div>
+        <E1 />
+        <p>E2</p>
+      </div>
+    );
+
+    const all = await renderStackToString(stack);
+
+    expect(all).toMatchInlineSnapshot(`
+      "<div><div data-placeholder="element-2"></div><p>E2</p></div><template id="element-2"><p>E1</p></template><script>
+         sxl.fillPlaceHolder("element-2");  
+       </script>
+       "
+    `);
+  });
+
+  test("async function component (sync mode)", async () => {
+    const stack = jsxStack({ username: "Pedro" }, { sync: true });
+    async function E1() {
+      await Promise.resolve();
+      return <p>E1</p>;
+    }
+    void stack.push(
+      <div>
+        <E1 />
+        <p>E2</p>
+      </div>
+    );
+
+    const all = await renderStackToString(stack);
+
+    expect(all).toMatchInlineSnapshot(`"<div><p>E1</p><p>E2</p></div>"`);
+  });
+
+  test("async function component - at the root (sync mode)", async () => {
+    const stack = jsxStack({ username: "Pedro" }, { sync: true });
+    async function E1() {
+      await Promise.resolve();
+      return <p>E1</p>;
+    }
+    void (await stack.push(<E1 />));
+
+    const all = await renderStackToString(stack);
+
+    expect(all).toMatchInlineSnapshot(`"<p>E1</p>"`);
   });
 
   test("function component: with context", async () => {
@@ -90,25 +126,19 @@ describe("jsx-stack.test", () => {
     ) {
       this.greet = "Hi"!;
       return (
-        <button onclick={webAction({}, () => console.log(this.greet))}>
+        <button onclick={withClientData({}, () => console.log(this.greet))}>
           Hello {globalContext?.username}
         </button>
       );
     }
     void stack.push(<List />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<button data-action="element-0">Hello Pedro</button><script type="application/javascript">
+      "<button data-action="element-1">Hello Pedro</button><script data-action-script="element-1">
             (function(){
-              sxl.addEventListener('[data-action="element-0"]', 'click',sxl.actionHandler(() => console.log(this.greet), {}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler(() => console.log(this.greet), {}));
             }).call({"greet":"Hi"});
           </script>"
     `);
@@ -125,7 +155,7 @@ describe("jsx-stack.test", () => {
       const someInternalData = "This is internal";
       return (
         <button
-          onclick={webAction({ someInternalData }, (ev, inner) =>
+          onclick={withClientData({ someInternalData }, (ev, inner) =>
             console.log(this.greet, inner?.data?.someInternalData)
           )}
         >
@@ -135,18 +165,12 @@ describe("jsx-stack.test", () => {
     }
     void stack.push(<List />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<button data-action="element-0">Hello Pedro</button><script type="application/javascript">
+      "<button data-action="element-1">Hello Pedro</button><script data-action-script="element-1">
             (function(){
-              sxl.addEventListener('[data-action="element-0"]', 'click',sxl.actionHandler((ev, inner) => console.log(this.greet, inner?.data?.someInternalData), {"someInternalData":"This is internal"}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, inner) => console.log(this.greet, inner?.data?.someInternalData), {"someInternalData":"This is internal"}));
             }).call({"greet":"Hi"});
           </script>"
     `);
@@ -168,13 +192,7 @@ describe("jsx-stack.test", () => {
     }
     void stack.push(<List />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`"<p>E1</p><p>E2</p>"`);
   });
@@ -199,13 +217,7 @@ describe("jsx-stack.test", () => {
     }
     void stack.push(<List />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`"<p>E1</p><p>E2</p>"`);
   });
@@ -223,27 +235,21 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><p>E2</p></template><script>
-                sxl.fillPlaceHolder("element-2");  
-             </script>
-             "
-        `);
+      "<div><p>E1</p><div data-placeholder="element-3"></div><p>E3</p></div><template id="element-3"><p>E2</p></template><script>
+         sxl.fillPlaceHolder("element-3");  
+       </script>
+       "
+    `);
   });
 
   test("2 static and 1 async element - with handler", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
       return new Promise((resolve) =>
-        resolve(<button onclick={webAction({}, () => "E2")}>E2</button>)
+        resolve(<button onclick={withClientData({}, () => "E2")}>E2</button>)
       );
     }
     void stack.push(
@@ -254,19 +260,13 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><button data-action="element-4">E2</button><script type="application/javascript">
-              sxl.addEventListener('[data-action="element-4"]', 'click',sxl.actionHandler(() => "E2", {}));
+      "<div><p>E1</p><div data-placeholder="element-3"></div><p>E3</p></div><template id="element-3"><button data-action="element-5">E2</button><script data-action-script="element-5">
+              sxl.addEventListener('[data-action="element-5"]', 'click',sxl.actionHandler(() => "E2", {}));
           </script></template><script>
-          sxl.fillPlaceHolder("element-2");  
+         sxl.fillPlaceHolder("element-3");  
        </script>
        "
     `);
@@ -285,27 +285,21 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><p>E2</p></template><script>
-                sxl.fillPlaceHolder("element-2");  
-             </script>
-             "
-        `);
+      "<div><p>E1</p><div data-placeholder="element-3"></div><p>E3</p></div><template id="element-3"><p>E2</p></template><script>
+         sxl.fillPlaceHolder("element-3");  
+       </script>
+       "
+    `);
   });
 
   test("test stack events", async () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
       return new Promise((resolve) =>
-        resolve(<button onclick={webAction({}, () => "E2")}>E2</button>)
+        resolve(<button onclick={withClientData({}, () => "E2")}>E2</button>)
       );
     }
     void stack.push(
@@ -341,9 +335,9 @@ describe("jsx-stack.test", () => {
 
     expect(flushes).toMatchInlineSnapshot(`
       [
-        "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p>",
-        "<div><p>E1</p><div data-placeholder="element-2"></div><p>E3</p></div><template id="element-2"><button data-action="element-4">E2</button><script type="application/javascript">
-              sxl.addEventListener('[data-action="element-4"]', 'click',sxl.actionHandler(() => "E2", {}));
+        "<div><p>E1</p><div data-placeholder="element-3"></div><p>E3</p>",
+        "<div><p>E1</p><div data-placeholder="element-3"></div><p>E3</p></div><template id="element-3"><button data-action="element-5">E2</button><script data-action-script="element-5">
+              sxl.addEventListener('[data-action="element-5"]', 'click',sxl.actionHandler(() => "E2", {}));
           </script></template>",
       ]
     `);
@@ -353,13 +347,7 @@ describe("jsx-stack.test", () => {
     const stack = jsxStack({ username: "Pedro" });
     void stack.push(<>hello</>);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`"hello"`);
   });
@@ -372,13 +360,7 @@ describe("jsx-stack.test", () => {
       </>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`"hello"`);
   });
@@ -395,13 +377,7 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(
       `"<div><div data-leanjsx-error="true">An error ocurred</div><p>E2</p></div>"`
@@ -420,20 +396,14 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><div data-placeholder="element-1"></div><p>E2</p></div><template id="element-1"><div data-leanjsx-error="true">An error ocurred</div></template><script>
-                sxl.fillPlaceHolder("element-1");  
-             </script>
-             "
-        `);
+      "<div><div data-placeholder="element-2"></div><p>E2</p></div><template id="element-2"><div data-leanjsx-error="true">An error ocurred</div></template><script>
+         sxl.fillPlaceHolder("element-2");  
+       </script>
+       "
+    `);
   });
 
   test("async gen function component", async () => {
@@ -450,20 +420,14 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><div data-placeholder="element-1"><p>Loading</p></div><p>E2</p></div><template id="element-1"><p>E1</p></template><script>
-                sxl.fillPlaceHolder("element-1");  
-             </script>
-             "
-        `);
+      "<div><div data-placeholder="element-2"><p>Loading</p></div><p>E2</p></div><template id="element-2"><p>E1</p></template><script>
+         sxl.fillPlaceHolder("element-2");  
+       </script>
+       "
+    `);
   });
 
   test("async gen function component - error before yielding", async () => {
@@ -486,20 +450,14 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><div data-placeholder="element-1"><div data-leanjsx-error="true">An error ocurred</div></div><p>E2</p></div><template id="element-1"><div data-leanjsx-error="true">An error ocurred</div></template><script>
-                sxl.fillPlaceHolder("element-1");  
-             </script>
-             "
-        `);
+      "<div><div data-placeholder="element-2"><div data-leanjsx-error="true">An error ocurred</div></div><p>E2</p></div><template id="element-2"><div data-leanjsx-error="true">An error ocurred</div></template><script>
+         sxl.fillPlaceHolder("element-2");  
+       </script>
+       "
+    `);
   });
 
   test("async gen function component - error after yielding", async () => {
@@ -521,20 +479,14 @@ describe("jsx-stack.test", () => {
       </div>
     );
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-            "<div><div data-placeholder="element-1"><p>Loading</p></div><p>E2</p></div><template id="element-1"><div data-leanjsx-error="true">An error ocurred</div></template><script>
-                sxl.fillPlaceHolder("element-1");  
-             </script>
-             "
-        `);
+      "<div><div data-placeholder="element-2"><p>Loading</p></div><p>E2</p></div><template id="element-2"><div data-leanjsx-error="true">An error ocurred</div></template><script>
+         sxl.fillPlaceHolder("element-2");  
+       </script>
+       "
+    `);
   });
 
   test("class component", async () => {
@@ -557,13 +509,7 @@ describe("jsx-stack.test", () => {
 
     await stack.push(<MyComponent />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`"<div>Hello Pedro</div>"`);
   });
@@ -582,17 +528,11 @@ describe("jsx-stack.test", () => {
 
     await stack.push(<MyComponent />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<div data-placeholder="element-0"><div>Loading...</div></div><template id="element-0"><div>Loaded</div></template><script>
-          sxl.fillPlaceHolder("element-0");  
+      "<div data-placeholder="element-1"><div>Loading...</div></div><template id="element-1"><div>Loaded</div></template><script>
+         sxl.fillPlaceHolder("element-1");  
        </script>
        "
     `);
@@ -610,7 +550,7 @@ describe("jsx-stack.test", () => {
       render() {
         const props = this.props;
         return (
-          <button onclick={webAction({}, () => console.log(props.greet))}>
+          <button onclick={withClientData({}, () => console.log(props.greet))}>
             Say hi! {props.greet}
           </button>
         );
@@ -619,18 +559,12 @@ describe("jsx-stack.test", () => {
 
     await stack.push(<MyComponent greet="Friend" />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<button data-action="element-0">Say hi! Friend</button><script type="application/javascript">
+      "<button data-action="element-1">Say hi! Friend</button><script data-action-script="element-1">
             (function(){
-              sxl.addEventListener('[data-action="element-0"]', 'click',sxl.actionHandler(() => console.log(props.greet), {}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler(() => console.log(props.greet), {}));
             }).call({"props":{"greet":"Friend","dataset":{},"children":[],"globalContext":{"username":"Pedro"}}});
           </script>"
     `);
@@ -645,7 +579,7 @@ describe("jsx-stack.test", () => {
 
       render() {
         return (
-          <button onclick={webAction({}, () => console.log(this.greet))}>
+          <button onclick={withClientData({}, () => console.log(this.greet))}>
             Say hi!
           </button>
         );
@@ -654,18 +588,12 @@ describe("jsx-stack.test", () => {
 
     await stack.push(<MyComponent />);
 
-    let first = await stack.pop();
-    let all = "";
-
-    while (first) {
-      all += first;
-      first = await stack.pop();
-    }
+    const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(`
-      "<button data-action="element-0">Say hi!</button><script type="application/javascript">
+      "<button data-action="element-1">Say hi!</button><script data-action-script="element-1">
             (function(){
-              sxl.addEventListener('[data-action="element-0"]', 'click',sxl.actionHandler(() => console.log(this.greet), {}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler(() => console.log(this.greet), {}));
             }).call({"props":{"dataset":{},"children":[],"globalContext":{"username":"Pedro"}},"greet":"Hello"});
           </script>"
     `);

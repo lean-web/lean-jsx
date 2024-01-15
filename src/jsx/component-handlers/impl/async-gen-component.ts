@@ -1,14 +1,12 @@
 import { ComponentTest, ComponentHandler } from "..";
-import { isFunctionNode } from "@/jsx/html/jsx-utils";
+import { isAsyncGenNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 
 export const AsyncGenElementTest: ComponentTest<SXL.FunctionAsyncGenElement> = (
   arg: SXL.Element,
 ): arg is SXL.FunctionAsyncGenElement => {
-  return (
-    isFunctionNode(arg) && !!arg.type.prototype && "next" in arg.type.prototype
-  );
+  return isAsyncGenNode(arg);
 };
 
 /**
@@ -34,10 +32,14 @@ export const AsyncGenElementTest: ComponentTest<SXL.FunctionAsyncGenElement> = (
 export const AsyncGenElementHandler: ComponentHandler = (
   element: SXL.Element,
   contextManager: ContextManager<SXLGlobalContext>,
+  handlingOptions: {
+    sync: boolean;
+  },
 ) => {
   if (!AsyncGenElementTest(element)) {
     return undefined;
   }
+
   const [id, ctx] = contextManager.newIdAndContext();
   const props: SXL.Props = {
     ...element.props,
@@ -63,7 +65,7 @@ export const AsyncGenElementHandler: ComponentHandler = (
   const lazyElement = contextManager.errorHandler.withErrorHandling(
     () =>
       newElement.next().then((data) => {
-        if (!data.value) {
+        if (data.done && !data.value) {
           return contextManager.errorHandler.getFallback({});
         }
         return data.value;
@@ -74,5 +76,11 @@ export const AsyncGenElementHandler: ComponentHandler = (
       },
     },
   );
-  return contextManager.processElement(id, ctx, lazyElement, placeholder);
+  return contextManager.processElement(
+    id,
+    ctx,
+    lazyElement,
+    placeholder,
+    handlingOptions.sync,
+  );
 };

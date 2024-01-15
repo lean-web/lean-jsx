@@ -1,15 +1,17 @@
+import { randomInt } from "node:crypto";
 import { v4 as uuidv4 } from "uuid";
 
 const ENV = process.env.ENV ?? "DEV";
 
+function* syntId() {
+  let i = 1;
+  while (i < i + 100000) {
+    yield `element-${i++}`;
+  }
+}
+
 export class UIDGenerator {
-  static new(intialIndex?: number) {
-    let i = intialIndex ?? 0;
-    function* syntId() {
-      while (i < i + 10000) {
-        yield `element-${i++}`;
-      }
-    }
+  static new() {
     const devIdGen = syntId();
     return (type?: "PROD" | "DEV"): string => {
       if (type === "PROD" || ENV === "PROD") {

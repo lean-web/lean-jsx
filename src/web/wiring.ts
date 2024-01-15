@@ -1,4 +1,4 @@
-import { refetchElement, update } from "lean-web-utils/lib/server";
+import { WebActions } from "lean-web-utils/lib/server";
 
 /**
  * Finds placeholder for async components and replaces them
@@ -15,7 +15,7 @@ export function fillPlaceHolder(placeHolderId: string): void {
   );
 
   if (!template || !container) {
-    console.debug("Could not find template or container", {
+    console.trace("Could not find template or container", {
       template,
       container,
     });
@@ -55,20 +55,16 @@ export function actionHandler(
     data: {
       data: unknown;
       element: Element;
-      actions: { refetchElement: typeof refetchElement; update: typeof update };
+      actions: WebActions;
     },
   ) => unknown,
   data: unknown,
-): unknown {
-  return function (this: Element, ev: Event) {
+) {
+  return function (this: Element, ev: Event): void {
     h(ev, {
       data,
       element: this,
-      actions: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        refetchElement,
-        update,
-      },
+      actions: new WebActions(),
     });
   };
 }

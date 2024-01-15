@@ -21,6 +21,7 @@ import fs from "fs";
 import path from "path";
 import { getDynamicComponentRegistry } from "@/components/component-registry";
 import { DynamicController } from "@/components";
+import zlib from "zlib";
 
 type RequestLike = Pick<Request, "originalUrl">;
 
@@ -33,6 +34,10 @@ type RequestLike = Pick<Request, "originalUrl">;
 export function getComponent(req: RequestLike): string | undefined {
   const [_, component] = req.originalUrl.match(/\/components\/([\w-]+)/) ?? [];
   return component;
+}
+
+export function isComponentUrl(req: RequestLike): boolean {
+  return /\/components\//.test(req.originalUrl);
 }
 
 /**
@@ -81,12 +86,17 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
 
       await appHtmlStream.init();
 
-      appHtmlStream.pipe(
-        res
-          .status(200)
-          .set("Transfer-Encoding", "chunked")
-          .set({ "Content-Type": "text/html" }),
-      );
+      const gzip = zlib.createGzip();
+
+      appHtmlStream
+        // .pipe(gzip)
+        .pipe(
+          res.status(200).set({
+            "Transfer-Encoding": "chunked",
+            "Content-Type": "text/html",
+            //   "Content-Encoding": "gzip",
+          }),
+        );
     } catch (e) {
       if (
         e instanceof Error &&
@@ -141,12 +151,12 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   }
 
   async renderComponent(
-    component: SXL.StaticElement | SXL.AsyncElement,
+    component: SXL.Element,
     globalContext: G,
   ): Promise<Readable> {
     const stream = this.jsxStreamFactory(await component, globalContext, {
-      pre: [],
-      post: [],
+      pre: ["<!DOCTYPE html><body>"],
+      post: ["</body>"],
       sync: true,
     });
     await stream.init();
@@ -163,23 +173,25 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     return pinoHttp({ transport: { targets: getPinoTransports(config) } });
   }
 
-  middleware(options: SXLMiddlewareOptions<G>): ExpressMiddleware {
-    const bodyParserMid = bodyParser.urlencoded({ extended: true });
-    // Define middleware function
-
+  private buildControllerMap(
+    components: DynamicController<G, SXL.Props<object, G>>[] | undefined,
+  ): Record<string, DynamicController<G>> {
     const dcRegistry = getDynamicComponentRegistry();
 
-    const controllerMap: Record<string, DynamicController<G>> = {
-      ...(options.components
+    return {
+      ...(components
         ? Object.fromEntries(
-            options.components.map((controller) => [
-              controller.contentId,
-              controller,
-            ]),
+            components.map((controller) => [controller.contentId, controller]),
           )
         : {}),
       ...dcRegistry,
     };
+  }
+
+  middleware(options: SXLMiddlewareOptions<G>): ExpressMiddleware {
+    const bodyParserMid = bodyParser.urlencoded({ extended: true });
+
+    const controllerMap = this.buildControllerMap(options.components);
 
     const { configResponse, globalContextParser } = options;
 
@@ -189,6 +201,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
           return next(err);
         }
         try {
+          const isComponentRequest = isComponentUrl(req);
           const maybeComponentName = getComponent(req);
           if (maybeComponentName && controllerMap[maybeComponentName]) {
             const component = controllerMap[maybeComponentName];
@@ -199,23 +212,37 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
             void this.renderComponent(
               component.Api({
                 globalContext,
+                ...component.queryParams?.call(component, req),
               }),
               globalContext,
             )
               .then((htmlStream) => {
+                res = res.set({
+                  "Transfer-Encoding": "chunked",
+                  "Content-Type": "text/html",
+                  //   "Content-Encoding": "gzip",
+                });
+                if (component.cache) {
+                  res.set("cache-control", component.cache);
+                }
                 // allow consumers to configure the response
                 // before starting streaming
                 if (configResponse) {
                   res = configResponse(res);
                 }
-                htmlStream.pipe(res);
+                const gzip = zlib.createGzip();
+                htmlStream
+                  // .pipe(gzip)
+                  .pipe(res);
               })
               .catch((err) => next(err));
           } else {
-            if (maybeComponentName) {
+            if (maybeComponentName || isComponentRequest) {
               if (process.env.NODE_ENV === "development") {
                 const err = new Error(
-                  `Requested component ${maybeComponentName} could not be found. Did you add it to the middleware configuration, or decorated the component class with @Autowire?`,
+                  `Requested component ${
+                    maybeComponentName ?? req.originalUrl
+                  } could not be found. Did you add it to the middleware configuration, or decorated the component class with @Autowire?`,
                 );
                 const errStr = JSON.stringify(
                   err,

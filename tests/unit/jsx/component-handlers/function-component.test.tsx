@@ -48,7 +48,9 @@ describe("function-component.test", () => {
   });
 
   test("FnElementHandler works as expected", () => {
-    const handled = FnElementHandler(<MyComponent />, contextManager({}));
+    const handled = FnElementHandler(<MyComponent />, contextManager({}), {
+      sync: false,
+    });
     expect(handled?.id).toBeTruthy();
     expect(handled?.element).toStrictEqual(<p data-hello="123">Hello</p>);
     expect(handled?.loading).toBeFalsy();
@@ -57,40 +59,45 @@ describe("function-component.test", () => {
   });
 
   test("FnElementHandler works as expected for async component", async () => {
-    const handled = FnElementHandler(<MyAsyncComponent />, contextManager({}));
+    const handled = FnElementHandler(<MyAsyncComponent />, contextManager({}), {
+      sync: false,
+    });
     expect(handled?.id).toBeTruthy();
     await expect(handled?.element).resolves.toMatchInlineSnapshot(`
-{
-  "children": [
-    {
-      "children": [
-        "Hello",
-      ],
-      "props": {
-        "data-hello": "123",
-        "dataset": {},
-      },
-      "type": "p",
-    },
-  ],
-  "props": {
-    "id": "element-0",
-  },
-  "type": "template",
-}
-`);
+      {
+        "children": [
+          {
+            "children": [
+              "Hello",
+            ],
+            "componentType": "string",
+            "props": {
+              "data-hello": "123",
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "id": "element-1",
+        },
+        "type": "template",
+      }
+    `);
     expect(handled?.loading).toBeTruthy();
     expect(handled?.loading).toMatchInlineSnapshot(`
-            {
-              "children": [],
-              "props": {
-                "dataset": {
-                  "data-placeholder": "element-0",
-                },
-              },
-              "type": "div",
-            }
-        `);
+      {
+        "children": [],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "element-1",
+          },
+        },
+        "type": "div",
+      }
+    `);
     expect(handled?.context).toBeTruthy();
     expect(handled?.handlers ?? []).toHaveLength(0);
   });

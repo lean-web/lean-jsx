@@ -1,6 +1,6 @@
 {
   "name": "lean-jsx",
-  "version": "0.0.9-alpha",
+  "version": "0.0.10-alpha",
   "author": "Pedro Marquez-Soto",
   "license": "MPL-2.0",
   "description": "LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.",
@@ -9,7 +9,7 @@
   "files": ["lib"],
   "scripts": {
     "build": "rm -rf ./lib && rollup -c",
-    "watch": "rollup -c --watch",
+    "watch": "rm -rf ./lib && rollup -c --watch",
     "test": "jest",
     "test:e2e": "jest -c ../../jest.integration.config.js",
     "docs": "npx typedoc --out docs"
@@ -32,6 +32,7 @@
     "@types/sinon": "^10.0.19",
     "@types/uuid": "^9.0.5",
     "eslint": "^8.53.0",
+    "fast-glob": "^3.3.2",
     "husky": "^8.0.3",
     "jest-puppeteer": "^9.0.1",
     "jsdom": "^22.1.0",
@@ -41,6 +42,7 @@
     "rollup": "^4.3.0",
     "rollup-plugin-alias": "^2.2.0",
     "rollup-plugin-analyzer": "^4.0.0",
+    "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-visualizer": "^5.9.3",
     "ts-jest": "^29.1.1",

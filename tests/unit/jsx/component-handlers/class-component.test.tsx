@@ -38,7 +38,9 @@ describe("class-component.test", () => {
         return <div>Hello world</div>;
       }
     }
-    const handled = ClassElementHandler(<MyComponent />, contextManager({}));
+    const handled = ClassElementHandler(<MyComponent />, contextManager({}), {
+      sync: false,
+    });
     expect(handled?.id).toBeTruthy();
     expect(handled?.loading).toMatchInlineSnapshot(`undefined`);
     expect(handled?.element).toMatchInlineSnapshot(`
@@ -62,7 +64,8 @@ describe("class-component.test", () => {
     }
     const handled = ClassElementHandler(
       <MyComponent foo="bar" />,
-      contextManager({})
+      contextManager({}),
+      { sync: false }
     );
     expect(handled?.id).toBeTruthy();
     expect(handled?.loading).toMatchInlineSnapshot(`undefined`);
@@ -71,6 +74,7 @@ describe("class-component.test", () => {
         "children": [
           "Hello world",
         ],
+        "componentType": "string",
         "props": {
           "dataset": {},
         },
@@ -90,7 +94,9 @@ describe("class-component.test", () => {
         return <div>Hello world</div>;
       }
     }
-    const handled = ClassElementHandler(<MyComponent />, contextManager({}));
+    const handled = ClassElementHandler(<MyComponent />, contextManager({}), {
+      sync: false,
+    });
     expect(handled?.id).toBeTruthy();
     expect(handled?.loading).toMatchInlineSnapshot(`
       {

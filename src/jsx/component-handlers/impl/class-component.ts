@@ -20,6 +20,9 @@ export const ClassElementTest: ComponentTest<SXL.ClassElement> = (
 export const ClassElementHandler: ComponentHandler = (
   element: SXL.Element,
   contextManager: ContextManager<SXLGlobalContext>,
+  handlingOptions: {
+    sync: boolean;
+  },
 ) => {
   if (!ClassElementTest(element)) {
     return undefined;
@@ -66,5 +69,6 @@ export const ClassElementHandler: ComponentHandler = (
     classContext,
     lazyElement,
     placeholder,
+    handlingOptions.sync,
   );
 };

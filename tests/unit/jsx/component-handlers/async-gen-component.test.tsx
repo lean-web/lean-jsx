@@ -50,42 +50,88 @@ describe("async-gen-component.test", () => {
   });
 
   test("AsyncGenElementTest works as expected", async () => {
-    const handled = AsyncGenElementHandler(<MyComponent />, contextManager({}));
+    const handled = AsyncGenElementHandler(
+      <MyComponent />,
+      contextManager({}),
+      { sync: false }
+    );
     expect(handled?.id).toBeTruthy();
     await expect(handled?.element).resolves.toMatchInlineSnapshot(`
-{
-  "children": [
-    {
-      "children": [
-        "Hello",
-      ],
-      "props": {
-        "data-hello": "123",
-        "dataset": {},
-      },
-      "type": "p",
-    },
-  ],
-  "props": {
-    "id": "element-0",
-  },
-  "type": "template",
-}
-`);
+      {
+        "children": [
+          {
+            "children": [
+              "Hello",
+            ],
+            "componentType": "string",
+            "props": {
+              "data-hello": "123",
+              "dataset": {},
+            },
+            "type": "p",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "id": "element-1",
+        },
+        "type": "template",
+      }
+    `);
     expect(handled?.loading).toBeTruthy();
     await expect(handled?.loading).resolves.toMatchInlineSnapshot(`
-            {
-              "children": [
-                "Loading",
-              ],
-              "props": {
-                "dataset": {
-                  "data-placeholder": "element-0",
-                },
-              },
-              "type": "div",
-            }
-        `);
+      {
+        "children": [
+          "Loading",
+        ],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "element-1",
+          },
+        },
+        "type": "div",
+      }
+    `);
+    expect(handled?.context).toBeTruthy();
+    expect(handled?.handlers ?? []).toHaveLength(0);
+  });
+
+  test("AsyncGenElementTest works as expected (sync)", async () => {
+    const handled = AsyncGenElementHandler(
+      <MyComponent />,
+      contextManager({}),
+      { sync: true }
+    );
+    expect(handled?.id).toBeTruthy();
+    await expect(handled?.element).resolves.toMatchInlineSnapshot(`
+      {
+        "children": [
+          "Hello",
+        ],
+        "componentType": "string",
+        "props": {
+          "data-hello": "123",
+          "dataset": {},
+        },
+        "type": "p",
+      }
+    `);
+    expect(handled?.loading).toBeTruthy();
+    await expect(handled?.loading).resolves.toMatchInlineSnapshot(`
+      {
+        "children": [
+          "Loading",
+        ],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "element-1",
+          },
+        },
+        "type": "div",
+      }
+    `);
     expect(handled?.context).toBeTruthy();
     expect(handled?.handlers ?? []).toHaveLength(0);
   });
@@ -93,44 +139,48 @@ describe("async-gen-component.test", () => {
   test("AsyncGenElementTest works as expected with actions", async () => {
     const handled = AsyncGenElementHandler(
       <MyComponentWithActions />,
-      contextManager({})
+      contextManager({}),
+      { sync: false }
     );
     expect(handled?.id).toBeTruthy();
     await expect(handled?.element).resolves.toMatchInlineSnapshot(`
-{
-  "children": [
-    {
-      "children": [
-        "Hello",
-      ],
-      "props": {
-        "data-hello": "123",
-        "dataset": {},
-        "onclick": [Function],
-      },
-      "type": "button",
-    },
-  ],
-  "props": {
-    "id": "element-0",
-  },
-  "type": "template",
-}
-`);
+      {
+        "children": [
+          {
+            "children": [
+              "Hello",
+            ],
+            "componentType": "string",
+            "props": {
+              "data-hello": "123",
+              "dataset": {},
+              "onclick": [Function],
+            },
+            "type": "button",
+          },
+        ],
+        "componentType": "string",
+        "props": {
+          "id": "element-1",
+        },
+        "type": "template",
+      }
+    `);
     expect(handled?.loading).toBeTruthy();
     await expect(handled?.loading).resolves.toMatchInlineSnapshot(`
-            {
-              "children": [
-                "Loading",
-              ],
-              "props": {
-                "dataset": {
-                  "data-placeholder": "element-0",
-                },
-              },
-              "type": "div",
-            }
-        `);
+      {
+        "children": [
+          "Loading",
+        ],
+        "componentType": "string",
+        "props": {
+          "dataset": {
+            "data-placeholder": "element-1",
+          },
+        },
+        "type": "div",
+      }
+    `);
     expect(handled?.context).toBeTruthy();
     expect(handled?.handlers ?? []).toHaveLength(0);
   });

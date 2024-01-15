@@ -23,15 +23,15 @@ interface StaticElementOptions {
   type?: string;
   withOnClick?: boolean;
   withTextChild?: string;
-  withChild?: SXL.StaticElement;
+  withChild?: SXL.StaticElement | SXL.StaticElement[];
   withDataSet?: DOMStringMap;
   withProps?: SXL.Props;
 }
 export function withSxlStaticElement(
-  opts?: StaticElementOptions
+  opts?: StaticElementOptions,
 ): SXL.StaticElement {
   const type = opts?.withOnClick ? opts.type ?? "button" : opts?.type ?? "p";
-  const children: Array<string | SXL.StaticElement> = [];
+  const children: SXL.Children = [];
 
   if (opts?.withTextChild) {
     children.push(opts.withTextChild);
@@ -43,6 +43,7 @@ export function withSxlStaticElement(
   const dataset = opts?.withDataSet ?? {};
   return {
     type,
+    componentType: "string",
     props: {
       dataset,
       ...opts?.withProps,
