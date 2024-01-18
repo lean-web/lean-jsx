@@ -36,13 +36,12 @@ const extractEventHandlersPlugin: Plugin = {
       if (result.errors.length > 0) {
         return;
       }
+      if (!fs.existsSync(".lean/handlers/")) {
+        fs.mkdirSync(".lean/handlers/", { recursive: true });
+      }
       const filesAndActions = extractor.getActionsPerFile();
       if (filesAndActions.length === 0) {
         return;
-      }
-
-      if (!fs.existsSync(".lean/handlers/")) {
-        fs.mkdirSync(".lean/handlers/", { recursive: true });
       }
 
       const cachePath = path.join(process.cwd(), ".lean");

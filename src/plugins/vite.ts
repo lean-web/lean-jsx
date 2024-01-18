@@ -53,25 +53,28 @@ export default function injectScript(packageName: string): Plugin {
         "utf-8",
       );
 
-      const cachePath = path.join(process.cwd(), ".lean");
-      const files = fs.readdirSync(cachePath);
+      if (fs.existsSync(".lean")) {
+        const cachePath = path.join(process.cwd(), ".lean");
+        const files = fs.readdirSync(cachePath);
 
-      for (const f of files) {
-        if (f.includes("action-handlers")) {
-          const scriptContent2 = fs.readFileSync(
-            path.join(cachePath, f),
-            "utf-8",
-          );
+        for (const f of files) {
+          if (f.includes("action-handlers")) {
+            const scriptContent2 = fs.readFileSync(
+              path.join(cachePath, f),
+              "utf-8",
+            );
 
-          const injectedFileName2 = options.sanitizeFileName(
-            `assets/injected_${f}`,
-          );
+            const injectedFileName2 = options.sanitizeFileName(
+              `assets/injected_${f}`,
+            );
 
-          this.emitFile({
-            type: "prebuilt-chunk",
-            fileName: injectedFileName2,
-            code: scriptContent2,
-          });
+            this.emitFile({
+              type: "prebuilt-chunk",
+              fileName: injectedFileName2,
+              code: scriptContent2,
+            });
+            break;
+          }
         }
       }
 
