@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
-import {
-  registerAPIComponent,
-  registerDynamicController,
-} from "./component-registry";
+import { registerDynamicController } from "./component-registry";
 import { Request } from "express";
 export { withClientData } from "lean-web-utils/lib/server";
+export { APIComponent } from "./api-component";
 
 /**
  * Convert the contents of the global context into a valid URL.
@@ -140,7 +138,7 @@ export interface DynamicController<
   /**
    * The parameters associated to this component
    */
-  queryParams?: (request: Request) => Record<string, string | number | boolean>;
+  requestHandler?: (request: Request) => Record<string, unknown>;
 
   cache?: string;
 }
@@ -200,7 +198,7 @@ export function GetDynamicComponent<
       );
     },
     contentId,
-    queryParams,
+    requestHandler: queryParams,
   });
 }
 
@@ -246,7 +244,7 @@ export function Register<
       );
     },
     contentId: ddc.componentID,
-    queryParams: ddc.queryParams.bind(ddc),
+    requestHandler: ddc.queryParams.bind(ddc),
   });
 
   constructor.componentID = ddc.componentID;
@@ -332,32 +330,6 @@ export abstract class DynamicComponent<
       </dynamic-component>
     );
   }
-}
-
-type SerializableParams = Record<string, string | number | boolean> | undefined;
-
-interface APIComponentConfig<P extends SerializableParams> {
-  id: string;
-  queryParams: (req: Request) => P;
-  cache?: string;
-}
-
-export function APIComponent<
-  P extends SerializableParams | undefined,
-  T extends
-    | SXL.AsyncElement
-    | SXL.StaticElement
-    | SXL.AsyncGenElement
-    | SXL.ClassElement,
->(config: APIComponentConfig<NonNullable<P>>, fn: (props: P) => T) {
-  registerAPIComponent<SXLGlobalContext, NonNullable<P>>({
-    Api: fn,
-    contentId: config.id,
-    queryParams: config.queryParams ?? ((_) => ({})),
-    cache: config.cache,
-  });
-
-  return (props: P) => <div ref={config.id}>{fn(props)}</div>;
 }
 
 declare global {

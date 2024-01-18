@@ -45,6 +45,15 @@ const extractEventHandlersPlugin: Plugin = {
         fs.mkdirSync(".lean/handlers/", { recursive: true });
       }
 
+      const cachePath = path.join(process.cwd(), ".lean");
+      const files = fs.readdirSync(cachePath);
+
+      for (const f of files) {
+        if (f.includes("action-handlers")) {
+          fs.rmSync(path.join(cachePath, f));
+        }
+      }
+
       await Promise.all(
         filesAndActions
           .map(([fpath, content]) => {
@@ -67,8 +76,9 @@ const extractEventHandlersPlugin: Plugin = {
 
       await build.esbuild.build({
         stdin: { contents: fileContents.join("\n"), loader: "tsx" },
-        // inject: glob.sync(".lean/handlers/**/*.ts"),
-        outfile: ".lean/action-handlers.js",
+        // outfile: ".lean/action-handlers.js",
+        outdir: ".lean",
+        entryNames: `[dir]/action-handlers-[hash]`,
         platform: "browser", // Set to 'browser' for IIFE format
         target: ["es2020"], // Target modern browsers or environments
         bundle: true, // Bundle all dependencies into one file

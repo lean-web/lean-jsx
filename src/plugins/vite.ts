@@ -53,19 +53,26 @@ export default function injectScript(packageName: string): Plugin {
         "utf-8",
       );
 
-      const handlersFile = path.join(process.cwd(), ".lean/action-handlers.js");
-      if (fs.existsSync(handlersFile)) {
-        const scriptContent2 = fs.readFileSync(handlersFile, "utf-8");
+      const cachePath = path.join(process.cwd(), ".lean");
+      const files = fs.readdirSync(cachePath);
 
-        const injectedFileName2 = options.sanitizeFileName(
-          `assets/injected_action_handlers.js`,
-        );
+      for (const f of files) {
+        if (f.includes("action-handlers")) {
+          const scriptContent2 = fs.readFileSync(
+            path.join(cachePath, f),
+            "utf-8",
+          );
 
-        this.emitFile({
-          type: "prebuilt-chunk",
-          fileName: injectedFileName2,
-          code: scriptContent2,
-        });
+          const injectedFileName2 = options.sanitizeFileName(
+            `assets/injected_${f}`,
+          );
+
+          this.emitFile({
+            type: "prebuilt-chunk",
+            fileName: injectedFileName2,
+            code: scriptContent2,
+          });
+        }
       }
 
       // Create an injected script asset

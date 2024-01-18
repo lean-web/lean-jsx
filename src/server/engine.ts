@@ -205,14 +205,19 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
           const maybeComponentName = getComponent(req);
           if (maybeComponentName && controllerMap[maybeComponentName]) {
             const component = controllerMap[maybeComponentName];
+            const parsedComponentProps = component.requestHandler?.call(
+              component,
+              req,
+            );
             const globalContext = {
               ...globalContextParser(req, maybeComponentName),
-              ...component.queryParams?.call(component, req),
+              ...parsedComponentProps,
             };
+
             void this.renderComponent(
               component.Api({
                 globalContext,
-                ...component.queryParams?.call(component, req),
+                ...parsedComponentProps,
               }),
               globalContext,
             )
@@ -230,7 +235,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
                 if (configResponse) {
                   res = configResponse(res);
                 }
-                const gzip = zlib.createGzip();
+                // const gzip = zlib.createGzip();
                 htmlStream
                   // .pipe(gzip)
                   .pipe(res);

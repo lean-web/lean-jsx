@@ -35,7 +35,7 @@ export interface SXLMiddlewareOptions<G extends SXLGlobalContext> {
    *
    * These can be created with {@link GetDynamicComponent}
    */
-  components?: DynamicController<G>[];
+  components?: DynamicController[];
   /**
    * Configure the server response before it's returned
    * @param response
