@@ -13,7 +13,7 @@ interface APIComponentConfig<P extends Record<string, unknown>> {
    * @param req - The Express request
    * @returns an object containing the component's parameters. Each object attribute is mapped as a component property.
    */
-  requestHandler: (req: Request) => P;
+  requestHandler: (req: Request) => P | Promise<P>;
   /*
    * The server's response "cache" header (e.g. "cache: "public, max-age=30"")
    */
@@ -41,5 +41,9 @@ export function APIComponent<
     cache: config.cache,
   });
 
-  return (props: P) => <div ref={config.id}>{component(props)}</div>;
+  return (props: P) => (
+    <div ref={config.id} data-lean-api-component>
+      {component(props)}
+    </div>
+  );
 }

@@ -1,6 +1,6 @@
 {
   "name": "lean-jsx",
-  "version": "0.0.15-alpha",
+  "version": "0.0.16-alpha",
   "author": "Pedro Marquez-Soto",
   "license": "MPL-2.0",
   "description": "LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.",

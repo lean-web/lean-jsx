@@ -138,7 +138,9 @@ export interface DynamicController<
   /**
    * The parameters associated to this component
    */
-  requestHandler?: (request: Request) => Record<string, unknown>;
+  requestHandler?: (
+    request: Request,
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>;
 
   cache?: string;
 }

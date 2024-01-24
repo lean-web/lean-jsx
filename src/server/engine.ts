@@ -22,6 +22,7 @@ import path from "path";
 import { getDynamicComponentRegistry } from "@/components/component-registry";
 import { DynamicController } from "@/components";
 import zlib from "zlib";
+import { Deferred, defer } from "@tests/test-utils-dom";
 
 type RequestLike = Pick<Request, "originalUrl">;
 
@@ -39,6 +40,11 @@ export function getComponent(req: RequestLike): string | undefined {
 export function isComponentUrl(req: RequestLike): boolean {
   return /\/components\//.test(req.originalUrl);
 }
+
+type GlobalRequestHandler<G> = (
+  args: Request,
+  componentName?: string | undefined,
+) => G;
 
 /**
  * Main factory for LeanJSX Engine.
@@ -188,12 +194,20 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     };
   }
 
+  /**
+   * Visible for testing.
+   *
+   * We cannot make middleware async, so we use this deferred promise
+   * to await in cases when we need to assert that the middleware processing
+   * is done (e.g. unit tests).
+   */
+  middlwareProcessFlag?: Deferred<boolean>;
+
   middleware(options: SXLMiddlewareOptions<G>): ExpressMiddleware {
+    this.middlwareProcessFlag = defer();
     const bodyParserMid = bodyParser.urlencoded({ extended: true });
 
     const controllerMap = this.buildControllerMap(options.components);
-
-    const { configResponse, globalContextParser } = options;
 
     return (req: Request, res: Response, next: NextFunction) => {
       bodyParserMid(req, res, (err) => {
@@ -203,44 +217,20 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
         try {
           const isComponentRequest = isComponentUrl(req);
           const maybeComponentName = getComponent(req);
-          if (maybeComponentName && controllerMap[maybeComponentName]) {
-            const component = controllerMap[maybeComponentName];
-            const parsedComponentProps = component.requestHandler?.call(
-              component,
-              req,
-            );
-            const globalContext = {
-              ...globalContextParser(req, maybeComponentName),
-              ...parsedComponentProps,
-            };
-
-            void this.renderComponent(
-              component.Api({
-                globalContext,
-                ...parsedComponentProps,
-              }),
-              globalContext,
-            )
-              .then((htmlStream) => {
-                res = res.set({
-                  "Transfer-Encoding": "chunked",
-                  "Content-Type": "text/html",
-                  //   "Content-Encoding": "gzip",
-                });
-                if (component.cache) {
-                  res.set("cache-control", component.cache);
-                }
-                // allow consumers to configure the response
-                // before starting streaming
-                if (configResponse) {
-                  res = configResponse(res);
-                }
-                // const gzip = zlib.createGzip();
-                htmlStream
-                  // .pipe(gzip)
-                  .pipe(res);
+          if (
+            isComponentRequest &&
+            maybeComponentName &&
+            controllerMap[maybeComponentName]
+          ) {
+            void this.renderAPIComponent(options, controllerMap, req, res)
+              .then(() => {
+                this.middlwareProcessFlag?.resolve(true);
               })
-              .catch((err) => next(err));
+              .catch((err) => {
+                this.middlwareProcessFlag?.reject(true);
+                next(err);
+              });
+            return;
           } else {
             if (maybeComponentName || isComponentRequest) {
               if (process.env.NODE_ENV === "development") {
@@ -249,6 +239,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
                     maybeComponentName ?? req.originalUrl
                   } could not be found. Did you add it to the middleware configuration, or decorated the component class with @Autowire?`,
                 );
+                this.middlwareProcessFlag?.reject(err);
                 const errStr = JSON.stringify(
                   err,
                   Object.getOwnPropertyNames(err),
@@ -267,10 +258,55 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
             next();
           }
         } catch (error) {
+          this.middlwareProcessFlag?.reject(error);
           next(error);
         }
       });
     };
+  }
+
+  private async renderAPIComponent(
+    options: SXLMiddlewareOptions<G>,
+    controllerMap: Record<string, DynamicController<G, SXL.Props<object, G>>>,
+    req: Request,
+    res: Response,
+  ) {
+    const maybeComponentName = getComponent(req) as string;
+    const { configResponse, globalContextParser } = options;
+
+    const component = controllerMap[maybeComponentName];
+    const parsedComponentProps = component.requestHandler?.call(component, req);
+    const props = await parsedComponentProps;
+    const globalContext: G = {
+      ...globalContextParser(req, maybeComponentName),
+      ...props,
+    };
+
+    const htmlStream = await this.renderComponent(
+      component.Api({
+        globalContext,
+        ...props,
+      }),
+      globalContext,
+    );
+    if (!htmlStream) {
+      return;
+    }
+    res = res.set({
+      "Transfer-Encoding": "chunked",
+      "Content-Type": "text/html",
+      //   "Content-Encoding": "gzip",
+    });
+    if (component.cache) {
+      res.set("cache-control", component.cache);
+    }
+    // allow consumers to configure the response
+    // before starting streaming
+    if (configResponse) {
+      res = configResponse(res);
+    }
+
+    return htmlStream.pipe(res);
   }
 
   logger(config: LoggerConfiguration): ILogger {

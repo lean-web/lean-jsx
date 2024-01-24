@@ -27,13 +27,13 @@ function defer<T>(): {
 jest.mock("fs", () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const actualFs = jest.requireActual<typeof import("fs")>("fs");
-  console.log("Run mockss");
 
   return {
     ...actualFs,
     readFileSync: jest.fn(),
     writeFileSync: jest.fn().mockImplementation(() => {}),
     existsSync: jest.fn().mockReturnValue(true),
+    readdirSync: jest.fn().mockReturnValue([]),
     mkdirSync: jest.fn(),
     promises: {
       ...actualFs.promises,

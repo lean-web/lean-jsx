@@ -176,7 +176,7 @@ describe("context-decorator.test", () => {
   test("decorates elements in a loop", async () => {
     function MyList() {
       const evv = async (
-        ev: MouseEvent | undefined,
+        ev: UIEvent,
         ctx:
           | WebContext<{
               id: number;

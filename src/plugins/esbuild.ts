@@ -1,5 +1,4 @@
 import { type Plugin } from "esbuild";
-console.log("Import fs");
 import fs from "fs";
 import path from "path";
 import { EventExtractor } from "./esbuild/extract-events";

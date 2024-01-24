@@ -9,7 +9,7 @@ describe("api-components.test", () => {
 
   test("registered APIComponent works", async () => {
     APIComponent(
-      { id: "product-list", queryParams: (_req) => ({ start: 0 }) },
+      { id: "product-list", requestHandler: (_req) => ({ start: 0 }) },
       ProductList,
     );
 
