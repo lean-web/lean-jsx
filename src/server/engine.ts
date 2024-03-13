@@ -22,7 +22,7 @@ import path from "path";
 import { getDynamicComponentRegistry } from "@/components/component-registry";
 import { DynamicController } from "@/components";
 import zlib from "zlib";
-import { Deferred, defer } from "@tests/test-utils-dom";
+import { Deferred, defer } from "../utils/deferred";
 
 type RequestLike = Pick<Request, "originalUrl">;
 
@@ -40,11 +40,6 @@ export function getComponent(req: RequestLike): string | undefined {
 export function isComponentUrl(req: RequestLike): boolean {
   return /\/components\//.test(req.originalUrl);
 }
-
-type GlobalRequestHandler<G> = (
-  args: Request,
-  componentName?: string | undefined,
-) => G;
 
 /**
  * Main factory for LeanJSX Engine.
@@ -92,7 +87,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
 
       await appHtmlStream.init();
 
-      const gzip = zlib.createGzip();
+      // const gzip = zlib.createGzip();
 
       appHtmlStream
         // .pipe(gzip)

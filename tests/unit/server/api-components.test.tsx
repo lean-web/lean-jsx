@@ -17,15 +17,11 @@ describe("api-components.test", () => {
 
     const registryKeys = Object.keys(dcRegistry);
     expect(registryKeys).toContain("product-list");
-    expect(registryKeys).toHaveLength(2);
+    expect(registryKeys).toHaveLength(1);
 
     const stack = jsxStack({}, { sync: true });
 
     await stack.push(dcRegistry["product-list"].Api({}));
-
-    function MyComponent() {
-      return <button onclick={(ev, ctx) => console.log(ev)}>Click</button>;
-    }
 
     expect(await renderStackToString(stack)).toMatchInlineSnapshot(
       `"<div class="product-list"><h1>Title</h1><p>Description</p><div class="product">P1 - Product</div><div class="product">P2 - Product</div><div class="product">P3 - Product</div><div class="product">P4 - Product</div></div>"`,

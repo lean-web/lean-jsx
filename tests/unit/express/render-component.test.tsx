@@ -55,7 +55,7 @@ describe("render-component-test", () => {
 
     const registryKeys = Object.keys(dcRegistry);
     expect(registryKeys).toContain("product-list");
-    expect(registryKeys).toHaveLength(2);
+    expect(registryKeys).toHaveLength(1);
 
     const stream = await app.renderComponent(
       dcRegistry["product-list"].Api({}),

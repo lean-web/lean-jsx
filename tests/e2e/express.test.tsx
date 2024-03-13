@@ -2,8 +2,9 @@
 import { describe, expect, test, beforeAll, afterAll } from "@jest/globals";
 import puppeteer, { Browser, Page } from "puppeteer";
 import { startExpress, waitForAndAssertExists } from "./setup";
-import { App, DynamicComponentT } from "./test-app";
+import { App, DynamicComponentTId } from "./test-app";
 import { Server } from "net";
+import { findAPIComponentController } from "@/components/component-registry";
 
 describe("express.test", () => {
   let browser: Browser | undefined;
@@ -20,9 +21,9 @@ describe("express.test", () => {
     expressApp = await startExpress((app, engine) => {
       app.use(
         engine.middleware({
-          components: [DynamicComponentT],
+          components: [findAPIComponentController(DynamicComponentTId)],
           globalContextParser: () => ({}),
-        })
+        }),
       );
 
       app.get("/", async (req, res) => {
@@ -32,7 +33,7 @@ describe("express.test", () => {
           {},
           {
             templateName: "index",
-          }
+          },
         );
         // res.send("<p>Hello world</p>");
       });
@@ -66,7 +67,7 @@ describe("express.test", () => {
     const title = await page.$("p");
     await expect(page.$("p")).resolves.toBeTruthy();
     await expect(title?.evaluate((el) => el.textContent)).resolves.toMatch(
-      "Hello world"
+      "Hello world",
     );
     // Evaluated loaded async component:
     await expect(page.$("#slow1")).resolves.toBeTruthy();
@@ -79,7 +80,7 @@ describe("express.test", () => {
 
     await page.click("#click1");
     const wasCalled = await page.evaluate(
-      () => window.sessionStorage.getItem("clicked") === "true"
+      () => window.sessionStorage.getItem("clicked") === "true",
     );
     expect(wasCalled).toBeTruthy();
   });

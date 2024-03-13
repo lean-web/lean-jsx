@@ -1,4 +1,4 @@
-import { GetDynamicComponent, Lazy } from "@/components";
+import { APIComponent, Lazy } from "@/components";
 
 async function wait(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
@@ -44,22 +44,21 @@ function WithHandlers() {
   );
 }
 
-export const DynamicComponentT = GetDynamicComponent(
-  "dynamic-slow",
-  async () => {
-    await wait(100);
-    return "Slow resource";
+export const DynamicComponentTId = "dynamic-slow";
+export const DynamicComponentT = APIComponent(
+  {
+    id: DynamicComponentTId,
+    requestHandler: async () => {
+      await wait(100);
+      return { resource: "Slow resource" };
+    },
   },
-  (resource) => {
-    if (resource.isPending) {
-      return <p id="loading2">Loading...</p>;
-    }
-    return <p id="loaded2">{resource.value}</p>;
+  ({ resource }) => {
+    return <p id="loaded2">{resource}</p>;
   },
 );
 
 export function App({ loadtime }: { loadtime: number }) {
-  const List = DynamicComponentT.Render ?? (() => <></>);
   return (
     <main>
       <p>Hello world</p>
@@ -67,7 +66,7 @@ export function App({ loadtime }: { loadtime: number }) {
         <Slow2 loadtime={loadtime} />
       </Lazy>
       <Slow />
-      <List />
+      <DynamicComponentT resource={""} />
       <WithHandlers />
       <NewComponent />
     </main>
