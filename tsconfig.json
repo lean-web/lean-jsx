@@ -5,7 +5,7 @@
     "module": "esnext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": false,
-
+    "verbatimModuleSyntax": true,
 
     /* Bundler mode */
     "noEmit": true,

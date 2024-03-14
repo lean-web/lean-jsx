@@ -1,20 +1,23 @@
 import type { Request, Response } from "express";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import compression from "compression";
 
-import { LeanJSX } from "./api";
+import type { LeanJSX } from "./api";
 import {
   DefaultLogger,
-  ILogger,
-  LoggerConfiguration,
+  type ILogger,
+  type LoggerConfiguration,
 } from "@/jsx/logging/logger";
 import { ErrorHandler } from "@/jsx/degradation/error-handler";
-import { TemplateConfig, TemplateManager } from "@/jsx/html/template-manager";
+import {
+  type TemplateConfig,
+  TemplateManager,
+} from "@/jsx/html/template-manager";
 import { LeanAppEngine } from "./engine";
 import {
   JSXStream,
-  JSXStreamFactory,
-  JSXStreamOptions,
+  type JSXStreamFactory,
+  type JSXStreamOptions,
 } from "@/jsx/html/stream/jsx-stack";
 import { ContextManager } from "@/jsx/context/context-manager";
 

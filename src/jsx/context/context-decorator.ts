@@ -1,5 +1,5 @@
-import { ParsedComponent } from "../component-handlers";
-import { ContextID } from "./context-manager";
+import type { ParsedComponent } from "../component-handlers";
+import type { ContextID } from "./context-manager";
 
 /**
  * A set of query selectors to use while

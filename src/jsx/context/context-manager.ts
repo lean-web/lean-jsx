@@ -1,11 +1,11 @@
 import { isPromise, unwrapFragments } from "../html/jsx-utils";
 import { UIDGenerator } from "../html/uuid";
 import { TrackablePromise } from "../html/stream/stream-utils/trackable-promise";
-import { SXLGlobalContext } from "lean-jsx-types/context";
-import { IErrorHandler } from "../degradation/error-handler";
-import { ParsedComponent } from "../component-handlers";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
+import type { IErrorHandler } from "../degradation/error-handler";
+import type { ParsedComponent } from "../component-handlers";
 import { isPureActionHandler, isWebHandler } from "lean-web-utils/server";
-import { Request } from "express";
+import type { Request } from "express";
 
 interface SyncJSXWrapper {
   id: ContextID;

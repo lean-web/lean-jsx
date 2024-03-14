@@ -1,5 +1,5 @@
-import { SXLGlobalContext } from "lean-jsx-types/context";
-import { Request } from "express";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
+import type { Request } from "express";
 
 /**
  * Provides methods to render a dynamically-loaded component

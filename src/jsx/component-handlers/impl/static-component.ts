@@ -1,8 +1,8 @@
 import { isPromise } from "util/types";
-import { ComponentTest, ComponentHandler, ParsedComponent } from "..";
+import type { ComponentTest, ComponentHandler, ParsedComponent } from "..";
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
   arg: SXL.Element,

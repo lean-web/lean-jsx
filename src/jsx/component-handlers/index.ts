@@ -1,6 +1,6 @@
-import { ContextID, ContextManager } from "@/jsx/context/context-manager";
+import type { ContextID, ContextManager } from "@/jsx/context/context-manager";
 import { TrackablePromise } from "@/jsx/html/stream/stream-utils/trackable-promise";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export type HandlerPropAndValue = [string, string];
 

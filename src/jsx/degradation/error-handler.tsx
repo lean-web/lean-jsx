@@ -1,5 +1,5 @@
 import { isAsyncGen, isPromise } from "../html/jsx-utils";
-import { ILogger } from "../logging/logger";
+import { type ILogger } from "../logging/logger";
 import { getDefaultErrorComponent } from "./default-content";
 
 type ErrorType = "Custom" | "TemplateError" | "AsyncComponent" | "Component";
@@ -15,7 +15,7 @@ export interface IErrorHandler {
   reportWarning(msg: string): void;
   withErrorHandling<T extends SXL.Element>(
     handler: () => T,
-    { timesRetried, extraInfo }: ErrorHandlerOptions
+    { timesRetried, extraInfo }: ErrorHandlerOptions,
   ): T;
 }
 
@@ -37,7 +37,7 @@ export class ErrorHandler implements IErrorHandler {
 
   withErrorHandling<T extends SXL.Element>(
     handler: () => T,
-    { timesRetried, extraInfo }: ErrorHandlerOptions
+    { timesRetried, extraInfo }: ErrorHandlerOptions,
   ): T {
     try {
       const newElement = handler();

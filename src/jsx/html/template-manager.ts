@@ -1,5 +1,5 @@
 import fs from "fs";
-import { IErrorHandler } from "../degradation/error-handler";
+import { type IErrorHandler } from "../degradation/error-handler";
 
 /**
  * A file-based template.
@@ -67,7 +67,7 @@ export class TemplateManager {
 
   constructor(
     templates: Record<string, TemplateConfig>,
-    errorHandler: IErrorHandler
+    errorHandler: IErrorHandler,
   ) {
     this.templates = templates;
     this.errorHandler = errorHandler;
@@ -86,7 +86,7 @@ export class TemplateManager {
 
     if (!templateConf) {
       this.errorHandler.reportWarning(
-        `The requested template key "${templateName}" does not exist. Make sure this is configured in the TemplateManager.`
+        `The requested template key "${templateName}" does not exist. Make sure this is configured in the TemplateManager.`,
       );
       return ["", ""];
     }
@@ -94,7 +94,7 @@ export class TemplateManager {
     if (!templateConf) {
       this.errorHandler.reportError(
         "TemplateError",
-        new Error(`Template ${templateName} could not be found`)
+        new Error(`Template ${templateName} could not be found`),
       );
     }
 
@@ -102,7 +102,7 @@ export class TemplateManager {
       const template = fs.readFileSync(templateConf.path, "utf-8");
 
       const [before, after] = template.split(
-        templateConf.contentPlaceholder ?? "<!--EAGER_CONTENT-->"
+        templateConf.contentPlaceholder ?? "<!--EAGER_CONTENT-->",
       );
       return [before, after];
     } else {

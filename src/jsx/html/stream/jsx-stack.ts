@@ -1,4 +1,4 @@
-import { Readable, ReadableOptions } from "stream";
+import { Readable, type ReadableOptions } from "stream";
 import { JSXToHTMLUtils } from "../jsx-to-html";
 import {
   isTextNode,
@@ -11,17 +11,17 @@ import {
   isAsyncGenNode,
 } from "../jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import {
   decorateContext,
   wirePlaceholder,
 } from "@/jsx/context/context-decorator";
-import { ILogger } from "@/jsx/logging/logger";
+import type { ILogger } from "@/jsx/logging/logger";
 import { ComponentHandlerMap } from "@/jsx/component-handlers/handler-map";
-import { ParsedComponent } from "@/jsx/component-handlers";
+import type { ParsedComponent } from "@/jsx/component-handlers";
 import { TrackablePromise } from "./stream-utils/trackable-promise";
 import { LeanError, RenderError } from "@/jsx/degradation/errors";
-import { Request } from "express";
+import type { Request } from "express";
 
 /**
  * A utility stack used to pre-process elements outside of the main JSXStack.
@@ -301,12 +301,14 @@ export class JSXStack<G extends SXLGlobalContext> {
           this.logger.error(error, "");
           throw error;
         }
+
+        const componentDescription =
+          typeof element.type === "string"
+            ? element.type
+            : element.type?.name ?? JSON.stringify(element);
+
         const error = new RenderError(
-          `Unexpected component type: ${
-            typeof element.type === "string"
-              ? element.type
-              : element.type?.name ?? element
-          }`,
+          `Unexpected component type: ${componentDescription}`,
         );
         this.logger.error(error, "");
         throw error;

@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import bodyParser from "body-parser";
-import { SXLGlobalContext } from "lean-jsx-types/context";
-import {
+import type { SXLGlobalContext } from "lean-jsx-types/context";
+import type {
   ExpressMiddleware,
   LeanJSX,
   RenderWithTemplateOptions,
@@ -9,20 +9,19 @@ import {
 } from "./api";
 import { Readable } from "stream";
 import { TemplateManager } from "@/jsx/html/template-manager";
-import { JSXStreamFactory } from "@/jsx/html/stream/jsx-stack";
+import type { JSXStreamFactory } from "@/jsx/html/stream/jsx-stack";
 import pinoHttp from "pino-http";
 import {
   DefaultLogger,
-  ILogger,
-  LoggerConfiguration,
+  type ILogger,
+  type LoggerConfiguration,
   getPinoTransports,
 } from "@/jsx/logging/logger";
 import fs from "fs";
 import path from "path";
 import { getDynamicComponentRegistry } from "@/components/component-registry";
-import { DynamicController } from "@/components";
-import zlib from "zlib";
-import { Deferred, defer } from "../utils/deferred";
+import type { DynamicController } from "@/components";
+import { type Deferred, defer } from "../utils/deferred";
 
 type RequestLike = Pick<Request, "originalUrl">;
 

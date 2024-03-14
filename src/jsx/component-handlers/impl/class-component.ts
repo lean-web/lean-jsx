@@ -1,7 +1,7 @@
-import { ComponentTest, ComponentHandler } from "..";
+import type { ComponentTest, ComponentHandler } from "..";
 import { isClassNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export const ClassElementTest: ComponentTest<SXL.ClassElement> = (
   arg: SXL.Element,

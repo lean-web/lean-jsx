@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { Plugin } from "vite";
+import type { Plugin } from "vite";
 import { createRequire } from "node:module";
 import path from "node:path";
 

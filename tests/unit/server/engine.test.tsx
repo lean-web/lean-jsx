@@ -1,18 +1,18 @@
 import {
-  JSXStreamFactory,
-  JSXStreamOptions,
+  type JSXStreamFactory,
+  type JSXStreamOptions,
   JSXStream,
 } from "@/jsx/html/stream/jsx-stack";
 import { readableToString } from "@/jsx/html/stream/stream-utils/readable-to-string";
 import { LeanAppEngine, getComponent } from "@/server/engine";
 import { TemplateManager, TestLogger } from "@/server/express";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { APIComponent } from "@/components";
 import { ProductList } from "@tests/testdata/async-component";
-import { Request } from "express";
+import type { Request } from "express";
 
 describe("engine.test", () => {
   const { errorHandler, contextManager, renderToString } = setupTests();

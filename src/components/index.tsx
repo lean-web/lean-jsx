@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 export { withClientData, withClientContext } from "lean-web-utils/server";
 export { APIComponent } from "./api-component";
 export { Lazy } from "./lazy-component";

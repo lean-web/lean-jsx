@@ -1,8 +1,8 @@
 import { isPromise } from "util/types";
-import { ComponentTest, ComponentHandler } from "..";
+import type { ComponentTest, ComponentHandler } from "..";
 import { isAsyncGen, isFunctionNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { type SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export const FnElementTest: ComponentTest<SXL.FunctionElement> = (
   arg: SXL.Element,
