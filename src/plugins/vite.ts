@@ -6,7 +6,7 @@ import path from "node:path";
 const require = createRequire(import.meta.url);
 
 /**
- * A Vite plugin to inject lean-jsx/lib/web/sxl.js into the
+ * A Vite plugin to inject lean-jsx/web/sxl.js into the
  * main index.html document.
  *
  * This injection is needed because, by default, Vite bundles all JavaScript
@@ -49,7 +49,7 @@ export default function injectScript(packageName: string): Plugin {
     generateBundle(options) {
       // Read the script content from the package
       const scriptContent = fs.readFileSync(
-        require.resolve("lean-jsx/lib/web/sxl.js"),
+        require.resolve("lean-jsx/web/sxl.js"),
         "utf-8",
       );
 

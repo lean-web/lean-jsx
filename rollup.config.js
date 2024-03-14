@@ -47,7 +47,7 @@ const iifeInput = {
  * External dependencies:
  */
 const external = [
-  "lean-jsx/lib/web/sxl.js",
+  "lean-jsx/web/sxl.js",
   "body-parser",
   "pino",
   "pino-http",
@@ -125,6 +125,7 @@ module.exports = [
       dir: "lib",
       format: "cjs",
       entryFileNames: "[name].js",
+      chunkFileNames: "includes/[hash].js",
       compact,
     },
     plugins: buildPlugins("stats_cjs.html"),
@@ -136,6 +137,7 @@ module.exports = [
       dir: "lib",
       format: "es",
       entryFileNames: "[name].mjs",
+      chunkFileNames: "includes/[hash].mjs",
       compact,
     },
     plugins: buildPlugins("stats_esm.html"),

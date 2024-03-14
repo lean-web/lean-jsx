@@ -4,6 +4,7 @@ import { readableToString } from "@/jsx/html/stream/stream-utils/readable-to-str
 import { buildApp } from "@/server/express";
 import { describe, expect, test } from "@jest/globals";
 import { ProductList } from "@tests/testdata/async-component";
+import { getMockReq } from "@jest-mock/express";
 
 describe("render-component-test", () => {
   test("renders static element", async () => {
@@ -13,7 +14,7 @@ describe("render-component-test", () => {
         defaultLogLevel: "info",
       },
     });
-    const stream = await app.renderComponent(<p>Hello</p>, {});
+    const stream = await app.renderComponent(getMockReq(), <p>Hello</p>, {});
 
     const html = await readableToString(stream);
 
@@ -29,7 +30,7 @@ describe("render-component-test", () => {
         defaultLogLevel: "info",
       },
     });
-    const stream = await app.renderComponent(<ProductList />, {});
+    const stream = await app.renderComponent(getMockReq(), <ProductList />, {});
 
     const html = await readableToString(stream);
 
@@ -58,6 +59,7 @@ describe("render-component-test", () => {
     expect(registryKeys).toHaveLength(1);
 
     const stream = await app.renderComponent(
+      getMockReq(),
       dcRegistry["product-list"].Api({}),
       {},
     );

@@ -1,12 +1,34 @@
 {
   "name": "lean-jsx",
-  "version": "0.0.16-alpha",
+  "version": "0.0.17-alpha",
   "author": "Pedro Marquez-Soto",
   "license": "MPL-2.0",
   "description": "LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.",
   "main": "index.js",
   "types": "./lib/types/global.d.ts",
   "files": ["lib"],
+  "exports": {
+    "./server": "./lib/server.js",
+    "./server/*": {
+      "import": "./lib/server/*.mjs",
+      "require": "./lib/server/*.js",
+      "node": "./lib/server/*.js",
+      "types": "./lib/server/*.d.ts"
+    },
+    "./jsx/*": {
+      "import": "./lib/jsx/*.mjs",
+      "require": "./lib/jsx/*.js",
+      "node": "./lib/jsx/*.js",
+      "types": "./lib/jsx/*.d.ts"
+    },
+    "./plugins/*": {
+      "import": "./lib/plugins/*.mjs",
+      "require": "./lib/plugins/*.js",
+      "node": "./lib/plugins/*.js",
+      "types": "./lib/plugins/*.d.ts"
+    },
+    "./web/sxl.js": "./lib/web/sxl.js"
+  },
   "scripts": {
     "build": "rm -rf ./lib && rollup -c",
     "watch": "rm -rf ./lib && rollup -c --watch",

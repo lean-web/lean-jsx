@@ -3,10 +3,10 @@ import {
   JSXStack,
   JSXStackOptions,
   JSXStream,
-  JSXStreamOptions,
 } from "@/jsx/html/stream/jsx-stack";
 import { TestLogger, ErrorHandler } from "@/server/express";
 import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { getMockReq, getMockRes } from "@jest-mock/express";
 
 export function setupTests() {
   return {
@@ -16,7 +16,11 @@ export function setupTests() {
     ): JSXStream<G> => {
       return new JSXStream<G>(
         root,
-        new ContextManager(globalContext, new ErrorHandler(TestLogger)),
+        new ContextManager(
+          getMockReq(),
+          globalContext,
+          new ErrorHandler(TestLogger),
+        ),
         TestLogger,
       );
     },
@@ -27,7 +31,11 @@ export function setupTests() {
     ) => {
       return new JSXStack<G>(
         TestLogger,
-        new ContextManager(globalContext, new ErrorHandler(TestLogger)),
+        new ContextManager(
+          getMockReq(),
+          globalContext,
+          new ErrorHandler(TestLogger),
+        ),
         options,
       );
     },
@@ -35,7 +43,11 @@ export function setupTests() {
     contextManager: <G extends SXLGlobalContext>(
       globalContext: G,
     ): ContextManager<G> =>
-      new ContextManager<G>(globalContext, new ErrorHandler(TestLogger)),
+      new ContextManager<G>(
+        getMockReq(),
+        globalContext,
+        new ErrorHandler(TestLogger),
+      ),
 
     errorHandler: () => new ErrorHandler(TestLogger),
 
@@ -46,6 +58,7 @@ export function setupTests() {
       const stack = new JSXStack<G>(
         TestLogger,
         new ContextManager(
+          getMockReq(),
           globalContext ?? ({} as G),
           new ErrorHandler(TestLogger),
         ),

@@ -21,6 +21,7 @@ import { ComponentHandlerMap } from "@/jsx/component-handlers/handler-map";
 import { ParsedComponent } from "@/jsx/component-handlers";
 import { TrackablePromise } from "./stream-utils/trackable-promise";
 import { LeanError, RenderError } from "@/jsx/degradation/errors";
+import { Request } from "express";
 
 /**
  * A utility stack used to pre-process elements outside of the main JSXStack.
@@ -288,7 +289,9 @@ export class JSXStack<G extends SXLGlobalContext> {
       // find the correct handler for the given component type
       // e.g. function component, class component, etc:
       const wrapped = ComponentHandlerMap.map((handler) =>
-        handler(element, this.contextManager, { sync: this.options.sync }),
+        handler(element, this.contextManager, {
+          sync: this.options.sync,
+        }),
       ).find((el) => el);
 
       if (!wrapped) {
@@ -465,6 +468,7 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
 
 export type JSXStreamFactory<G extends SXLGlobalContext> = (
   root: SXL.Element,
+  request: Request,
   globalContext: G,
   opts: JSXStreamOptions,
 ) => JSXStream<G>;

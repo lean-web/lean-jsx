@@ -5,6 +5,7 @@ import { SXLGlobalContext } from "lean-jsx-types/lib/context";
 import { IErrorHandler } from "../degradation/error-handler";
 import { ParsedComponent } from "../component-handlers";
 import { isPureActionHandler, isWebHandler } from "lean-web-utils/lib/server";
+import { Request } from "express";
 
 interface SyncJSXWrapper {
   id: ContextID;
@@ -74,12 +75,15 @@ export class ContextManager<G extends SXLGlobalContext> {
   errorHandler: IErrorHandler;
   private uiden = UIDGenerator.new();
   private globalContext: G;
+  private request: Request;
 
   constructor(
+    request: Request,
     globalContext: G,
     errorHandler: IErrorHandler,
     options?: ContextManagerOptions,
   ) {
+    this.request = request;
     this.globalContext = globalContext;
     this.options = options ?? { sync: false };
     this.errorHandler = errorHandler;

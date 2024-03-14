@@ -126,7 +126,7 @@ function isCSSDeclaration(
   propKey: string,
   propValue: unknown,
 ): propValue is CSSStyleDeclaration {
-  return /style/.test(propKey);
+  return /style/.test(propKey) && typeof propValue === "object";
 }
 
 function flatten(props: SXL.Props): [string, string | number][] {

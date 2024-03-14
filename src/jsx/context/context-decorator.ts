@@ -64,7 +64,7 @@ export function decorateContext(element: ParsedComponent): string {
  * Create the script tag for replacing the placeholder of
  * async elements. This has to be inserted AFTER the
  * async element content, and requires the "sxl" object
- * to be in the global scope (inserted by adding lean-jsx/lib/web/sxl.js into the page)
+ * to be in the global scope (inserted by adding lean-jsx/web/sxl.js into the page)
  * @param id the context ID that connects the placeholder with the resolved
  *      content.
  * @returns a string containing the script tag.

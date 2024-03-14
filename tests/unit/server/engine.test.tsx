@@ -12,6 +12,7 @@ import { setupTests } from "@tests/test-container";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { APIComponent } from "@/components";
 import { ProductList } from "@tests/testdata/async-component";
+import { Request } from "express";
 
 describe("engine.test", () => {
   const { errorHandler, contextManager, renderToString } = setupTests();
@@ -65,6 +66,7 @@ describe("engine.test", () => {
 
     const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
       root: SXL.Element,
+      request: Request,
       globalContext: SXLGlobalContext,
       opts: JSXStreamOptions,
     ) => new JSXStream(root, contextManager(globalContext), TestLogger, opts);
@@ -78,6 +80,7 @@ describe("engine.test", () => {
     const resp = mockResponse();
 
     await engine.renderWithTemplate(
+      getMockReq(),
       resp,
       <main>
         <div>Hello</div>
@@ -117,6 +120,7 @@ describe("engine.test", () => {
 
     const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
       root: SXL.Element,
+      request: Request,
       globalContext: SXLGlobalContext,
       opts: JSXStreamOptions,
     ) => new JSXStream(root, contextManager(globalContext), TestLogger, opts);
@@ -144,12 +148,14 @@ describe("engine.test", () => {
 
     mid(req, res, next);
 
+    // wait for middleware to finish processing:
     await engine.middlwareProcessFlag?.promise;
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(engine.renderComponent).toHaveBeenCalled();
 
-    const [componentRender, context] =
+    // get the actuall processed component to verify it is correct:
+    const [_, componentRender, context] =
       (
         engine.renderComponent as jest.MockedFunction<
           typeof engine.renderComponent
@@ -157,6 +163,8 @@ describe("engine.test", () => {
       ).mock.lastCall ?? [];
 
     expect(context).toStrictEqual({ start: 0 });
+    // componentRender is a Promise in this test case.
+    // it needs to be awaited before passing it to renderToString
     const rendered = await renderToString(
       (await componentRender) as SXL.StaticElement,
     );
@@ -191,6 +199,7 @@ describe("engine.test", () => {
 
     const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
       root: SXL.Element,
+      request: Request,
       globalContext: SXLGlobalContext,
       opts: JSXStreamOptions,
     ) => new JSXStream(root, contextManager(globalContext), TestLogger, opts);

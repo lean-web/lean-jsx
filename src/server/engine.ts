@@ -64,6 +64,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
    * @param next - The Express server "next" hook
    */
   async render(
+    request: Request,
     res: Response,
     element: SXL.StaticElement,
     options?:
@@ -77,6 +78,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
       );
       const appHtmlStream = this.jsxStreamFactory(
         element,
+        request,
         options?.globalContext as G,
         {
           pre: [head],
@@ -115,6 +117,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   }
 
   async renderWithTemplate(
+    req: Request,
     res: Response,
     element: SXL.StaticElement,
     globalContext: G,
@@ -126,7 +129,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
         options.templateName,
       );
 
-      const appHtmlStream = this.jsxStreamFactory(element, globalContext, {
+      const appHtmlStream = this.jsxStreamFactory(element, req, globalContext, {
         pre: [head],
         post: [tail],
         sync: options.sync ?? false,
@@ -152,14 +155,20 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   }
 
   async renderComponent(
+    request: Request,
     component: SXL.Element,
     globalContext: G,
   ): Promise<Readable> {
-    const stream = this.jsxStreamFactory(await component, globalContext, {
-      pre: ["<!DOCTYPE html><body>"],
-      post: ["</body>"],
-      sync: true,
-    });
+    const stream = this.jsxStreamFactory(
+      await component,
+      request,
+      globalContext,
+      {
+        pre: ["<!DOCTYPE html><body>"],
+        post: ["</body>"],
+        sync: true,
+      },
+    );
     await stream.init();
     return stream;
   }
@@ -278,6 +287,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     };
 
     const htmlStream = await this.renderComponent(
+      req,
       component.Api({
         globalContext,
         ...props,

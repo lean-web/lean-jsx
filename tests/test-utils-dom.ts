@@ -5,7 +5,7 @@ import { setupTests } from "@tests/test-container";
 import fs from "fs";
 
 const scriptContent = fs.readFileSync(
-  require.resolve("lean-jsx/lib/web/sxl.js"),
+  require.resolve("lean-jsx/web/sxl.js"),
   "utf-8",
 );
 

@@ -9,7 +9,7 @@ import { Server } from "net";
 
 function loadScript() {
   const scriptContent = fs.readFileSync(
-    require.resolve("lean-jsx/lib/web/sxl.js"),
+    require.resolve("lean-jsx/web/sxl.js"),
     "utf-8",
   );
   return scriptContent;

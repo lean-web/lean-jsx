@@ -74,6 +74,7 @@ export type ExpressMiddleware = (
  */
 export interface LeanJSX<G extends SXLGlobalContext> {
   render(
+    request: Request,
     res: Response,
     element: SXL.Element,
     options?: { globalContext?: G; templateName?: string },
@@ -87,7 +88,11 @@ export interface LeanJSX<G extends SXLGlobalContext> {
    * @param globalContext - And optional global context object
    * @returns A {@link Readable} stream
    */
-  renderComponent(component: SXL.Element, globalContext: G): Promise<Readable>;
+  renderComponent(
+    request: Request,
+    component: SXL.Element,
+    globalContext: G,
+  ): Promise<Readable>;
   /**
    * Middleware for Express for easily suppoting the rendering of dynamic components
    * in Express.
@@ -112,6 +117,7 @@ export interface LeanJSX<G extends SXLGlobalContext> {
    * @param next - An Express Middleware "next" function, if available.
    */
   renderWithTemplate(
+    req: Request,
     res: Response,
     element: SXL.Element,
     globalContext: G,
