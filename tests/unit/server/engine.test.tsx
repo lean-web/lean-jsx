@@ -6,7 +6,7 @@ import {
 import { readableToString } from "@/jsx/html/stream/stream-utils/readable-to-string";
 import { LeanAppEngine, getComponent } from "@/server/engine";
 import { TemplateManager, TestLogger } from "@/server/express";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 import { getMockReq, getMockRes } from "@jest-mock/express";

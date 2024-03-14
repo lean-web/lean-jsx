@@ -1,5 +1,5 @@
-import { WebActions } from "lean-web-utils/lib/server";
-import { DynamicComponent, addEventListener } from "lean-web-utils/lib/web";
+import { WebActions } from "lean-web-utils/server";
+import { DynamicComponent, addEventListener } from "lean-web-utils/web";
 import { fillPlaceHolder, actionHandler } from "./wiring";
 
 // DynamicComponent.register();

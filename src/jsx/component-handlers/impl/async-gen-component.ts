@@ -1,7 +1,7 @@
 import { ComponentTest, ComponentHandler } from "..";
 import { isAsyncGenNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 
 export const AsyncGenElementTest: ComponentTest<SXL.FunctionAsyncGenElement> = (
   arg: SXL.Element,

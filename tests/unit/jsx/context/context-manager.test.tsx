@@ -1,6 +1,6 @@
 import { toQueryString } from "@/components";
-import { withClientData } from "lean-web-utils/lib/server";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { withClientData } from "lean-web-utils/server";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
@@ -11,7 +11,7 @@ describe("context-manager.test", () => {
 
     const handlers = contextManager.processHandlers(
       "myid",
-      <button onclick={() => console.log("Success")}></button>
+      <button onclick={() => console.log("Success")}></button>,
     );
 
     expect(handlers).toMatchInlineSnapshot(`
@@ -30,7 +30,7 @@ describe("context-manager.test", () => {
     const processed = contextManager.processElement(
       "myid",
       { name: "Pedro" },
-      <button onclick={() => console.log("Success")}></button>
+      <button onclick={() => console.log("Success")}></button>,
     );
 
     expect(processed).toMatchInlineSnapshot(`
@@ -72,7 +72,7 @@ describe("context-manager.test", () => {
     const processed = contextManager.processElement(
       "myid",
       { name: "Pedro" },
-      MyComponent()
+      MyComponent(),
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
@@ -123,7 +123,7 @@ describe("context-manager.test", () => {
       "myid",
       { name: "Pedro" },
       MyComponent(),
-      <p>Loading...</p>
+      <p>Loading...</p>,
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
@@ -190,7 +190,7 @@ describe("context-manager.test", () => {
       "myid",
       { name: "Pedro" },
       MyComponent(),
-      Loading()
+      Loading(),
     );
 
     await expect(processed.element).resolves.toMatchInlineSnapshot(`
@@ -283,7 +283,7 @@ describe("context-manager.test", () => {
           description: "Lorem ipsum dolor",
         }}
       />,
-      <p>Loading...</p>
+      <p>Loading...</p>,
     );
 
     expect(processed.element).toMatchInlineSnapshot(`

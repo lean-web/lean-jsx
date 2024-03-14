@@ -82,7 +82,7 @@ const extractEventHandlersPlugin: Plugin = {
         bundle: true, // Bundle all dependencies into one file
         format: "iife", // Output format as IIFE
         globalName: HANDLERS_NAMESPACE, // Global variable for the IIFE
-        external: ["esbuild", "lean-web-utils/lib/server"], // Exclude esbuild from the bundle
+        external: ["esbuild", "lean-web-utils/server"], // Exclude esbuild from the bundle
       });
 
       extractor.clear();

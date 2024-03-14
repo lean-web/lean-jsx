@@ -1,10 +1,10 @@
 import { isPromise, unwrapFragments } from "../html/jsx-utils";
 import { UIDGenerator } from "../html/uuid";
 import { TrackablePromise } from "../html/stream/stream-utils/trackable-promise";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { IErrorHandler } from "../degradation/error-handler";
 import { ParsedComponent } from "../component-handlers";
-import { isPureActionHandler, isWebHandler } from "lean-web-utils/lib/server";
+import { isPureActionHandler, isWebHandler } from "lean-web-utils/server";
 import { Request } from "express";
 
 interface SyncJSXWrapper {

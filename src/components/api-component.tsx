@@ -1,7 +1,7 @@
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { registerAPIComponent } from "./component-registry";
 import { Request } from "express";
-export { withClientData, withClientContext } from "lean-web-utils/lib/server";
+export { withClientData, withClientContext } from "lean-web-utils/server";
 
 interface APIComponentConfig<P extends Record<string, unknown>> {
   /**

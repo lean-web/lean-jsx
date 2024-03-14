@@ -11,7 +11,7 @@ import {
   isAsyncGenNode,
 } from "../jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import {
   decorateContext,
   wirePlaceholder,

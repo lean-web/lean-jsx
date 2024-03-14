@@ -9,5 +9,5 @@ export default interface BuildOptions {
   };
 }
 
-/// <reference types="lean-jsx-types/lib/global" />
+/// <reference types="lean-jsx-types/global" />
 /// <reference lib="dom" />

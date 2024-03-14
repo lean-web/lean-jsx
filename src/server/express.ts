@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import compression from "compression";
 
 import { LeanJSX } from "./api";

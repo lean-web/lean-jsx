@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import { JSXStack } from "@/jsx/html/stream/jsx-stack";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { setupTests } from "@tests/test-container";
 import fs from "fs";
 

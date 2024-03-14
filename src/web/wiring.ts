@@ -1,4 +1,4 @@
-import { WebActions } from "lean-web-utils/lib/server";
+import { WebActions } from "lean-web-utils/server";
 
 /**
  * Finds placeholder for async components and replaces them

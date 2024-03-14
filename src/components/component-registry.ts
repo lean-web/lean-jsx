@@ -1,4 +1,4 @@
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { DynamicController } from "./dynamic-controller";
 
 export const REGISTRY_SYMBOL = Symbol("DCRegistry");

@@ -1,4 +1,4 @@
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 import { APIComponent } from "@/components";
@@ -7,7 +7,7 @@ import {
   getDynamicComponentRegistry,
   registerAPIComponent,
 } from "@/components/component-registry";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 
 async function fetchProducts() {
   return await Promise.resolve([

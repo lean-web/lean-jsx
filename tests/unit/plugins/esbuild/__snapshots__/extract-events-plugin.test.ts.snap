@@ -38,7 +38,7 @@ exports[`extract-events-plugin test plugin - simulate rebuild 2`] = `
   [
     ".lean/handlers/file.ts",
     "
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 type Arg = Parameters<typeof withClientData>[1]
 // file.tsx
 export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
@@ -107,7 +107,7 @@ exports[`extract-events-plugin test plugin - simulate rebuild: rebuild written f
   [
     ".lean/handlers/file.ts",
     "
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 type Arg = Parameters<typeof withClientData>[1]
 // file.tsx
 export const fnacbebc5075e7518791459a102562cdfc = (ev1) => console.log(ev1);
@@ -156,7 +156,7 @@ exports[`extract-events-plugin test plugin 2`] = `
   [
     ".lean/handlers/file.ts",
     "
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 type Arg = Parameters<typeof withClientData>[1]
 // file.tsx
 export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
@@ -165,7 +165,7 @@ export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
   [
     ".lean/handlers/file3.ts",
     "
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 type Arg = Parameters<typeof withClientData>[1]
 // file3.tsx
 export const fnc811db883db9743ff5764cd85fb9d030 = (c1) => c1;

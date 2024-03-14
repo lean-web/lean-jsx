@@ -7,7 +7,7 @@ import fs from "fs";
 function validateHandlersExist(source: string, extractor: EventExtractor) {
   return (
     Array.from(extractor.existingHandlers.values()).filter((handler) =>
-      source.includes(handler)
+      source.includes(handler),
     ).length === extractor.existingHandlers.size
   );
 }
@@ -46,8 +46,8 @@ describe("extract-events.test", () => {
         `declare global {
           interface Window { sxl_user: any; }
       }\n${transformed}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
 
     expect(extractor.getActionsPerFile()).toMatchInlineSnapshot(`
@@ -55,7 +55,7 @@ describe("extract-events.test", () => {
         [
           "file.tsx",
           "
-      import { withClientData } from "lean-web-utils/lib/server";
+      import { withClientData } from "lean-web-utils/server";
       type Arg = Parameters<typeof withClientData>[1]
       // file.tsx
       export const fn14533fb3b06a348bf24a9f456f6b9275 = (ev) => console.log(ev);
@@ -103,8 +103,8 @@ describe("extract-events.test", () => {
         `declare global {
             interface Window { sxl_user: any; }
         }\n${transformed}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
 
     const actions = extractor
@@ -113,7 +113,7 @@ describe("extract-events.test", () => {
       .join(";");
     expect(actions).toMatchInlineSnapshot(`
       "
-      import { withClientData } from "lean-web-utils/lib/server";
+      import { withClientData } from "lean-web-utils/server";
       type Arg = Parameters<typeof withClientData>[1]
       // file.tsx
       export const fn6dff4efb11ab2eedbca9f29835365cfb = (ev, webContext) => {
@@ -127,17 +127,17 @@ describe("extract-events.test", () => {
         `declare global {
         interface Window { sxl_user: any; }
     }\n${actions}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
   });
 
   test("ts event extractor - large file", () => {
     const source = fs.readFileSync(
       path.resolve(
-        "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx"
+        "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx",
       ),
-      "utf8"
+      "utf8",
     );
 
     expect(
@@ -147,10 +147,10 @@ describe("extract-events.test", () => {
         "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx",
         [
           path.resolve(
-            "packages/core/tests/unit/plugins/esbuild/test-data/extra-components.tsx"
+            "packages/core/tests/unit/plugins/esbuild/test-data/extra-components.tsx",
           ),
-        ]
-      )
+        ],
+      ),
     ).toBeFalsy();
     const transformed = extractor.fileTransformer(source);
 
@@ -163,8 +163,8 @@ describe("extract-events.test", () => {
         `declare global {
             interface Window { sxl_user: any; }
         }\n${transformed}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
 
     const actions = extractor
@@ -178,8 +178,8 @@ describe("extract-events.test", () => {
         `declare global {
         interface Window { sxl_user: any; }
     }\n${actions}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
   });
 
@@ -208,7 +208,7 @@ describe("extract-events.test", () => {
         [
           "file.tsx",
           "
-      import { withClientData } from "lean-web-utils/lib/server";
+      import { withClientData } from "lean-web-utils/server";
       type Arg = Parameters<typeof withClientData>[1]
       // file.tsx
       export const fnc811db883db9743ff5764cd85fb9d030 = (c1) => c1;
@@ -243,7 +243,7 @@ describe("extract-events.test", () => {
         [
           "file.tsx",
           "
-      import { withClientData } from "lean-web-utils/lib/server";
+      import { withClientData } from "lean-web-utils/server";
       type Arg = Parameters<typeof withClientData>[1]
       // file.tsx
       export const fn8a6ef6b2b95f5134616d30c92a027aa6 = (c1) => console.log('this is a long enough event handler');

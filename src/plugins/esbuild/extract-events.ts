@@ -68,7 +68,7 @@ interface EventExtractorOptions {
 }
 
 export class EventExtractor {
-  header = `import { withClientData } from "lean-web-utils/lib/server";\ntype Arg = Parameters<typeof withClientData>[1]`;
+  header = `import { withClientData } from "lean-web-utils/server";\ntype Arg = Parameters<typeof withClientData>[1]`;
 
   handlers: Record<string, string[]> = {};
   existingHandlers: Set<string> = new Set();

@@ -9,7 +9,7 @@
 
     /* Bundler mode */
     "noEmit": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
@@ -30,7 +30,7 @@
       "@/": ["./src/"],
       "@/*": ["./src/*"]
     },
-    "types": ["node", "jest", "express", "lean-jsx-types/lib/global"]
+    "types": ["node", "jest", "express", "lean-jsx-types/global"]
   },
   "include": ["src", "tests"]
 }

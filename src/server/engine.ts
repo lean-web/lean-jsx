@@ -1,6 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express";
 import bodyParser from "body-parser";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import {
   ExpressMiddleware,
   LeanJSX,

@@ -5,7 +5,7 @@ import {
   JSXStream,
 } from "@/jsx/html/stream/jsx-stack";
 import { TestLogger, ErrorHandler } from "@/server/express";
-import { SXLGlobalContext } from "lean-jsx-types/lib/context";
+import { SXLGlobalContext } from "lean-jsx-types/context";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 export function setupTests() {

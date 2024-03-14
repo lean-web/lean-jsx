@@ -47,7 +47,7 @@ export function MyComponent() {
 
 exports[`extract-events.test ts event extractor - large file 2`] = `
 "
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 type Arg = Parameters<typeof withClientData>[1]
 // file.tsx
 export const fnd081dcab1e53b3a4c4d0ea0bac08a145 = (ev, webContext) => {

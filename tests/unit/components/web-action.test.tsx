@@ -1,4 +1,4 @@
-import { withClientData } from "lean-web-utils/lib/server";
+import { withClientData } from "lean-web-utils/server";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
@@ -10,7 +10,7 @@ describe("web-action.test", () => {
       return (
         <button
           onclick={withClientData({ arg }, (ev, data) =>
-            console.log(data?.data?.arg, nonWebArg)
+            console.log(data?.data?.arg, nonWebArg),
           )}
         >
           Click here!
@@ -23,7 +23,7 @@ describe("web-action.test", () => {
       <Home
         arg="This is a client parameter"
         nonWebArg="This is a server only parameter"
-      />
+      />,
     );
 
     let first = await stack.pop();
