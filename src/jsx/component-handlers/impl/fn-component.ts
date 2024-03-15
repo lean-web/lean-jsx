@@ -2,7 +2,6 @@ import { isPromise } from "util/types";
 import type { ComponentTest, ComponentHandler } from "..";
 import { isAsyncGen, isFunctionNode } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export const FnElementTest: ComponentTest<SXL.FunctionElement> = (
   arg: SXL.Element,
@@ -39,7 +38,7 @@ export const FnElementTest: ComponentTest<SXL.FunctionElement> = (
  */
 export const FnElementHandler: ComponentHandler = (
   element: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>,
+  contextManager: ContextManager,
   handlingOptions: {
     sync: boolean;
   },

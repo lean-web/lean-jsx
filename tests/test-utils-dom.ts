@@ -1,6 +1,5 @@
 import { JSDOM } from "jsdom";
 import { JSXStack } from "@/jsx/html/stream/jsx-stack";
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { setupTests } from "@tests/test-container";
 import fs from "fs";
 
@@ -35,7 +34,7 @@ export function stringToDom(data: string): [JSDOM, string[]] {
 }
 
 async function consumeStack(
-  stack: JSXStack<SXLGlobalContext>,
+  stack: JSXStack,
   cb: (curValue: string) => void,
 ): Promise<string> {
   let first = await stack.pop();
@@ -64,7 +63,7 @@ async function consumeStack(
 
 export async function jsxToDOMTest(jsx: SXL.StaticElement) {
   const TestContainer = setupTests();
-  const stream = TestContainer.jsxStack<object>({});
+  const stream = TestContainer.jsxStack({});
   await stream.push(jsx);
 
   const doms: string[] = [];

@@ -43,13 +43,13 @@ export function isComponentUrl(req: RequestLike): boolean {
 /**
  * Main factory for LeanJSX Engine.
  */
-export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
+export class LeanAppEngine implements LeanJSX {
   private templateManager: TemplateManager;
-  private jsxStreamFactory: JSXStreamFactory<G>;
+  private jsxStreamFactory: JSXStreamFactory;
 
   constructor(
     templateManager: TemplateManager,
-    jsxStreamFactory: JSXStreamFactory<G>,
+    jsxStreamFactory: JSXStreamFactory,
   ) {
     this.templateManager = templateManager;
     this.jsxStreamFactory = jsxStreamFactory;
@@ -67,7 +67,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     res: Response,
     element: SXL.StaticElement,
     options?:
-      | { globalContext?: G | undefined; templateName?: string }
+      | { globalContext?: SXLGlobalContext | undefined; templateName?: string }
       | undefined,
     next?: NextFunction | undefined,
   ) {
@@ -78,7 +78,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
       const appHtmlStream = this.jsxStreamFactory(
         element,
         request,
-        options?.globalContext as G,
+        options?.globalContext as SXLGlobalContext,
         {
           pre: [head],
           post: [tail],
@@ -119,7 +119,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     req: Request,
     res: Response,
     element: SXL.StaticElement,
-    globalContext: G,
+    globalContext: SXLGlobalContext,
     options: RenderWithTemplateOptions,
     next?: NextFunction | undefined,
   ): Promise<void> {
@@ -156,7 +156,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   async renderComponent(
     request: Request,
     component: SXL.Element,
-    globalContext: G,
+    globalContext: SXLGlobalContext,
   ): Promise<Readable> {
     const stream = this.jsxStreamFactory(
       await component,
@@ -183,8 +183,8 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   }
 
   private buildControllerMap(
-    components: DynamicController<G, SXL.Props<object, G>>[] | undefined,
-  ): Record<string, DynamicController<G>> {
+    components: DynamicController<SXL.Props<object>>[] | undefined,
+  ): Record<string, DynamicController> {
     const dcRegistry = getDynamicComponentRegistry();
 
     return {
@@ -206,7 +206,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
    */
   middlwareProcessFlag?: Deferred<boolean>;
 
-  middleware(options: SXLMiddlewareOptions<G>): ExpressMiddleware {
+  middleware(options: SXLMiddlewareOptions): ExpressMiddleware {
     this.middlwareProcessFlag = defer();
     const bodyParserMid = bodyParser.urlencoded({ extended: true });
 
@@ -269,8 +269,8 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
   }
 
   private async renderAPIComponent(
-    options: SXLMiddlewareOptions<G>,
-    controllerMap: Record<string, DynamicController<G, SXL.Props<object, G>>>,
+    options: SXLMiddlewareOptions,
+    controllerMap: Record<string, DynamicController<SXL.Props<object>>>,
     req: Request,
     res: Response,
   ) {
@@ -280,7 +280,7 @@ export class LeanAppEngine<G extends SXLGlobalContext> implements LeanJSX<G> {
     const component = controllerMap[maybeComponentName];
     const parsedComponentProps = component.requestHandler?.call(component, req);
     const props = await parsedComponentProps;
-    const globalContext: G = {
+    const globalContext: SXLGlobalContext = {
       ...globalContextParser(req, maybeComponentName),
       ...props,
     };

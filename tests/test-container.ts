@@ -10,11 +10,11 @@ import { getMockReq } from "@jest-mock/express";
 
 export function setupTests() {
   return {
-    jsxStream: <G extends SXLGlobalContext>(
+    jsxStream: (
       root: SXL.StaticElement,
-      globalContext: G,
-    ): JSXStream<G> => {
-      return new JSXStream<G>(
+      globalContext: SXLGlobalContext,
+    ): JSXStream => {
+      return new JSXStream(
         root,
         new ContextManager(
           getMockReq(),
@@ -25,11 +25,8 @@ export function setupTests() {
       );
     },
 
-    jsxStack: <G extends SXLGlobalContext>(
-      globalContext: G,
-      options?: JSXStackOptions,
-    ) => {
-      return new JSXStack<G>(
+    jsxStack: (globalContext: SXLGlobalContext, options?: JSXStackOptions) => {
+      return new JSXStack(
         TestLogger,
         new ContextManager(
           getMockReq(),
@@ -40,10 +37,8 @@ export function setupTests() {
       );
     },
 
-    contextManager: <G extends SXLGlobalContext>(
-      globalContext: G,
-    ): ContextManager<G> =>
-      new ContextManager<G>(
+    contextManager: (globalContext: SXLGlobalContext): ContextManager =>
+      new ContextManager(
         getMockReq(),
         globalContext,
         new ErrorHandler(TestLogger),
@@ -51,15 +46,15 @@ export function setupTests() {
 
     errorHandler: () => new ErrorHandler(TestLogger),
 
-    renderToString: async <G extends SXLGlobalContext>(
+    renderToString: async (
       element: SXL.StaticElement,
-      globalContext?: G,
+      globalContext?: SXLGlobalContext,
     ) => {
-      const stack = new JSXStack<G>(
+      const stack = new JSXStack(
         TestLogger,
         new ContextManager(
           getMockReq(),
-          globalContext ?? ({} as G),
+          globalContext ?? ({} as SXLGlobalContext),
           new ErrorHandler(TestLogger),
         ),
       );
@@ -76,9 +71,7 @@ export function setupTests() {
       return all;
     },
 
-    renderStackToString: async <G extends SXLGlobalContext>(
-      stack: JSXStack<G>,
-    ) => {
+    renderStackToString: async (stack: JSXStack) => {
       let first = await stack.pop();
       let all = "";
 

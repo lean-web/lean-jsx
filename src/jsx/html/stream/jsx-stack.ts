@@ -66,7 +66,7 @@ function isEventKey(str: string): str is JSXStackEvents {
  * - "push" adds an element to process.
  * - "pop" gets the next process chunk.
  */
-export class JSXStack<G extends SXLGlobalContext> {
+export class JSXStack {
   options: JSXStackOptions;
   // a list of processed HTML chunks.
   doneList: string[] = [];
@@ -82,12 +82,12 @@ export class JSXStack<G extends SXLGlobalContext> {
 
   jsQueue: string[] = [];
 
-  private contextManager: ContextManager<G>;
+  private contextManager: ContextManager;
   private logger: ILogger;
 
   constructor(
     logger: ILogger,
-    contextManager: ContextManager<G>,
+    contextManager: ContextManager,
     options?: JSXStackOptions,
   ) {
     this.contextManager = contextManager;
@@ -407,15 +407,15 @@ interface AdditionalChunks {
 
 export type JSXStreamOptions = Partial<ReadableOptions> & AdditionalChunks;
 
-export class JSXStream<G extends SXLGlobalContext> extends Readable {
+export class JSXStream extends Readable {
   private root: SXL.Element;
-  private jsxStack: JSXStack<G>;
+  private jsxStack: JSXStack;
   private pre: string[];
   private post: string[];
 
   constructor(
     root: SXL.Element,
-    contextManager: ContextManager<G>,
+    contextManager: ContextManager,
     logger: ILogger,
     options?: JSXStreamOptions,
   ) {
@@ -468,9 +468,9 @@ export class JSXStream<G extends SXLGlobalContext> extends Readable {
   }
 }
 
-export type JSXStreamFactory<G extends SXLGlobalContext> = (
+export type JSXStreamFactory = (
   root: SXL.Element,
   request: Request,
-  globalContext: G,
+  globalContext: SXLGlobalContext,
   opts: JSXStreamOptions,
-) => JSXStream<G>;
+) => JSXStream;

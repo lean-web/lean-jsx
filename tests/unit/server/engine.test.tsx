@@ -64,7 +64,7 @@ describe("engine.test", () => {
       errorHandler(),
     );
 
-    const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
+    const jsxStreamFactory: JSXStreamFactory = (
       root: SXL.Element,
       request: Request,
       globalContext: SXLGlobalContext,
@@ -98,9 +98,7 @@ describe("engine.test", () => {
 
     expect(lastCall).toBeTruthy();
 
-    const result = await readableToString(
-      (lastCall as JSXStream<SXLGlobalContext>[])[1],
-    );
+    const result = await readableToString((lastCall as JSXStream[])[1]);
 
     expect(result).toMatchInlineSnapshot(
       `"<body><main><div>Hello</div></main></body>"`,
@@ -118,7 +116,7 @@ describe("engine.test", () => {
       errorHandler(),
     );
 
-    const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
+    const jsxStreamFactory: JSXStreamFactory = (
       root: SXL.Element,
       request: Request,
       globalContext: SXLGlobalContext,
@@ -197,7 +195,7 @@ describe("engine.test", () => {
       errorHandler(),
     );
 
-    const jsxStreamFactory: JSXStreamFactory<SXLGlobalContext> = (
+    const jsxStreamFactory: JSXStreamFactory = (
       root: SXL.Element,
       request: Request,
       globalContext: SXLGlobalContext,

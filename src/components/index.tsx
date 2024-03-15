@@ -12,9 +12,9 @@ export { type DynamicController } from "./dynamic-controller";
  * @param globalContext - the global context
  * @returns
  */
-export function toQueryString<G extends SXLGlobalContext = SXLGlobalContext>(
+export function toQueryString(
   baseUrl: string,
-  globalContext?: G,
+  globalContext?: SXLGlobalContext,
 ): string {
   if (!globalContext) {
     return baseUrl;

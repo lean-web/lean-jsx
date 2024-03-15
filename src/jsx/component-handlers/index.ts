@@ -1,6 +1,5 @@
 import type { ContextID, ContextManager } from "@/jsx/context/context-manager";
 import { TrackablePromise } from "@/jsx/html/stream/stream-utils/trackable-promise";
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export type HandlerPropAndValue = [string, string];
 
@@ -10,7 +9,7 @@ export type ComponentTest<E extends SXL.ComponentElementUnion> = (
 
 export type ComponentHandler = (
   arg: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>,
+  contextManager: ContextManager,
   handlingOptions: {
     sync: boolean;
   },

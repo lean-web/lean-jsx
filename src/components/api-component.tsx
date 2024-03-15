@@ -1,4 +1,3 @@
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { registerAPIComponent } from "./component-registry";
 import type { Request } from "express";
 export { withClientData, withClientContext } from "lean-web-utils/server";
@@ -34,7 +33,7 @@ export function APIComponent<
     | SXL.AsyncGenElement
     | SXL.ClassElement,
 >(config: APIComponentConfig<NonNullable<P>>, component: (props: P) => T) {
-  registerAPIComponent<SXLGlobalContext, NonNullable<P>>({
+  registerAPIComponent<NonNullable<P>>({
     Api: component,
     contentId: config.id,
     requestHandler: config.requestHandler,

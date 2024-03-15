@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express, { type Express } from "express";
-import { LeanJSX, buildApp } from "@/server/express";
+import { type LeanJSX, buildApp } from "@/server/express";
 import fs from "fs";
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { Page } from "puppeteer";
 import { expect } from "@jest/globals";
 import { Server } from "net";
@@ -15,7 +14,7 @@ function loadScript() {
   return scriptContent;
 }
 
-export function getTestLeanEngine<G extends SXLGlobalContext>(): LeanJSX<G> {
+export function getTestLeanEngine(): LeanJSX {
   return buildApp({
     templates: {
       index: {
@@ -33,10 +32,10 @@ export function getTestLeanEngine<G extends SXLGlobalContext>(): LeanJSX<G> {
   });
 }
 
-export async function startExpress<G extends SXLGlobalContext>(
-  decorate: (app: Express, engine: LeanJSX<G>) => void,
+export async function startExpress(
+  decorate: (app: Express, engine: LeanJSX) => void,
 ): Promise<Server> {
-  const engine = getTestLeanEngine<G>();
+  const engine = getTestLeanEngine();
 
   const app = express();
 

@@ -70,16 +70,14 @@ interface AppConfig {
  * @param config - the configuration for the runtime.
  * @returns an instance of the LeanJSX runtime.
  */
-export function buildApp<G extends SXLGlobalContext>(
-  config: AppConfig,
-): LeanJSX<G> {
+export function buildApp(config: AppConfig): LeanJSX {
   const logger: ILogger = new DefaultLogger(config.logging);
   const errorHandler = new ErrorHandler(logger);
   const templateManager = new TemplateManager(config.templates, errorHandler);
-  const jsxStreamFactory: JSXStreamFactory<G> = (
+  const jsxStreamFactory: JSXStreamFactory = (
     root: SXL.Element,
     request: Request,
-    globalContext: G,
+    globalContext: SXLGlobalContext,
     opts: JSXStreamOptions,
   ) =>
     new JSXStream(

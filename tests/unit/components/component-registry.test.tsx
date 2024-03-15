@@ -4,7 +4,6 @@ import {
   getDynamicComponentRegistry,
   registerAPIComponent,
 } from "@/components/component-registry";
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 async function fetchProducts() {
   return await Promise.resolve([
@@ -15,10 +14,7 @@ async function fetchProducts() {
 
 describe("component-registry.test", () => {
   test("registerAPIComponent registers APIComponents correctly", async () => {
-    registerAPIComponent<
-      SXLGlobalContext,
-      { products: { id: number; name: string }[] }
-    >({
+    registerAPIComponent<{ products: { id: number; name: string }[] }>({
       Api: ({ products }) => {
         return (
           <div>

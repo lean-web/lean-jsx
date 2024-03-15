@@ -29,7 +29,7 @@ export interface RenderOptions {
 /**
  * Options for the SXL middleware options
  */
-export interface SXLMiddlewareOptions<G extends SXLGlobalContext> {
+export interface SXLMiddlewareOptions {
   /**
    * A list of {@link DynamicController} objects.
    *
@@ -48,7 +48,10 @@ export interface SXLMiddlewareOptions<G extends SXLGlobalContext> {
    * @param componentName - the name of the component, if this is an async call
    * @returns an object containing parameters for the JSX root component
    */
-  globalContextParser: (args: Request, componentName?: string) => G;
+  globalContextParser: (
+    args: Request,
+    componentName?: string,
+  ) => SXLGlobalContext;
 }
 
 /**
@@ -72,12 +75,12 @@ export type ExpressMiddleware = (
 /**
  * Main server actions for LeanJSX.
  */
-export interface LeanJSX<G extends SXLGlobalContext> {
+export interface LeanJSX {
   render(
     request: Request,
     res: Response,
     element: SXL.Element,
-    options?: { globalContext?: G; templateName?: string },
+    options?: { globalContext?: SXLGlobalContext; templateName?: string },
     next?: NextFunction | undefined,
   );
   /**
@@ -91,7 +94,7 @@ export interface LeanJSX<G extends SXLGlobalContext> {
   renderComponent(
     request: Request,
     component: SXL.Element,
-    globalContext: G,
+    globalContext: SXLGlobalContext,
   ): Promise<Readable>;
   /**
    * Middleware for Express for easily suppoting the rendering of dynamic components
@@ -100,7 +103,7 @@ export interface LeanJSX<G extends SXLGlobalContext> {
    * @param options - The {@link SXLMiddlewareOptions}
    * @returns An Express middleware.
    */
-  middleware(options: SXLMiddlewareOptions<G>): ExpressMiddleware;
+  middleware(options: SXLMiddlewareOptions): ExpressMiddleware;
 
   /**
    * Enable lean.jsx-specific logging
@@ -120,7 +123,7 @@ export interface LeanJSX<G extends SXLGlobalContext> {
     req: Request,
     res: Response,
     element: SXL.Element,
-    globalContext: G,
+    globalContext: SXLGlobalContext,
     options: RenderWithTemplateOptions,
     next?: NextFunction,
   ): Promise<void>;

@@ -1,4 +1,3 @@
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 import type { Request } from "express";
 
 /**
@@ -9,8 +8,7 @@ import type { Request } from "express";
  * as it relies on a very specific implementation.
  */
 export interface DynamicController<
-  GContext extends SXLGlobalContext = SXLGlobalContext,
-  Props extends SXL.Props<object, GContext> = SXL.Props<object, GContext>,
+  Props extends SXL.Props<object> = SXL.Props<object>,
 > {
   contentId: string;
 
@@ -19,9 +17,7 @@ export interface DynamicController<
    * @param props - the component's properties {@link SXL.Props}
    * @returns - a JSX component
    */
-  Api: (
-    props: Props,
-  ) => SXL.AsyncElement | SXL.StaticElement | SXL.AsyncGenElement;
+  Api: (props: Props) => SXL.Element;
 
   /**
    * The parameters associated to this component

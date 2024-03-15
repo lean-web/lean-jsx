@@ -491,7 +491,7 @@ describe("jsx-stack.test", () => {
 
   test("class component", async () => {
     type Gcontext = { username: string };
-    const stack = jsxStack<Gcontext>({ username: "Pedro" });
+    const stack = jsxStack({ username: "Pedro" });
     type ClassProps = SXL.Props & { globalContext?: Gcontext };
 
     class MyComponent extends Component<ClassProps> {
@@ -539,8 +539,7 @@ describe("jsx-stack.test", () => {
   });
 
   test("class component with props", async () => {
-    type Gcontext = { username: string };
-    const stack = jsxStack<Gcontext>({ username: "Pedro" });
+    const stack = jsxStack({ username: "Pedro" });
 
     interface ComponentArgs {
       greet: string;
@@ -571,8 +570,7 @@ describe("jsx-stack.test", () => {
   });
 
   test("class component with handlers", async () => {
-    type Gcontext = { username: string };
-    const stack = jsxStack<Gcontext>({ username: "Pedro" });
+    const stack = jsxStack({ username: "Pedro" });
 
     class MyComponent extends Component {
       greet: string = "Hello";

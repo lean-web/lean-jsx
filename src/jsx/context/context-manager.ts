@@ -70,16 +70,16 @@ function buildWebContextString(data: Record<string, unknown>) {
   return JSON.stringify(data);
 }
 
-export class ContextManager<G extends SXLGlobalContext> {
+export class ContextManager {
   private options: ContextManagerOptions;
   errorHandler: IErrorHandler;
   private uiden = UIDGenerator.new();
-  private globalContext: G;
+  private globalContext: SXLGlobalContext;
   private request: Request;
 
   constructor(
     request: Request,
-    globalContext: G,
+    globalContext: SXLGlobalContext,
     errorHandler: IErrorHandler,
     options?: ContextManagerOptions,
   ) {
@@ -97,7 +97,7 @@ export class ContextManager<G extends SXLGlobalContext> {
     return new LocalContext();
   }
 
-  getGlobalContext(): G {
+  getGlobalContext(): SXLGlobalContext {
     return this.globalContext;
   }
 
@@ -218,6 +218,6 @@ export class ContextManager<G extends SXLGlobalContext> {
   }
 }
 
-export type ContextManagerFactory<G extends SXLGlobalContext> = (
-  globalContext: G,
-) => ContextManager<G>;
+export type ContextManagerFactory = (
+  globalContext: SXLGlobalContext,
+) => ContextManager;

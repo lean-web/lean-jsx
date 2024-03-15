@@ -2,7 +2,6 @@ import { isPromise } from "util/types";
 import type { ComponentTest, ComponentHandler, ParsedComponent } from "..";
 import { isAsyncGen } from "@/jsx/html/jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
-import type { SXLGlobalContext } from "lean-jsx-types/context";
 
 export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
   arg: SXL.Element,
@@ -20,7 +19,7 @@ export const StaticElementTest: ComponentTest<SXL.IntrinsicElement> = (
  */
 export const StaticElementHandler: ComponentHandler = (
   element: SXL.Element,
-  contextManager: ContextManager<SXLGlobalContext>,
+  contextManager: ContextManager,
   _handlingOptions: {
     sync: boolean;
   },
@@ -34,9 +33,9 @@ export const StaticElementHandler: ComponentHandler = (
   return contextManager.processElement(id, ctx, element);
 };
 
-export function staticHandler<G extends SXLGlobalContext>(
+export function staticHandler(
   arg: SXL.Element,
-  contextManager: ContextManager<G>,
+  contextManager: ContextManager,
   handlingOptions: {
     sync: boolean;
   },
