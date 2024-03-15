@@ -2,7 +2,7 @@
 import express, { type Express } from "express";
 import { LeanJSX, buildApp } from "@/server/express";
 import fs from "fs";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { Page } from "puppeteer";
 import { expect } from "@jest/globals";
 import { Server } from "net";

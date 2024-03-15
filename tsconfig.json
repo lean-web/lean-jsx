@@ -9,7 +9,7 @@
 
     /* Bundler mode */
     "noEmit": true,
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,

@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import { JSXStack } from "@/jsx/html/stream/jsx-stack";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { setupTests } from "@tests/test-container";
 import fs from "fs";
 
@@ -14,7 +14,8 @@ export function stringToDom(data: string): [JSDOM, string[]] {
 
   const dom = new JSDOM(
     `<html>
-    <head><script>${scriptContent}</script></head>
+    <script>${scriptContent}</script>
+    </head>
     ${data}</html>`,
     {
       runScripts: "dangerously",

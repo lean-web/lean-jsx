@@ -2,7 +2,7 @@ import { withClientData, toQueryString } from "@/components";
 import { ParsedComponent } from "@/jsx/component-handlers";
 import { FnElementHandler } from "@/jsx/component-handlers/impl/fn-component";
 import { decorateContext } from "@/jsx/context/context-decorator";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 import { WebContext } from "lean-jsx-types/global";

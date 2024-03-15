@@ -1,12 +1,12 @@
 import { ContextManager } from "@/jsx/context/context-manager";
 import {
   JSXStack,
-  JSXStackOptions,
+  type JSXStackOptions,
   JSXStream,
 } from "@/jsx/html/stream/jsx-stack";
 import { TestLogger, ErrorHandler } from "@/server/express";
-import { SXLGlobalContext } from "lean-jsx-types/context";
-import { getMockReq, getMockRes } from "@jest-mock/express";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
+import { getMockReq } from "@jest-mock/express";
 
 export function setupTests() {
   return {

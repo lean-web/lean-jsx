@@ -59,8 +59,6 @@ const external = [
   "typescript",
   "fs",
   "crypto",
-  "lean-jsx-types/context",
-  "lean-web-utils/server",
   ...Object.keys(dependencies),
 ];
 

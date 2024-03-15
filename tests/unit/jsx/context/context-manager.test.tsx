@@ -1,6 +1,6 @@
 import { toQueryString } from "@/components";
 import { withClientData } from "lean-web-utils/server";
-import { SXLGlobalContext } from "lean-jsx-types/context";
+import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 
