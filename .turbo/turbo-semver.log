@@ -1,0 +1,24 @@
+
+
+> lean-jsx@0.0.21-alpha semver
+> semantic-release --verify-conditions
+
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [35mℹ [39m Running semantic-release version 23.0.5
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "analyzeCommits" from "@semantic-release/commit-analyzer"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "generateNotes" from "@semantic-release/release-notes-generator"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "prepare" from "@semantic-release/npm"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "publish" from "@semantic-release/npm"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "publish" from "@semantic-release/github"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "addChannel" from "@semantic-release/npm"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "addChannel" from "@semantic-release/github"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "success" from "@semantic-release/github"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Loaded plugin "fail" from "@semantic-release/github"
+[90m[3:54:07 PM][39m [90m[semantic-release][39m [90m›[39m [33m⚠ [39m This run was not triggered in a known CI environment, running in dry-run mode.
+[90m[3:54:11 PM][39m [90m[semantic-release][39m [90m›[39m [33m⚠ [39m Run automated release from branch main on repository https://github.com/lean-web/lean-jsx in dry-run mode
+[90m[3:54:12 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Allowed to push to the Git repository
+[90m[3:54:12 PM][39m [90m[semantic-release][39m [90m›[39m [35mℹ [39m Found git tag v0.0.21 associated with version 0.0.21 on branch main
+[90m[3:54:12 PM][39m [90m[semantic-release][39m [90m›[39m [35mℹ [39m Found 0 commits since last release
+[90m[3:54:12 PM][39m [90m[semantic-release][39m [90m›[39m [35mℹ [39m Start step "analyzeCommits" of plugin "@semantic-release/commit-analyzer"
+[90m[3:54:12 PM][39m [90m[semantic-release] [@semantic-release/commit-analyzer][39m [90m›[39m [35mℹ [39m Analysis of 0 commits complete: no release
+[90m[3:54:12 PM][39m [90m[semantic-release][39m [90m›[39m [32m✔ [39m Completed step "analyzeCommits" of plugin "@semantic-release/commit-analyzer"
+[90m[3:54:12 PM][39m [90m[semantic-release][39m [90m›[39m [35mℹ [39m There are no relevant changes, so no new version is released.

@@ -34,7 +34,9 @@
     "watch": "rm -rf ./lib && rollup -c --watch",
     "test": "jest",
     "test:e2e": "jest -c ../../jest.integration.config.js",
-    "docs": "npx typedoc --out docs"
+    "docs": "npx typedoc --out docs",
+    "semver": "semantic-release",
+    "semver-check": "semantic-release --verify-conditions"
   },
   "devDependencies": {
     "@jest-mock/express": "^2.0.2",
@@ -93,6 +95,9 @@
     "vite": "^4.4.11"
   },
   "release": {
-    "branches": ["main"]
+    "branches": [
+      "main",
+      { "name": "alpha", "channel": "alpha", "prerelease": true }
+    ]
   }
 }
