@@ -1,6 +1,6 @@
 {
   "name": "lean-jsx",
-  "version": "0.0.20-alpha",
+  "version": "0.0.21-alpha",
   "author": "Pedro Marquez-Soto",
   "license": "MPL-2.0",
   "description": "LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.",
@@ -67,7 +67,9 @@
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-visualizer": "^5.9.3",
+    "semantic-release": "^23.0.5",
     "ts-jest": "^29.1.1",
+    "turbo": "^1.12.5",
     "typedoc-plugin-mdn-links": "^3.1.0",
     "typedoc-plugin-missing-exports": "^2.1.0",
     "typescript": "^5.2.2",
@@ -89,5 +91,8 @@
     "sinon": "^16.1.0",
     "uuid": "^9.0.1",
     "vite": "^4.4.11"
+  },
+  "release": {
+    "branches": ["main"]
   }
 }
