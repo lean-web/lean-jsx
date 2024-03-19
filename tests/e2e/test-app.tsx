@@ -1,4 +1,4 @@
-import { APIComponent, Lazy } from "@/components";
+import { APIC, Lazy } from "@/components";
 
 async function wait(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
@@ -45,7 +45,7 @@ function WithHandlers() {
 }
 
 export const DynamicComponentTId = "dynamic-slow";
-export const DynamicComponentT = APIComponent(
+export const DynamicComponentT = APIC(
   {
     id: DynamicComponentTId,
     requestHandler: async () => {

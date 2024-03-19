@@ -1,4 +1,10 @@
-import { WebActions } from "lean-web-utils/server";
+import {
+  WebActions,
+  refetchAPIC,
+  updateContentWithResponse,
+  replaceAPIC,
+  urlForComponent,
+} from "lean-web-utils/server";
 import { DynamicComponent, addEventListener } from "lean-web-utils/web";
 import { fillPlaceHolder, actionHandler } from "./wiring";
 
@@ -108,4 +114,8 @@ export {
   actionHandler,
   WebActions,
   DynamicComponent,
+  refetchAPIC,
+  updateContentWithResponse,
+  replaceAPIC,
+  urlForComponent,
 };

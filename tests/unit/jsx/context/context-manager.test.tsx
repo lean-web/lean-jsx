@@ -250,13 +250,16 @@ describe("context-manager.test", () => {
       return (
         <div>
           <button
-            onclick={withClientData({ id: product.id }, async (ev, ctx) => {
-              console.log("Delete1");
-              await fetch(`/product/${ctx?.data.id}`, {
-                method: "DELETE",
-              });
-              void ctx?.actions.refetchElement("product-list", {});
-            })}
+            onclick={withClientData(
+              { id: product.id },
+              async (ev, actions, data) => {
+                console.log("Delete1");
+                await fetch(`/product/${data.id}`, {
+                  method: "DELETE",
+                });
+                void actions.refetchAPIC("product-list", {});
+              },
+            )}
           >
             Delete
           </button>

@@ -50,22 +50,11 @@ export function fillPlaceHolder(placeHolderId: string): void {
  * @returns - a DOM-compatible event handler
  */
 export function actionHandler(
-  h: (
-    ev: Event,
-    data: {
-      data: unknown;
-      element: Element;
-      actions: WebActions;
-    },
-  ) => unknown,
+  h: (ev: Event, actions: WebActions, data: unknown) => unknown,
   data: unknown,
 ) {
   return function (this: Element, ev: Event): void {
-    h(ev, {
-      data,
-      element: this,
-      actions: new WebActions(),
-    });
+    h(ev, new WebActions(), data);
   };
 }
 

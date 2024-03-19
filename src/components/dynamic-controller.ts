@@ -4,7 +4,7 @@ import type { Request } from "express";
  * Provides methods to render a dynamically-loaded component
  * (one that doesn't block the main document loading).
  *
- * This object is meant to be created by the factory method {@link APIComponent},
+ * This object is meant to be created by the factory method {@link APIC},
  * as it relies on a very specific implementation.
  */
 export interface DynamicController<

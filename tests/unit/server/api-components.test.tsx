@@ -1,4 +1,4 @@
-import { APIComponent } from "@/components";
+import { APIC } from "@/components";
 import { getDynamicComponentRegistry } from "@/components/component-registry";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
@@ -8,7 +8,7 @@ describe("api-components.test", () => {
   const { jsxStack, renderStackToString } = setupTests();
 
   test("registered APIComponent works", async () => {
-    APIComponent(
+    APIC(
       { id: "product-list", requestHandler: (_req) => ({ start: 0 }) },
       ProductList,
     );

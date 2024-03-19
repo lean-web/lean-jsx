@@ -9,8 +9,8 @@ describe("web-action.test", () => {
     function Home({ arg, nonWebArg }: { arg: string; nonWebArg: string }) {
       return (
         <button
-          onclick={withClientData({ arg }, (ev, data) =>
-            console.log(data?.data?.arg, nonWebArg),
+          onclick={withClientData({ arg }, (ev, actions, data) =>
+            console.log(data.arg, nonWebArg)
           )}
         >
           Click here!
@@ -23,7 +23,7 @@ describe("web-action.test", () => {
       <Home
         arg="This is a client parameter"
         nonWebArg="This is a server only parameter"
-      />,
+      />
     );
 
     let first = await stack.pop();
@@ -36,7 +36,7 @@ describe("web-action.test", () => {
 
     expect(all).toMatchInlineSnapshot(`
       "<button data-action="element-1">Click here!</button><script data-action-script="element-1">
-              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, data) => console.log(data?.data?.arg, nonWebArg), {"arg":"This is a client parameter"}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, actions, data) => console.log(data.arg, nonWebArg), {"arg":"This is a client parameter"}));
           </script>"
     `);
   });

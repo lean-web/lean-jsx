@@ -225,7 +225,7 @@ export class LeanAppEngine implements LeanJSX {
             maybeComponentName &&
             controllerMap[maybeComponentName]
           ) {
-            void this.renderAPIComponent(options, controllerMap, req, res)
+            void this.renderAPIC(options, controllerMap, req, res)
               .then(() => {
                 this.middlwareProcessFlag?.resolve(true);
               })
@@ -268,7 +268,7 @@ export class LeanAppEngine implements LeanJSX {
     };
   }
 
-  private async renderAPIComponent(
+  private async renderAPIC(
     options: SXLMiddlewareOptions,
     controllerMap: Record<string, DynamicController<SXL.Props<object>>>,
     req: Request,

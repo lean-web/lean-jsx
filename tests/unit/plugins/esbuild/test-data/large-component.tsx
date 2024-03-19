@@ -3,8 +3,8 @@ import { withClientData } from "@/components";
 export function DeeplyNestedComponent() {
   return (
     <button
-      onclick={withClientData({}, (ev, webContext) => {
-        void webContext?.actions.refetchElement("my-element2", {});
+      onclick={withClientData({}, (ev, actions) => {
+        void actions.refetchAPIC("my-element2", {});
       })}
     >
       Click to greet user
@@ -19,8 +19,8 @@ export function DeeplyNestedComponent() {
 export function DeeplyNestedComponent2() {
   return (
     <button
-      onclick={withClientData({}, (ev, webContext) => {
-        void webContext?.actions.refetchElement("my-element2", {});
+      onclick={withClientData({}, (ev, actions) => {
+        void actions.refetchAPIC("my-element2", {});
       })}
     >
       Click to greet user
@@ -33,8 +33,8 @@ export function NestedComponent() {
     <div>
       <DeeplyNestedComponent />
       <button
-        onclick={withClientData({}, (ev, webContext) => {
-          void webContext?.actions.refetchElement("my-element", {});
+        onclick={withClientData({}, (ev, actions) => {
+          void actions.refetchAPIC("my-element", {});
         })}
       >
         Click to greet user
@@ -49,8 +49,8 @@ function LoopedComponent() {
     <>
       {new Array(5).fill(true).map((_, index) => (
         <button
-          onclick={withClientData({ index }, (ev, ctx) =>
-            console.log(ctx?.data.index),
+          onclick={withClientData({ index }, (ev, _, data) =>
+            console.log(data.index),
           )}
         >
           Click {index}
@@ -67,8 +67,8 @@ export function MyComponent() {
       <NestedComponent />
       <LoopedComponent />
       <button
-        onclick={withClientData(user, (ev, webContext) => {
-          alert(`Hello ${webContext?.data.firstName}`);
+        onclick={withClientData(user, (ev, actions, data) => {
+          alert(`Hello ${data.firstName}`);
         })}
       >
         Click to greet user

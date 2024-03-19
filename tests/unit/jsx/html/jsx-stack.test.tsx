@@ -12,7 +12,7 @@ describe("jsx-stack.test", () => {
       <div>
         <p>E1</p>
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -29,12 +29,12 @@ describe("jsx-stack.test", () => {
         <p>E2</p>
         <button
           onclick={withClientData<MouseEvent, Record<string, unknown>>({}, () =>
-            console.log("clicked"),
+            console.log("clicked")
           )}
         >
           Click
         </button>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -55,7 +55,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -73,7 +73,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -96,7 +96,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -122,7 +122,7 @@ describe("jsx-stack.test", () => {
 
     function List(
       this: { greet: string },
-      { globalContext }: { globalContext?: { username: string } },
+      { globalContext }: { globalContext?: { username: string } }
     ) {
       this.greet = "Hi"!;
       return (
@@ -149,14 +149,14 @@ describe("jsx-stack.test", () => {
 
     function List(
       this: { greet: string },
-      { globalContext }: { globalContext?: { username: string } },
+      { globalContext }: { globalContext?: { username: string } }
     ) {
       this.greet = "Hi"!;
       const someInternalData = "This is internal";
       return (
         <button
-          onclick={withClientData({ someInternalData }, (ev, inner) =>
-            console.log(this.greet, inner?.data?.someInternalData),
+          onclick={withClientData({ someInternalData }, (ev, actions, data) =>
+            console.log(this.greet, data.someInternalData)
           )}
         >
           Hello {globalContext?.username}
@@ -170,7 +170,7 @@ describe("jsx-stack.test", () => {
     expect(all).toMatchInlineSnapshot(`
       "<button data-action="element-1">Hello Pedro</button><script data-action-script="element-1">
             (function(){
-              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, inner) => console.log(this.greet, inner?.data?.someInternalData), {"someInternalData":"This is internal"}));
+              sxl.addEventListener('[data-action="element-1"]', 'click',sxl.actionHandler((ev, actions, data) => console.log(this.greet, data.someInternalData), {"someInternalData":"This is internal"}));
             }).call({"greet":"Hi"});
           </script>"
     `);
@@ -232,7 +232,7 @@ describe("jsx-stack.test", () => {
         <p>E1</p>
         <Second />
         <p>E3</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -249,7 +249,7 @@ describe("jsx-stack.test", () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
       return new Promise((resolve) =>
-        resolve(<button onclick={withClientData({}, () => "E2")}>E2</button>),
+        resolve(<button onclick={withClientData({}, () => "E2")}>E2</button>)
       );
     }
     void stack.push(
@@ -257,7 +257,7 @@ describe("jsx-stack.test", () => {
         <p>E1</p>
         <Second />
         <p>E3</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -282,7 +282,7 @@ describe("jsx-stack.test", () => {
         <p>E1</p>
         <Second />
         <p>E3</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -299,7 +299,7 @@ describe("jsx-stack.test", () => {
     const stack = jsxStack({ username: "Pedro" });
     async function Second(): SXL.AsyncElement {
       return new Promise((resolve) =>
-        resolve(<button onclick={withClientData({}, () => "E2")}>E2</button>),
+        resolve(<button onclick={withClientData({}, () => "E2")}>E2</button>)
       );
     }
     void stack.push(
@@ -307,7 +307,7 @@ describe("jsx-stack.test", () => {
         <p>E1</p>
         <Second />
         <p>E3</p>
-      </div>,
+      </div>
     );
 
     const flushes: string[] = [];
@@ -357,7 +357,7 @@ describe("jsx-stack.test", () => {
     void stack.push(
       <>
         <>hello</>
-      </>,
+      </>
     );
 
     const all = await renderStackToString(stack);
@@ -374,13 +374,13 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
 
     expect(all).toMatchInlineSnapshot(
-      `"<div><div data-leanjsx-error="true">An error ocurred</div><p>E2</p></div>"`,
+      `"<div><div data-leanjsx-error="true">An error ocurred</div><p>E2</p></div>"`
     );
   });
 
@@ -393,7 +393,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -417,7 +417,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -447,7 +447,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);
@@ -476,7 +476,7 @@ describe("jsx-stack.test", () => {
       <div>
         <E1 />
         <p>E2</p>
-      </div>,
+      </div>
     );
 
     const all = await renderStackToString(stack);

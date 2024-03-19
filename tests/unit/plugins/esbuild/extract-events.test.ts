@@ -7,7 +7,7 @@ import fs from "fs";
 function validateHandlersExist(source: string, extractor: EventExtractor) {
   return (
     Array.from(extractor.existingHandlers.values()).filter((handler) =>
-      source.includes(handler),
+      source.includes(handler)
     ).length === extractor.existingHandlers.size
   );
 }
@@ -46,8 +46,8 @@ describe("extract-events.test", () => {
         `declare global {
           interface Window { sxl_user: any; }
       }\n${transformed}`,
-        tsConfig,
-      ),
+        tsConfig
+      )
     ).toBeFalsy();
 
     expect(extractor.getActionsPerFile()).toMatchInlineSnapshot(`
@@ -72,8 +72,8 @@ describe("extract-events.test", () => {
         const user = { firstName: "John" };
         return (
             <button
-                onclick={withClientData(user, (ev, webContext) => {
-                    alert(\`Hello \${webContext?.data.firstName}\`);
+                onclick={withClientData(user, (ev, actions, data) => {
+                    alert(\`Hello \${data.firstName}\`);
                 })}
             >
                 Click to greet user
@@ -91,7 +91,7 @@ describe("extract-events.test", () => {
       "import { withClientData } from "@/components";
       function MyComponent() {
           const user = { firstName: "John" };
-          return (<button onclick={withClientData(user, (ev, webContext) => { return window.sxl_user.fn6dff4efb11ab2eedbca9f29835365cfb(ev, webContext); })}>
+          return (<button onclick={withClientData(user, (ev, actions, data) => { return window.sxl_user.fne7b5c9ba97ea6f6dda9ac5982900a6bf(ev, actions, data); })}>
                       Click to greet user
                   </button>);
       }
@@ -103,8 +103,8 @@ describe("extract-events.test", () => {
         `declare global {
             interface Window { sxl_user: any; }
         }\n${transformed}`,
-        tsConfig,
-      ),
+        tsConfig
+      )
     ).toBeFalsy();
 
     const actions = extractor
@@ -116,8 +116,8 @@ describe("extract-events.test", () => {
       import { withClientData } from "lean-web-utils/server";
       type Arg = Parameters<typeof withClientData>[1]
       // file.tsx
-      export const fn6dff4efb11ab2eedbca9f29835365cfb = (ev, webContext) => {
-      alert(\`Hello \${webContext?.data.firstName}\`);
+      export const fne7b5c9ba97ea6f6dda9ac5982900a6bf = (ev, actions, data) => {
+      alert(\`Hello \${data.firstName}\`);
       };
       "
     `);
@@ -127,17 +127,17 @@ describe("extract-events.test", () => {
         `declare global {
         interface Window { sxl_user: any; }
     }\n${actions}`,
-        tsConfig,
-      ),
+        tsConfig
+      )
     ).toBeFalsy();
   });
 
   test("ts event extractor - large file", () => {
     const source = fs.readFileSync(
       path.resolve(
-        "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx",
+        "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx"
       ),
-      "utf8",
+      "utf8"
     );
 
     expect(
@@ -147,10 +147,10 @@ describe("extract-events.test", () => {
         "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx",
         [
           path.resolve(
-            "packages/core/tests/unit/plugins/esbuild/test-data/extra-components.tsx",
+            "packages/core/tests/unit/plugins/esbuild/test-data/extra-components.tsx"
           ),
-        ],
-      ),
+        ]
+      )
     ).toBeFalsy();
     const transformed = extractor.fileTransformer(source);
 
@@ -163,8 +163,8 @@ describe("extract-events.test", () => {
         `declare global {
             interface Window { sxl_user: any; }
         }\n${transformed}`,
-        tsConfig,
-      ),
+        tsConfig
+      )
     ).toBeFalsy();
 
     const actions = extractor
@@ -178,8 +178,8 @@ describe("extract-events.test", () => {
         `declare global {
         interface Window { sxl_user: any; }
     }\n${actions}`,
-        tsConfig,
-      ),
+        tsConfig
+      )
     ).toBeFalsy();
   });
 

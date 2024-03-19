@@ -3,7 +3,7 @@
 exports[`extract-events.test ts event extractor - large file 1`] = `
 "import { withClientData } from "@/components";
 export function DeeplyNestedComponent() {
-    return (<button onclick={withClientData({}, (ev, webContext) => { return window.sxl_user.fnd081dcab1e53b3a4c4d0ea0bac08a145(ev, webContext); })}>
+    return (<button onclick={withClientData({}, (ev, actions) => { return window.sxl_user.fn7377f93f0e35f7fe806e1e81120aeab5(ev, actions); })}>
       Click to greet user
     </button>);
 }
@@ -12,14 +12,14 @@ export function DeeplyNestedComponent() {
  * @returns
  */
 export function DeeplyNestedComponent2() {
-    return (<button onclick={withClientData({}, (ev, webContext) => { return window.sxl_user.fnd081dcab1e53b3a4c4d0ea0bac08a145(ev, webContext); })}>
+    return (<button onclick={withClientData({}, (ev, actions) => { return window.sxl_user.fn7377f93f0e35f7fe806e1e81120aeab5(ev, actions); })}>
       Click to greet user
     </button>);
 }
 export function NestedComponent() {
     return (<div>
       <DeeplyNestedComponent />
-      <button onclick={withClientData({}, (ev, webContext) => { return window.sxl_user.fn7a4096670ef04924e2d51e34d5ce00bb(ev, webContext); })}>
+      <button onclick={withClientData({}, (ev, actions) => { return window.sxl_user.fn0722c48dbc0caab0969e3b183c574489(ev, actions); })}>
         Click to greet user
       </button>
       <DeeplyNestedComponent2 />
@@ -27,7 +27,7 @@ export function NestedComponent() {
 }
 function LoopedComponent() {
     return (<>
-      {new Array(5).fill(true).map((_, index) => (<button onclick={withClientData({ index }, (ev, ctx) => { return window.sxl_user.fne2d1baf08cbabd3ac0dcb1567d9daca6(ev, ctx); })}>
+      {new Array(5).fill(true).map((_, index) => (<button onclick={withClientData({ index }, (ev, _, data) => { return window.sxl_user.fnbdf4b7850b98807cc4e6a97b676403dc(ev, _, data); })}>
           Click {index}
         </button>))}
     </>);
@@ -37,7 +37,7 @@ export function MyComponent() {
     return (<div>
       <NestedComponent />
       <LoopedComponent />
-      <button onclick={withClientData(user, (ev, webContext) => { return window.sxl_user.fn1df5886bdd2568fbcf9dd57a969949e8(ev, webContext); })}>
+      <button onclick={withClientData(user, (ev, actions, data) => { return window.sxl_user.fn6baf69addf06de37f253545936c58b1a(ev, actions, data); })}>
         Click to greet user
       </button>
     </div>);
@@ -50,16 +50,16 @@ exports[`extract-events.test ts event extractor - large file 2`] = `
 import { withClientData } from "lean-web-utils/server";
 type Arg = Parameters<typeof withClientData>[1]
 // file.tsx
-export const fnd081dcab1e53b3a4c4d0ea0bac08a145 = (ev, webContext) => {
-void webContext?.actions.refetchElement("my-element2", {});
+export const fn7377f93f0e35f7fe806e1e81120aeab5 = (ev, actions) => {
+void actions.refetchAPIC("my-element2", {});
 };
-export const fn7a4096670ef04924e2d51e34d5ce00bb = (ev, webContext) => {
-void webContext?.actions.refetchElement("my-element", {});
+export const fn0722c48dbc0caab0969e3b183c574489 = (ev, actions) => {
+void actions.refetchAPIC("my-element", {});
 };
-export const fne2d1baf08cbabd3ac0dcb1567d9daca6 = (ev, ctx) =>
-console.log(ctx?.data.index);
-export const fn1df5886bdd2568fbcf9dd57a969949e8 = (ev, webContext) => {
-alert(\`Hello \${webContext?.data.firstName}\`);
+export const fnbdf4b7850b98807cc4e6a97b676403dc = (ev, _, data) =>
+console.log(data.index);
+export const fn6baf69addf06de37f253545936c58b1a = (ev, actions, data) => {
+alert(\`Hello \${data.firstName}\`);
 };
 "
 `;

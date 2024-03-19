@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import type { SXLGlobalContext } from "lean-jsx-types/context";
-export { withClientData, withClientContext } from "lean-web-utils/server";
-export { APIComponent } from "./api-component";
+export { withClientData } from "lean-web-utils/server";
+export { APIC, APICBuilder } from "./api-component";
 export { Lazy } from "./lazy-component";
 export { Component } from "./class-component";
 export { type DynamicController } from "./dynamic-controller";

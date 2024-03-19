@@ -10,7 +10,7 @@ import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { APIComponent } from "@/components";
+import { APIC } from "@/components";
 import { ProductList } from "@tests/testdata/async-component";
 import type { Request } from "express";
 
@@ -127,7 +127,7 @@ describe("engine.test", () => {
 
     engine.renderComponent = jest.fn();
 
-    APIComponent(
+    APIC(
       { id: "product-list", requestHandler: (_req) => ({ start: 0 }) },
       ProductList,
     );

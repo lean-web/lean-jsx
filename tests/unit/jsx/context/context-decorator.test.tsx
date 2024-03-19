@@ -5,7 +5,7 @@ import { decorateContext } from "@/jsx/context/context-decorator";
 import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
-import type { WebContext } from "lean-jsx-types/global";
+import type { WebActions } from "lean-jsx-types/events";
 
 describe("context-decorator.test", () => {
   const { contextManager, renderToString } = setupTests();
@@ -68,13 +68,13 @@ describe("context-decorator.test", () => {
       return (
         <div>
           <button
-            onclick={withClientData({}, async (ev, ctx) => {
+            onclick={async (ev, actions) => {
               console.log("Delete1");
               await fetch(`/product/${this.id}`, {
                 method: "DELETE",
               });
-              void ctx?.actions.refetchElement("product-list", {});
-            })}
+              void actions.refetchAPIC("product-list", {});
+            }}
           >
             Delete
           </button>
@@ -117,10 +117,7 @@ describe("context-decorator.test", () => {
               "componentType": "string",
               "props": {
                 "dataset": {},
-                "onclick": {
-                  "data": {},
-                  "handler": [Function],
-                },
+                "onclick": [Function],
               },
               "type": "button",
             },
@@ -177,14 +174,11 @@ describe("context-decorator.test", () => {
     function MyList() {
       const evv = async (
         ev: UIEvent,
-        ctx:
-          | WebContext<{
-              id: number;
-            }>
-          | undefined,
+        actions: WebActions,
+        data: { id: number },
       ) => {
-        console.log(ev);
-        await ctx?.actions.refetchElement("some-el", {});
+        console.log(ev, data);
+        await actions.refetchAPIC("some-el", {});
       };
       return (
         <>
@@ -201,29 +195,29 @@ describe("context-decorator.test", () => {
 
     expect(result).toMatchInlineSnapshot(`
       "<button data-action="element-3">Click </button><script data-action-script="element-3">
-              sxl.addEventListener('[data-action="element-3"]', 'click',sxl.actionHandler(async (ev, ctx) => {
-                      console.log(ev);
-                      await ctx?.actions.refetchElement("some-el", {});
+              sxl.addEventListener('[data-action="element-3"]', 'click',sxl.actionHandler(async (ev, actions, data) => {
+                      console.log(ev, data);
+                      await actions.refetchAPIC("some-el", {});
                   }, {"id":0}));
           </script><button data-action="element-4">Click 1</button><script data-action-script="element-4">
-              sxl.addEventListener('[data-action="element-4"]', 'click',sxl.actionHandler(async (ev, ctx) => {
-                      console.log(ev);
-                      await ctx?.actions.refetchElement("some-el", {});
+              sxl.addEventListener('[data-action="element-4"]', 'click',sxl.actionHandler(async (ev, actions, data) => {
+                      console.log(ev, data);
+                      await actions.refetchAPIC("some-el", {});
                   }, {"id":1}));
           </script><button data-action="element-5">Click 2</button><script data-action-script="element-5">
-              sxl.addEventListener('[data-action="element-5"]', 'click',sxl.actionHandler(async (ev, ctx) => {
-                      console.log(ev);
-                      await ctx?.actions.refetchElement("some-el", {});
+              sxl.addEventListener('[data-action="element-5"]', 'click',sxl.actionHandler(async (ev, actions, data) => {
+                      console.log(ev, data);
+                      await actions.refetchAPIC("some-el", {});
                   }, {"id":2}));
           </script><button data-action="element-6">Click 3</button><script data-action-script="element-6">
-              sxl.addEventListener('[data-action="element-6"]', 'click',sxl.actionHandler(async (ev, ctx) => {
-                      console.log(ev);
-                      await ctx?.actions.refetchElement("some-el", {});
+              sxl.addEventListener('[data-action="element-6"]', 'click',sxl.actionHandler(async (ev, actions, data) => {
+                      console.log(ev, data);
+                      await actions.refetchAPIC("some-el", {});
                   }, {"id":3}));
           </script><button data-action="element-7">Click 4</button><script data-action-script="element-7">
-              sxl.addEventListener('[data-action="element-7"]', 'click',sxl.actionHandler(async (ev, ctx) => {
-                      console.log(ev);
-                      await ctx?.actions.refetchElement("some-el", {});
+              sxl.addEventListener('[data-action="element-7"]', 'click',sxl.actionHandler(async (ev, actions, data) => {
+                      console.log(ev, data);
+                      await actions.refetchAPIC("some-el", {});
                   }, {"id":4}));
           </script>"
     `);

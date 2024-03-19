@@ -1,4 +1,4 @@
-import { APIComponent } from "@/components";
+import { APIC } from "@/components";
 import { getDynamicComponentRegistry } from "@/components/component-registry";
 import { readableToString } from "@/jsx/html/stream/stream-utils/readable-to-string";
 import { buildApp } from "@/server/express";
@@ -47,7 +47,7 @@ describe("render-component-test", () => {
       },
     });
 
-    APIComponent(
+    APIC(
       { id: "product-list", requestHandler: (_req) => ({ start: 0 }) },
       ProductList,
     );
