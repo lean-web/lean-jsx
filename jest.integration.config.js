@@ -1,7 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   displayName: "Core",
-  testEnvironment: "node",
+  preset: "ts-jest",
   moduleNameMapper: {
     "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@/(.*)$": "<rootDir>/src/$1",
@@ -18,4 +18,5 @@ module.exports = {
     "<rootDir>/tests/e2e/**/*.test.ts",
     "<rootDir>/tests/e2e/**/*.test.tsx",
   ],
+  prettierPath: require.resolve("prettier-2"),
 };

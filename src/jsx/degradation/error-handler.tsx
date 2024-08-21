@@ -41,6 +41,9 @@ export class ErrorHandler implements IErrorHandler {
   ): T {
     try {
       const newElement = handler();
+      if (!newElement) {
+        console.error("unreachable!");
+      }
       if (isPromise(newElement)) {
         return newElement.catch((err) => {
           this.reportError("AsyncComponent", err, extraInfo);

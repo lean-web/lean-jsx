@@ -1,6 +1,5 @@
 import { registerAPIComponent } from "./component-registry";
 import type { Request } from "express";
-export { withClientData } from "lean-web-utils/server";
 
 interface APIComponentConfig<Props extends Record<string, unknown>> {
   /**
@@ -29,20 +28,25 @@ export class APICBuilder<
   Props extends Record<string, unknown>,
   Component extends SXL.Element,
 > {
-  id: string;
-  requestHandler: (req: Request) => Props | Promise<Props>;
-  cache = "no-cache";
+  private id: string;
+  private requestHandler: (req: Request) => Props | Promise<Props>;
+  private cache = "no-cache";
 
-  constructor(id: string, handler: (req: Request) => Props | Promise<Props>) {
+  constructor(id: string, handler?: (req: Request) => Props | Promise<Props>) {
     this.id = id;
-    this.requestHandler = handler;
+    this.requestHandler =
+      handler ?? ((_req: Request) => this.getDefaultProps());
+  }
+
+  private getDefaultProps(): Props | Promise<Props> {
+    return {} as Props;
   }
 
   /**
    * Set cache configuration for requesting this API Component
    * @param cache A string value for the response header "cache". Defaults to "no-cache"
    */
-  withCache(cache: string) {
+  withCache(cache: string): APICBuilder<Props, Component> {
     this.cache = cache;
     return this;
   }
@@ -55,6 +59,9 @@ export class APICBuilder<
   render(
     component: (props: Props) => Component,
   ): (props: Props) => SXL.StaticElement {
+    // if (!this.requestHandler) {
+    //   this.requestHandler = (_req) => this.getDefaultProps();
+    // }
     registerAPIComponent<NonNullable<Props>>({
       Api: component,
       contentId: this.id,

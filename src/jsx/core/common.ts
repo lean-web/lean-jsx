@@ -1,33 +1,71 @@
+/* eslint-disable @typescript-eslint/ban-types */
+import type { FunctionChildrenProps, RawProps } from "@/jsx/core/jsx-runtime";
+
+function jsEscape(str) {
+  return String(str).replace(/[^\w. ]/gi, function (c) {
+    return "\\u" + ("0000" + c.charCodeAt(0).toString(16)).slice(-4);
+  });
+}
+
+function formatChild(el: Function | Date | SXL.Child) {
+  if (el instanceof Date) {
+    return el.toISOString();
+  }
+  if (typeof el === "function") {
+    return functionToString(el);
+  }
+  if (typeof el === "number") {
+    return `${el}`;
+  }
+  return el;
+}
+
 function formatChildren(children: SXL.Children) {
   if (!Array.isArray(children)) {
-    return [children];
+    return [formatChild(children)];
   }
 
   return children
-    .filter((el) => el)
-    .map((el) => {
-      if (el instanceof Date) {
-        return el.toISOString();
-      }
-      return el;
-    });
+    .filter((el) => el !== null && el !== undefined)
+    .map(formatChild);
+}
+
+function hasFunctionChildren(props: RawProps): props is FunctionChildrenProps {
+  return (
+    typeof props.children === "function" ||
+    (Array.isArray(props.children) &&
+      props.children.length > 0 &&
+      typeof props.children[0] === "function")
+  );
+}
+
+function functionToString(fn: Function | Function[]): string {
+  const entire = fn.toString();
+  return entire.slice(entire.indexOf("{") + 1, entire.lastIndexOf("}"));
 }
 
 export function jsxElement(
   type: string | SXL.NodeFactory<SXL.Props>,
   props: SXL.Props,
 ): SXL.StaticElement {
+  //   if (hasFunctionChildren(props)) {
+  //     const { children, ...restProps } = props;
+  //     return jsxElement(type, {
+  //       children: [functionToString(children)],
+  //       ...restProps,
+  //     });
+  //   }
+
   props.dataset = props.dataset ?? {};
 
   const { children, ...others } = { children: [], ...props };
 
-  const node = {
+  return {
     type,
     props: others,
     children: formatChildren(children),
     componentType: getComponentType(type),
   };
-  return node;
 }
 
 function getComponentType(

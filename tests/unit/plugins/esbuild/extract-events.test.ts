@@ -7,12 +7,14 @@ import fs from "fs";
 function validateHandlersExist(source: string, extractor: EventExtractor) {
   return (
     Array.from(extractor.existingHandlers.values()).filter((handler) =>
-      source.includes(handler)
+      source.includes(handler),
     ).length === extractor.existingHandlers.size
   );
 }
 
-const tsConfig = path.join(process.cwd(), "./packages/core/tsconfig.json");
+const tsConfig = path.resolve(
+  path.join(__dirname, "../../../../../../", "./packages/core/tsconfig.json"),
+);
 
 describe("extract-events.test", () => {
   let extractor: EventExtractor;
@@ -46,8 +48,8 @@ describe("extract-events.test", () => {
         `declare global {
           interface Window { sxl_user: any; }
       }\n${transformed}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
 
     expect(extractor.getActionsPerFile()).toMatchInlineSnapshot(`
@@ -103,8 +105,8 @@ describe("extract-events.test", () => {
         `declare global {
             interface Window { sxl_user: any; }
         }\n${transformed}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
 
     const actions = extractor
@@ -127,30 +129,24 @@ describe("extract-events.test", () => {
         `declare global {
         interface Window { sxl_user: any; }
     }\n${actions}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
   });
 
   test("ts event extractor - large file", () => {
     const source = fs.readFileSync(
-      path.resolve(
-        "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx"
-      ),
-      "utf8"
+      path.resolve(path.join(__dirname, "test-data/large-component.tsx")),
+      "utf8",
     );
 
     expect(
       validateTypeScriptCode(
         source,
         tsConfig,
-        "packages/core/tests/unit/plugins/esbuild/test-data/large-component.tsx",
-        [
-          path.resolve(
-            "packages/core/tests/unit/plugins/esbuild/test-data/extra-components.tsx"
-          ),
-        ]
-      )
+        path.join(__dirname, "test-data/large-component.tsx"),
+        [path.resolve(path.join(__dirname, "test-data/extra-components.tsx"))],
+      ),
     ).toBeFalsy();
     const transformed = extractor.fileTransformer(source);
 
@@ -163,8 +159,8 @@ describe("extract-events.test", () => {
         `declare global {
             interface Window { sxl_user: any; }
         }\n${transformed}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
 
     const actions = extractor
@@ -178,8 +174,8 @@ describe("extract-events.test", () => {
         `declare global {
         interface Window { sxl_user: any; }
     }\n${actions}`,
-        tsConfig
-      )
+        tsConfig,
+      ),
     ).toBeFalsy();
   });
 

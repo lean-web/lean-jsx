@@ -37,6 +37,13 @@ describe("function-component.test", () => {
     expect(canHandle).toBeFalsy();
   });
 
+  //   test("FnElementHandler cannot handle anonymous components", () => {
+  //     const canHandle = FnElementTest(() => (
+  //       <Lazy loading={<>Loading</>}>Hello</Lazy>
+  //     ));
+  //     expect(canHandle).toBeFalsy();
+  //   });
+
   test("FnElementHandler cannot handle async generator components", () => {
     async function* MyAsyncGen() {
       yield <></>;

@@ -2,9 +2,8 @@
 import { describe, expect, test, beforeAll, afterAll } from "@jest/globals";
 import puppeteer, { Browser, Page } from "puppeteer";
 import { startExpress, waitForAndAssertExists } from "./setup";
-import { App, DynamicComponentTId } from "./test-app";
-import { Server } from "net";
-import { findAPIComponentController } from "@/components/component-registry";
+import { App, wait } from "./test-app";
+import type { Server } from "net";
 
 describe("express.test", () => {
   let browser: Browser | undefined;
@@ -12,22 +11,19 @@ describe("express.test", () => {
   let expressApp: Server | undefined;
 
   async function setup() {
-    browser = await puppeteer.launch({ headless: "new" });
+    browser = await puppeteer.launch({
+      headless: false,
+      args: ["--auto-open-devtools-for-tabs"],
+    });
     page = await browser.newPage();
     return page;
   }
 
   beforeAll(async () => {
     expressApp = await startExpress((app, engine) => {
-      app.use(
-        engine.middleware({
-          components: [findAPIComponentController(DynamicComponentTId)],
-          globalContextParser: () => ({}),
-        }),
-      );
-
       app.get("/", async (req, res) => {
         await engine.renderWithTemplate(
+          req,
           res,
           <App loadtime={100} />,
           {},
@@ -35,7 +31,6 @@ describe("express.test", () => {
             templateName: "index",
           },
         );
-        // res.send("<p>Hello world</p>");
       });
     });
     await setup();
@@ -63,12 +58,27 @@ describe("express.test", () => {
     // wait for DOMContentLoaded
     await pageLoaded;
 
+    page
+      .on("console", (message) =>
+        console.log(
+          `${message.type().substr(0, 3).toUpperCase()} ${message.text()}`,
+        ),
+      )
+      .on("pageerror", ({ message, ...rest }) => console.log(message, rest))
+      .on("response", (response) =>
+        console.log(`${response.status()} ${response.url()}`),
+      )
+      .on("requestfailed", (request) =>
+        console.log(`${request?.failure()?.errorText} ${request.url()}`),
+      );
+
     // Evaluate static components:
     const title = await page.$("p");
     await expect(page.$("p")).resolves.toBeTruthy();
     await expect(title?.evaluate((el) => el.textContent)).resolves.toMatch(
       "Hello world",
     );
+
     // Evaluated loaded async component:
     await expect(page.$("#slow1")).resolves.toBeTruthy();
 
@@ -82,6 +92,37 @@ describe("express.test", () => {
     const wasCalled = await page.evaluate(
       () => window.sessionStorage.getItem("clicked") === "true",
     );
+
+    await page.click("#click2");
+    const wasCalledWithData = await page.evaluate(
+      () => window.sessionStorage.getItem("serverData") === "bar",
+    );
     expect(wasCalled).toBeTruthy();
-  });
+    expect(wasCalledWithData).toBeTruthy();
+
+    await waitForAndAssertExists(page, "#click3");
+
+    {
+      const n = await page.$("#click3");
+      if (!n) {
+        throw new Error("no click 3");
+      }
+      const t = await (await n.getProperty("textContent")).jsonValue();
+      console.log({ t });
+
+      expect(t).toContain("Reloads: 0");
+    }
+    await page.click("#click3");
+
+    {
+      const n = await page.$("#click3");
+      if (!n) {
+        throw new Error("no click 3");
+      }
+      const t = await (await n.getProperty("textContent")).jsonValue();
+      console.log({ t });
+
+      expect(t).toContain("Reloads: 1");
+    }
+  }, 120000);
 });

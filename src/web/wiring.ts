@@ -37,7 +37,6 @@ export function fillPlaceHolder(placeHolderId: string): void {
     container.parentElement.replaceChild(clone, container);
   } else {
     container.appendChild(clone);
-    console.log("Appended");
   }
   // clean-up the template
   template.remove();

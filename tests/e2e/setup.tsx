@@ -41,6 +41,19 @@ export async function startExpress(
 
   decorate(app, engine);
 
+  engine.middleware({
+    /**
+     * Set custom response attributes.
+     * @param resp - the server response, before streaming
+     *  the page content to the browser.
+     * @returns  - the configured response
+     */
+    configResponse: (resp) => resp,
+    globalContextParser: (req) => {
+      return {};
+    },
+  });
+
   return new Promise((resolve) => {
     const server = app.listen(3333, "localhost", () => {
       resolve(server);

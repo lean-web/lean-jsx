@@ -1,0 +1,21 @@
+
+
+> lean-jsx@0.0.21-alpha build
+> rm -rf ./lib && rollup -c
+
+[36m
+[1msrc/server/express.ts, src/components/index.tsx, ./src/plugins/vite.ts, ./src/plugins/esbuild.ts, ./src/jsx/core/jsx-dev-runtime.ts, ./src/jsx/core/jsx-runtime.ts[22m → [1mlib[22m...[39m
+[32mcreated [1mlib[22m in [1m4.5s[22m[39m
+[36m
+[1m./src/plugins/vite.ts, ./src/plugins/esbuild.ts, ./src/jsx/core/jsx-dev-runtime.ts, ./src/jsx/core/jsx-runtime.ts[22m → [1mlib[22m...[39m
+[32mcreated [1mlib[22m in [1m3.7s[22m[39m
+[36m
+[1msrc/server/express.ts, src/components/index.tsx, ./src/plugins/vite.ts, ./src/plugins/esbuild.ts, ./src/jsx/core/jsx-dev-runtime.ts, ./src/jsx/core/jsx-runtime.ts[22m → [1mlib[22m...[39m
+[32mcreated [1mlib[22m in [1m8s[22m[39m
+[36m
+[1m./src/web/index.ts[22m → [1mlib[22m...[39m
+[1m[33m(!) Missing global variable name[39m[22m
+[90mhttps://rollupjs.org/configuration-options/#output-globals[39m
+Use "output.globals" to specify browser global variable names corresponding to external modules:
+[1mlean-web-utils/server[22m (guessing "server")
+[32mcreated [1mlib[22m in [1m4.3s[22m[39m

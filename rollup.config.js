@@ -43,10 +43,7 @@ const iifeInput = {
   "web/sxl": "./src/web/index.ts",
 };
 
-/**
- * External dependencies:
- */
-const external = [
+const iifeExternal = [
   "lean-jsx/web/sxl.js",
   "body-parser",
   "pino",
@@ -59,8 +56,14 @@ const external = [
   "typescript",
   "fs",
   "crypto",
+  "lean-jsx-types/context",
   ...Object.keys(dependencies),
 ];
+
+/**
+ * External dependencies:
+ */
+const external = [...iifeExternal, "lean-web-utils/server"];
 
 /**
  * Alias (as configured in tsconfig.json)
@@ -166,6 +169,6 @@ module.exports = [
       compact,
     },
     plugins: buildPlugins("stats_iife.html", true),
-    external,
+    external: iifeExternal,
   },
 ];

@@ -13,7 +13,7 @@ describe("context-decorator.test", () => {
   test("decorateContext", () => {
     function MyComponent(
       this: { myOtherName: string },
-      { name }: { name: string },
+      { name }: { name: string }
     ) {
       function Hello({ arg2 }: { arg2: string }) {
         return (
@@ -38,7 +38,7 @@ describe("context-decorator.test", () => {
     const parsed = FnElementHandler(
       <MyComponent name="Pedro" />,
       contextManager({}),
-      { sync: false },
+      { sync: false }
     );
 
     expect(parsed).toBeTruthy();
@@ -62,7 +62,7 @@ describe("context-decorator.test", () => {
         globalContext,
       }: { product: { id: string; name: string; description: string } } & {
         globalContext?: SXLGlobalContext;
-      },
+      }
     ) {
       this.id = product.id;
       return (
@@ -98,7 +98,7 @@ describe("context-decorator.test", () => {
         }}
       />,
       contextManager({}),
-      { sync: false },
+      { sync: false }
     )!;
 
     expect(parsed).toBeTruthy();
@@ -175,7 +175,7 @@ describe("context-decorator.test", () => {
       const evv = async (
         ev: UIEvent,
         actions: WebActions,
-        data: { id: number },
+        data: { id: number }
       ) => {
         console.log(ev, data);
         await actions.refetchAPIC("some-el", {});
@@ -194,7 +194,7 @@ describe("context-decorator.test", () => {
     const result = await renderToString(<MyList />);
 
     expect(result).toMatchInlineSnapshot(`
-      "<button data-action="element-3">Click </button><script data-action-script="element-3">
+      "<button data-action="element-3">Click 0</button><script data-action-script="element-3">
               sxl.addEventListener('[data-action="element-3"]', 'click',sxl.actionHandler(async (ev, actions, data) => {
                       console.log(ev, data);
                       await actions.refetchAPIC("some-el", {});

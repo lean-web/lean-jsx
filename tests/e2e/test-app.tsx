@@ -1,6 +1,6 @@
-import { APIC, Lazy } from "@/components";
+import { APIC, APICBuilder, Lazy, withClientData } from "@/components";
 
-async function wait(time: number) {
+export async function wait(time: number) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
@@ -44,6 +44,20 @@ function WithHandlers() {
   );
 }
 
+function WithAPIClientData() {
+  return (
+    <button
+      type="button"
+      id="click2"
+      onclick={withClientData({ foo: "bar" }, (ev, actions, data) => {
+        window.sessionStorage.setItem("serverData", data.foo);
+      })}
+    >
+      Click me
+    </button>
+  );
+}
+
 export const DynamicComponentTId = "dynamic-slow";
 export const DynamicComponentT = APIC(
   {
@@ -53,10 +67,29 @@ export const DynamicComponentT = APIC(
       return { resource: "Slow resource" };
     },
   },
-  ({ resource }) => {
+  async function* ({ resource }) {
+    yield <p id="loading2">Loading</p>;
+    await wait(100);
     return <p id="loaded2">{resource}</p>;
   },
 );
+
+export const APICReloadTest = new APICBuilder("apic-reload", (req) => {
+  const reloads = parseInt(req.query["reloads"] as string, 10);
+  console.log({ reloads });
+  return { reloads };
+}).render(({ reloads }) => (
+  <button
+    type="button"
+    id="click3"
+    onclick={withClientData({ reloads }, (ev, actions, data) => {
+      debugger;
+      void actions.refetchAPIC("apic-reload", { reloads: data.reloads + 1 });
+    })}
+  >
+    Reloads: {reloads}
+  </button>
+));
 
 export function App({ loadtime }: { loadtime: number }) {
   return (
@@ -67,7 +100,9 @@ export function App({ loadtime }: { loadtime: number }) {
       </Lazy>
       <Slow />
       <DynamicComponentT resource={""} />
+      <WithAPIClientData />
       <WithHandlers />
+      <APICReloadTest reloads={0} />
       <NewComponent />
     </main>
   );

@@ -22,6 +22,7 @@ import type { ParsedComponent } from "@/jsx/component-handlers";
 import { TrackablePromise } from "./stream-utils/trackable-promise";
 import { LeanError, RenderError } from "@/jsx/degradation/errors";
 import type { Request } from "express";
+// import DOMPurify from "isomorphic-dompurify";
 
 /**
  * A utility stack used to pre-process elements outside of the main JSXStack.
@@ -395,6 +396,9 @@ export class JSXStack {
       this.fire("END");
       this.logger.debug("Finished processing all JSX elements in the stack");
     }
+    // if (last) {
+    //   console.log({ pure: DOMPurify.sanitize(last) });
+    // }
     return last;
   }
 }
