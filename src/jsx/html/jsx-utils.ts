@@ -40,6 +40,12 @@ export function isFunctionNode(
   return typeof jsx.type === "function" && !isClass(jsx.type);
 }
 
+export function isFragmentElement(
+  element: SXL.StaticElement | SXL.AsyncGenElement | SXL.ClassElement,
+): element is SXL.StaticElement & { type: "fragment" } {
+  return isStaticNode(element) && element.type === "fragment";
+}
+
 export function isAsyncGenNode(arg: SXL.Element | SXL.Children) {
   if (typeof arg === "string" || Array.isArray(arg)) {
     return false;

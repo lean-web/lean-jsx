@@ -5,10 +5,10 @@ import {
   isClassNode,
   isFunctionNode,
   isPromise,
-  isStaticNode,
   unwrapFragments,
   isAsyncGen,
   isAsyncGenNode,
+  isFragmentElement,
 } from "../jsx-utils";
 import { ContextManager } from "@/jsx/context/context-manager";
 import type { SXLGlobalContext } from "lean-jsx-types/context";
@@ -113,13 +113,8 @@ export class JSXStack {
   private async processElementInSubqueue(element: SXL.StaticElement) {
     const localStack = new SubStack();
     // TODO: Find a better place to clean fragments
-    if (isStaticNode(element) && element.type === "fragment") {
-      element.children
-        .flatMap((child) => (Array.isArray(child) ? child : [child]))
-        .reverse()
-        .forEach((child) => {
-          localStack.inProgressStack.push(child);
-        });
+    if (isFragmentElement(element)) {
+      this.enqueueChildren(element, localStack.inProgressStack);
       return;
     }
 
@@ -146,17 +141,21 @@ export class JSXStack {
     localStack.inProgressStack.push(MARKERS.ASYNC_END);
     localStack.inProgressStack.push(wirePlaceholder(element.props.id));
     localStack.inProgressStack.push(close);
-    element.children
-      .flatMap((child) => (Array.isArray(child) ? child : [child]))
-      .reverse()
-      .forEach((child) => {
-        localStack.inProgressStack.push(child);
-      });
-
+    this.enqueueChildren(element, localStack.inProgressStack);
     localStack.inProgressStack.push(open);
     localStack.inProgressStack.push(MARKERS.ASYNC_START);
 
     this.mergeSubstack(localStack);
+  }
+
+  private enqueueChildren(
+    element: SXL.StaticElement,
+    stack: (string | number | boolean | SXL.StaticElement)[],
+  ) {
+    element.children
+      .flatMap((child) => (Array.isArray(child) ? child : [child]))
+      .reverse()
+      .forEach((child) => stack.push(child));
   }
 
   private async processElement(
@@ -164,24 +163,28 @@ export class JSXStack {
     wrap: ParsedComponent,
   ) {
     // TODO: Find a better place to clean fragments
-    if (isStaticNode(element) && element.type === "fragment") {
-      element.children
-        .flatMap((child) => (Array.isArray(child) ? child : [child]))
-        .reverse()
-        .forEach((child) => this.inProgressStack.push(child));
+    if (isFragmentElement(element)) {
+      this.enqueueChildren(element, this.inProgressStack);
       return;
     }
 
     if (isFunctionNode(element) || isClassNode(element)) {
-      await this.push(element);
       // element to process is a constructor/function
       // we put it in the queue and return
+      await this.push(element);
       return;
     }
 
+    // From here on, elements should be regular HTML elements:
     const [open, close] = JSXToHTMLUtils.jsxNodeToHTMLTag(element);
     this.doneList.push(open);
-    const jsCode = decorateContext(wrap);
+    this.enqueueJSHandlers(wrap);
+    this.inProgressStack.push(close);
+    this.enqueueChildren(element, this.inProgressStack);
+  }
+
+  enqueueJSHandlers(parsedComponent: ParsedComponent) {
+    const jsCode = decorateContext(parsedComponent);
 
     if (jsCode.trim().length > 0) {
       if (this.options.sync) {
@@ -190,13 +193,6 @@ export class JSXStack {
         this.inProgressStack.push(jsCode);
       }
     }
-    this.inProgressStack.push(close);
-    element.children
-      .flatMap((child) => (Array.isArray(child) ? child : [child]))
-      .reverse()
-      .forEach((child) => {
-        this.inProgressStack.push(child);
-      });
   }
 
   /**
@@ -230,100 +226,107 @@ export class JSXStack {
     } else if (isTextNode(element)) {
       this.doneList.push(element);
     } else if (isPromise(element)) {
-      if (this.options.sync) {
-        await this.push(await element);
-        return;
-      }
-
-      const p = element.then((e) => {
-        queueMicrotask(() => {
-          const currentPromise = this.asyncInProgress.indexOf(p);
-          this.asyncInProgress.splice(currentPromise, 1);
-        });
-        return this.processElementInSubqueue(e);
-      });
-
-      this.asyncInProgress.push(p);
-    } else if (isStaticNode(element) && element.type === "fragment") {
+      await this.pushPromiseElement(element);
+    } else if (isFragmentElement(element)) {
       const children = unwrapFragments(element);
       children.reverse().forEach((child) => this.inProgressStack.push(child));
     } else if (isAsyncGen(element)) {
       // the pushed element is the result of an AsyncGen function.
-
-      if (this.options.sync === true) {
-        // ignore the first yield (loading state).
-        await element.next();
-        const n = await element.next();
-        if (n.value) {
-          await this.push(n.value);
-        }
-        return;
-      }
-
-      const v = this.contextManager.decorateAsyncGenResult(
-        element.next().then((v) => v.value),
-        element.next().then((v) => v.value),
-      );
-      if (v.loading && !this.options.sync) {
-        await this.processElement(await v.loading, v);
-      }
-      if (v.element instanceof TrackablePromise) {
-        await this.push(v.element.promise);
-      } else {
-        await this.processElement(v.element, v);
-      }
-
-      //   const asyncGenValues = [element.next(), element.next()]
-      //     .map((el) =>
-      //       this.contextManager.decorateAsyncGenResult(el.then((v) => v.value)),
-      //     )
-      //     .reverse()
-      //     .map((v) => {
-      //       if (v.element instanceof TrackablePromise) {
-      //         return this.push(v.element.promise);
-      //       }
-      //       return this.processElement(v.element, v);
-      //     });
-
-      //   await Promise.all(asyncGenValues);
+      await this.pushAsyncGenElement(element);
     } else {
-      // find the correct handler for the given component type
-      // e.g. function component, class component, etc:
-      const wrapped = ComponentHandlerMap.map((handler) =>
-        handler(element, this.contextManager, {
-          sync: this.options.sync,
-        }),
-      ).find((el) => el);
+      await this.pushStaticOrClassElement(element);
+    }
+  }
 
-      if (!wrapped) {
-        if (isAsyncGen(element)) {
-          const error = new RenderError("Unexpected async gen");
+  private async pushStaticOrClassElement(
+    element: SXL.StaticElement | SXL.ClassElement,
+  ) {
+    // find the correct handler for the given component type
+    // e.g. function component, class component, etc:
+    const wrapped = ComponentHandlerMap.map((handler) =>
+      handler(element, this.contextManager, {
+        sync: this.options.sync,
+      }),
+    ).find((el) => el);
 
-          this.logger.error(error, "");
-          throw error;
-        }
+    if (!wrapped) {
+      // This throws an exception. Execution doesn't continue after this:
+      this.handleUnexpectedHandleError(element);
+    }
 
-        const componentDescription =
-          typeof element.type === "string"
-            ? element.type
-            : element.type?.name ?? JSON.stringify(element);
+    if (wrapped.loading && !this.options.sync) {
+      await this.processElement(await wrapped.loading, wrapped);
+    }
 
-        const error = new RenderError(
-          `Unexpected component type: ${componentDescription}`,
-        );
-        this.logger.error(error, "");
-        throw error;
+    if (wrapped.element instanceof TrackablePromise) {
+      await this.push(wrapped.element.promise);
+    } else {
+      await this.processElement(wrapped.element, wrapped);
+    }
+  }
+
+  private handleUnexpectedHandleError(
+    element: SXL.StaticElement | SXL.ClassElement,
+  ): never {
+    if (isAsyncGen(element)) {
+      const error = new RenderError("Unexpected async gen");
+
+      this.logger.error(error, "");
+      throw error;
+    }
+
+    const componentDescription =
+      typeof element.type === "string"
+        ? element.type
+        : element.type?.name ?? JSON.stringify(element);
+
+    const error = new RenderError(
+      `Unexpected component type: ${componentDescription}`,
+    );
+    this.logger.error(error, "");
+    throw error;
+  }
+
+  private async pushPromiseElement(element: SXL.AsyncElement) {
+    if (this.options.sync) {
+      await this.push(await element);
+      return;
+    }
+
+    const p = element.then((e) => {
+      queueMicrotask(() => {
+        const currentPromise = this.asyncInProgress.indexOf(p);
+        this.asyncInProgress.splice(currentPromise, 1);
+      });
+      return this.processElementInSubqueue(e);
+    });
+
+    this.asyncInProgress.push(p);
+  }
+
+  private async pushAsyncGenElement(element: SXL.AsyncGenElement) {
+    if (this.options.sync === true) {
+      // ignore the first yield (loading state).
+      // TODO: This assumption may not be correct.
+      await element.next();
+      const n = await element.next();
+      if (n.value) {
+        await this.push(n.value);
       }
+      return;
+    }
 
-      if (wrapped.loading && !this.options.sync) {
-        await this.processElement(await wrapped.loading, wrapped);
-      }
-
-      if (wrapped.element instanceof TrackablePromise) {
-        await this.push(wrapped.element.promise);
-      } else {
-        await this.processElement(wrapped.element, wrapped);
-      }
+    const v = this.contextManager.decorateAsyncGenResult(
+      element.next().then((v) => v.value),
+      element.next().then((v) => v.value),
+    );
+    if (v.loading && !this.options.sync) {
+      await this.processElement(await v.loading, v);
+    }
+    if (v.element instanceof TrackablePromise) {
+      await this.push(v.element.promise);
+    } else {
+      await this.processElement(v.element, v);
     }
   }
 

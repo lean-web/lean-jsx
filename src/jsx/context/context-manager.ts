@@ -67,7 +67,17 @@ export interface ContextManagerOptions {
 }
 
 function buildWebContextString(data: Record<string, unknown>) {
-  return JSON.stringify(data);
+  try {
+    return JSON.stringify(data);
+  } catch (err) {
+    let errStr = "";
+    if (err instanceof Error) {
+      errStr = err.message;
+    }
+    throw new Error(
+      `Data passed to the client will be serialized to JSON. The current data is not serializable. \n ${errStr}`,
+    );
+  }
 }
 
 export class ContextManager {

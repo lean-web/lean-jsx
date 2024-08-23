@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom";
 import { JSXStack } from "@/jsx/html/stream/jsx-stack";
 import { setupTests } from "@tests/test-container";
 import fs from "fs";
+import assert from "node:assert/strict";
 
 const scriptContent = fs.readFileSync(
   require.resolve("lean-jsx/web/sxl.js"),
@@ -10,7 +11,7 @@ const scriptContent = fs.readFileSync(
 
 export function stringToDom(data: string): [JSDOM, string[]] {
   const domChanges: string[] = [];
-
+  assert.ok(scriptContent);
   const dom = new JSDOM(
     `<html>
     <script>${scriptContent}</script>

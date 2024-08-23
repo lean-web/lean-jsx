@@ -2,6 +2,8 @@ import fs from "node:fs";
 import type { Plugin } from "vite";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { transformWithEsbuild } from "vite";
+import { createHash } from "crypto";
 
 const require = createRequire(import.meta.url);
 
@@ -28,10 +30,9 @@ export default function injectScript(packageName: string): Plugin {
       transform(html, context) {
         if (context.bundle) {
           const injectedFileNames = Object.keys(context.bundle).filter((key) =>
-            /injected_/.test(key),
+            /(injected_|assets\/global)/.test(key),
           );
 
-          //   context.
           if (injectedFileNames.length > 0) {
             return {
               html,
@@ -46,7 +47,32 @@ export default function injectScript(packageName: string): Plugin {
         console.warn("No script to inject was found in the bundle");
       },
     },
-    generateBundle(options) {
+    async buildStart() {
+      // Inject a single entrypoint for globally-scoped variables declarations.
+      const globalFilePath = "src/web/global.ts";
+      if (fs.existsSync(globalFilePath)) {
+        this.addWatchFile(globalFilePath);
+        console.log("Global exists!");
+        const code = await transformWithEsbuild(
+          fs.readFileSync(globalFilePath, "utf-8"),
+          "assets/global.js",
+          { loader: "ts" },
+        );
+        console.log({ code });
+        const hash = createHash("sha256")
+          .update(code.code)
+          .digest("hex")
+          .slice(0, 8);
+        const hashedFileName = `assets/global.${hash}.js`;
+
+        this.emitFile({
+          type: "asset",
+          fileName: hashedFileName,
+          source: code.code,
+        });
+      }
+    },
+    generateBundle(options, bundle) {
       // Read the script content from the package
       const scriptContent = fs.readFileSync(
         require.resolve("lean-jsx/web/sxl.js"),
