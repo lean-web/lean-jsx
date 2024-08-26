@@ -16,12 +16,6 @@
       "import": "./lib/server/*.js",
       "require": "./lib/server/*.cjs"
     },
-    "./jsx/*": {
-      "node": "./lib/jsx/*.cjs",
-      "types": "./lib/jsx/*.d.ts",
-      "import": "./lib/jsx/*.js",
-      "require": "./lib/jsx/*.cjs"
-    },
     "./plugins/*": {
       "node": "./lib/plugins/*.cjs",
       "types": "./lib/plugins/*.d.ts",
