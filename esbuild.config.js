@@ -194,7 +194,7 @@ async function buildTypes() {
         //   output: filePath.replaceAll("src/lib", outdir).replaceAll(".ts", ".d.ts"),
       })),
       {
-        followSymlinks: false,
+        followSymlinks: true,
         preferredConfigPath: "./tsconfig.json",
       },
     );
