@@ -112,40 +112,7 @@ async function main() {
 
 main();
 
-//   const dtsconfig = [
-//     {
-//       filePath: "src/lib/web.ts",
-//       output: "lib/web.d.ts",
-//       allowedTypesLibraries: [
-//         "node",
-//         "jest",
-//         "express",
-//         "lean-jsx-types/global",
-//       ],
-//     },
-//     {
-//       filePath: "src/lib/server.ts",
-//       output: "lib/server.d.ts",
-//       allowedTypesLibraries: [
-//         "node",
-//         "jest",
-//         "express",
-//         "lean-jsx-types/global",
-//       ],
-//     },
-//   ];
-//   const bundle = dtsBundler.generateDtsBundle(dtsconfig, {
-//     preferredConfigPath: "./tsconfig.json",
-//   });
-
-//   bundle.forEach((code, ind) => {
-//     console.log(`Saving ${dtsconfig[ind].output}...`);
-//     fs.writeFile(dtsconfig[ind].output, code, (err) =>
-//       err ? console.error(err) : "",
-//     );
-//   });
-
-async function buildTypes() {
+async function checkSumValidation() {
   mkdirSync(".tmp/", { recursive: true });
   const checksumPath = ".tmp/build_sums.json";
 
@@ -164,8 +131,11 @@ async function buildTypes() {
     return;
   }
 
+  // writeFileSync(checksumPath, currentSums);
+}
+
+async function buildTypes() {
   return new Promise((resolve) => {
-    writeFileSync(checksumPath, currentSums);
     console.log("Generating types...");
     const bundle = generateDtsBundle(
       tsInput.map((filePath) => ({
