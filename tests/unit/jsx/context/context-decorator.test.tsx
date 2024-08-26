@@ -5,7 +5,7 @@ import { decorateContext } from "@/jsx/context/context-decorator";
 import type { SXLGlobalContext } from "lean-jsx-types/context";
 import { describe, expect, test } from "@jest/globals";
 import { setupTests } from "@tests/test-container";
-import type { WebActions } from "lean-jsx-types/events";
+import type { IWebActions } from "lean-jsx-types/events";
 
 describe("context-decorator.test", () => {
   const { contextManager, renderToString } = setupTests();
@@ -13,7 +13,7 @@ describe("context-decorator.test", () => {
   test("decorateContext", () => {
     function MyComponent(
       this: { myOtherName: string },
-      { name }: { name: string }
+      { name }: { name: string },
     ) {
       function Hello({ arg2 }: { arg2: string }) {
         return (
@@ -38,7 +38,7 @@ describe("context-decorator.test", () => {
     const parsed = FnElementHandler(
       <MyComponent name="Pedro" />,
       contextManager({}),
-      { sync: false }
+      { sync: false },
     );
 
     expect(parsed).toBeTruthy();
@@ -62,7 +62,7 @@ describe("context-decorator.test", () => {
         globalContext,
       }: { product: { id: string; name: string; description: string } } & {
         globalContext?: SXLGlobalContext;
-      }
+      },
     ) {
       this.id = product.id;
       return (
@@ -98,7 +98,7 @@ describe("context-decorator.test", () => {
         }}
       />,
       contextManager({}),
-      { sync: false }
+      { sync: false },
     )!;
 
     expect(parsed).toBeTruthy();
@@ -174,8 +174,8 @@ describe("context-decorator.test", () => {
     function MyList() {
       const evv = async (
         ev: UIEvent,
-        actions: WebActions,
-        data: { id: number }
+        actions: IWebActions,
+        data: { id: number },
       ) => {
         console.log(ev, data);
         await actions.refetchAPIC("some-el", {});

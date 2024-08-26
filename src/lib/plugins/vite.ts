@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import type { Plugin } from "vite";
-import { createRequire } from "node:module";
+import getScriptContent from "./getScriptContent";
 import path from "node:path";
 import { transformWithEsbuild } from "vite";
 import { createHash } from "crypto";
 
-const require = createRequire(import.meta.url);
+// const require = createRequire(import.meta.url);
 
 /**
  * A Vite plugin to inject lean-jsx/web/sxl.js into the
@@ -21,7 +21,7 @@ const require = createRequire(import.meta.url);
  * @param packageName - the name to use for the injected module.
  * @returns a Vite plugin
  */
-export default function injectScript(packageName: string): Plugin {
+export function injectScript(packageName: string): Plugin {
   return {
     name: "vite-plugin-inject-script",
     apply: "build",
@@ -74,10 +74,7 @@ export default function injectScript(packageName: string): Plugin {
     },
     generateBundle(options, bundle) {
       // Read the script content from the package
-      const scriptContent = fs.readFileSync(
-        require.resolve("lean-jsx/web/sxl.js"),
-        "utf-8",
-      );
+      const scriptContent = getScriptContent();
 
       if (fs.existsSync(".lean")) {
         const cachePath = path.join(process.cwd(), ".lean");

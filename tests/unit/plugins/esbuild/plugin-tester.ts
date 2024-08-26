@@ -123,6 +123,7 @@ export class HandlersPluginTester {
               namespace: "",
               suffix: "",
               pluginData: undefined,
+              with: {},
             }),
           ),
         );

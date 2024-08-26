@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import type { FunctionChildrenProps, RawProps } from "@/jsx/core/jsx-runtime";
+import type { RawProps, FunctionChildrenProps } from "./jsx-runtime";
 
 function jsEscape(str) {
   return String(str).replace(/[^\w. ]/gi, function (c) {

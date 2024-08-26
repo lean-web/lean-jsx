@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2021",
     "useDefineForClassFields": true,
     "module": "esnext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "skipLibCheck": false,
     "verbatimModuleSyntax": true,
 
@@ -13,8 +13,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    // "noEmit": true,
-
+    // "declaration": true,
+    "moduleSuffixes": [".cjs", ".esm", ""],
     /* Linting */
     "strict": true,
     "noUnusedLocals": false,
@@ -23,7 +23,7 @@
     "noImplicitAny": false,
 
     "jsx": "react-jsx", // support JSX
-    "jsxImportSource": "@/jsx/core",
+    "jsxImportSource": "lean-jsx-runtime",
     "paths": {
       "@tests/": ["./tests/"],
       "@tests/*": ["./tests/*"],
@@ -32,5 +32,8 @@
     },
     "types": ["node", "jest", "express", "lean-jsx-types/global"]
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "tsup.config.ts"],
+  "exclude": [
+        "node_modules", "lib"
+    ]
 }

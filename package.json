@@ -5,35 +5,33 @@
   "license": "MPL-2.0",
   "description": "LeanJSX is a server-driven library that allows you to build HTML components using JSX-like syntax, but without relying on hefty client-side JavaScript libraries or frameworks.",
   "main": "index.js",
+  "type": "module",
   "types": "./lib/types/global.d.ts",
-  "files": [
-    "lib"
-  ],
+  "files": ["lib"],
   "exports": {
-    "./server": "./lib/server.js",
+    "./server": "./lib/server.cjs",
     "./server/*": {
-      "import": "./lib/server/*.mjs",
-      "require": "./lib/server/*.js",
-      "node": "./lib/server/*.js",
-      "types": "./lib/server/*.d.ts"
+      "node": "./lib/server/*.cjs",
+      "types": "./lib/server/*.d.ts",
+      "import": "./lib/server/*.js",
+      "require": "./lib/server/*.cjs"
     },
     "./jsx/*": {
-      "import": "./lib/jsx/*.mjs",
-      "require": "./lib/jsx/*.js",
-      "node": "./lib/jsx/*.js",
-      "types": "./lib/jsx/*.d.ts"
+      "node": "./lib/jsx/*.cjs",
+      "types": "./lib/jsx/*.d.ts",
+      "import": "./lib/jsx/*.js",
+      "require": "./lib/jsx/*.cjs"
     },
     "./plugins/*": {
-      "import": "./lib/plugins/*.mjs",
-      "require": "./lib/plugins/*.js",
-      "node": "./lib/plugins/*.js",
-      "types": "./lib/plugins/*.d.ts"
+      "node": "./lib/plugins/*.cjs",
+      "types": "./lib/plugins/*.d.ts",
+      "import": "./lib/plugins/*.js",
+      "require": "./lib/plugins/*.cjs"
     },
     "./web/sxl.js": "./lib/web/sxl.js"
   },
   "scripts": {
-    "build": "rm -rf ./lib && rollup -c",
-    "watch": "rollup -c --watch",
+    "build": "node esbuild.config.js",
     "test": "jest",
     "test:e2e": "jest -c ./jest.integration.config.js",
     "docs": "npx typedoc --out docs",
@@ -44,11 +42,7 @@
   "devDependencies": {
     "@jest-mock/express": "^2.0.2",
     "@jest/globals": "^29.7.0",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-json": "^6.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.5",
+    "@semantic-release/exec": "^6.0.3",
     "@types/compression": "^1.7.4",
     "@types/eslint": "^8.44.6",
     "@types/express": "^4.17.21",
@@ -58,20 +52,16 @@
     "@types/pretty": "^2.0.1",
     "@types/sinon": "^10.0.19",
     "@types/uuid": "^9.0.5",
+    "dts-bundle-generator": "^9.5.1",
+    "esbuild": "^0.23.1",
     "eslint": "^8.53.0",
     "fast-glob": "^3.3.2",
     "husky": "^8.0.3",
     "jest-puppeteer": "^9.0.1",
     "jsdom": "^22.1.0",
-    "lean-jsx-types": "*",
+    "lean-jsx-types": "^1.0.0",
     "prettier-2": "npm:prettier@^2",
     "pretty": "^2.0.0",
-    "rollup": "^4.3.0",
-    "rollup-plugin-alias": "^2.2.0",
-    "rollup-plugin-analyzer": "^4.0.0",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "rollup-plugin-visualizer": "^5.9.3",
     "semantic-release": "^23.0.5",
     "ts-jest": "^29.1.1",
     "turbo": "^1.12.5",
@@ -88,6 +78,7 @@
     "isomorphic-dompurify": "^2.12.0",
     "jest": "^29.7.0",
     "lean-web-utils": "*",
+    "lean-jsx-runtime": "*",
     "pino": "^8.16.0",
     "pino-http": "^8.5.0",
     "pino-pretty": "^10.2.3",
@@ -105,6 +96,14 @@
         "channel": "alpha",
         "prerelease": true
       }
+    ],
+    "plugins": [
+      [
+        "@semantic-release/exec",
+        {
+          "verifyReleaseCmd": "echo ${nextRelease.version} > .VERSION"
+        }
+      ]
     ]
   }
 }

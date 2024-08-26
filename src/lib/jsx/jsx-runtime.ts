@@ -3,6 +3,9 @@ import { jsxElement, jsxFragment } from "./common";
 export type FunctionChildrenProps = { children: Function | Function[] };
 export type RawProps = SXL.Props | FunctionChildrenProps;
 
+/// <reference types="lean-jsx-types/global" />
+/// <reference lib="dom" />
+
 /**
  * Process JSX elements
  * @param type

@@ -15,7 +15,7 @@ import { HANDLERS_NAMESPACE } from "./constants";
  * This pre-processing help us create a script with a single instance of each event handler,
  * and the script injected by element in a loop would just reference the event handler definition.
  */
-const extractEventHandlersPlugin: Plugin = {
+export const esbuildPlugin: Plugin = {
   name: "extract-event-handlers",
   setup(build) {
     const extractor = new EventExtractor();
@@ -89,5 +89,3 @@ const extractEventHandlersPlugin: Plugin = {
     });
   },
 };
-
-export default extractEventHandlersPlugin;
