@@ -7,9 +7,7 @@
   "main": "index.js",
   "type": "module",
   "types": "./lib/types/global.d.ts",
-  "files": [
-    "lib"
-  ],
+  "files": ["lib"],
   "exports": {
     "./server": "./lib/server.cjs",
     "./server/*": {
@@ -105,7 +103,8 @@
         {
           "verifyReleaseCmd": "echo ${nextRelease.version} > .VERSION"
         }
-      ]
+      ],
+      "@semantic-release/npm"
     ]
   }
 }
