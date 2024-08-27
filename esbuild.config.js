@@ -143,6 +143,7 @@ async function buildTypes() {
         noCheck: true,
         output: {
           inlineDeclareGlobals: false,
+          exportReferencedTypes: true,
         },
         minify: false,
         libraries: {
@@ -160,6 +161,7 @@ async function buildTypes() {
             "vite",
             "lean-jsx-types/global",
           ],
+          //   inlinedLibraries: ["lean-web-utils/server"],
         },
         //   output: filePath.replaceAll("src/lib", outdir).replaceAll(".ts", ".d.ts"),
       })),
